@@ -12,9 +12,6 @@ CREATE TABLE IF NOT EXISTS `guild_house_spawns` (
   UNIQUE KEY `entry` (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- !!! NOTE: set these before running the queries in order to avoid conflicts !!!
-SET @GO_TEMPLATE = 500000;
-
 REPLACE INTO `guild_house_spawns` (`id`, `entry`, `posX`, `posY`, `posZ`, `orientation`, `itemType`, `additionalItems`, `comment`) VALUES
   (1, 26327, 16216.5, 16279.4, 20.9306, 0.552869, 0, '', 'Paladin Trainer'),
   (2, 26324, 16221.3, 16275.7, 20.9285, 1.37363, 0, '', 'Druid Trainer'),
