@@ -4,17 +4,20 @@
 #include <string>
 
 // Offsets from creatures_objects.sql
-constexpr uint32 GetCreatureEntry(uint32 offset)
+constexpr uint32 GetEntryNumber(uint32 offset)
 {
     return 500030 + offset;
 }
 
-constexpr uint32 GetGameObjectEntry(uint32 offset)
+enum GuildHouseType
 {
-    return 500000 + offset;
+    GUILDHOUSE_TYPE_HORDE                        = 1 << 0,
+    GUILDHOUSE_TYPE_ALLIANCE                     = 1 << 1,
+    GUILDHOUSE_TYPE_OBJECT                       = 1 << 2,
+    GUILDHOUSE_TYPE_NPC                          = 1 << 3
 }
 
-enum GuildHouseLocaleString : uint32
+enum GuildHouseLocaleString
 {
     GUILDHOUSE_TEXT_YOU_NOW_OWN_A_GUILD          = 1,
     GUILDHOUSE_TEXT_NOT_IN_GUILD                 = 2,
