@@ -11,10 +11,11 @@ constexpr uint32 GetEntryNumber(uint32 offset)
 
 enum GuildHouseType
 {
-    GUILDHOUSE_TYPE_HORDE                        = 1 << 0,
-    GUILDHOUSE_TYPE_ALLIANCE                     = 1 << 1,
-    GUILDHOUSE_TYPE_OBJECT                       = 1 << 2,
-    GUILDHOUSE_TYPE_NPC                          = 1 << 3
+    GUILDHOUSE_TYPE_EITHER                       = 1 << 0,
+    GUILDHOUSE_TYPE_HORDE                        = 1 << 1,
+    GUILDHOUSE_TYPE_ALLIANCE                     = 1 << 2,
+    GUILDHOUSE_TYPE_OBJECT                       = 1 << 3,
+    GUILDHOUSE_TYPE_NPC                          = 1 << 4
 }
 
 enum GuildHouseLocaleString
