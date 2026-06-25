@@ -1,1 +1,64 @@
+#
+# Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+#
+
+[worldserver]
+
+########################################
+# Guild house config
+########################################
+
+#    GuildHouse.Enable
+#        Description: Enable the Guild House module.
+#            If set to 0, access will be disabled.
+#
+#        Default:    0 - Disabled (Mod will not work)
+#                    1 - Enabled (Full access to mod)
+#
+
+GuildHouse.Enable = 0
+
+#    GuildHouse.Free
+#        Description: Allow the purchase of individually selected items to have no cost.
+#            If set to 0, all items will have a cost.
+#
+#        Default:    0 - Disabled (All items have a cost)
+#                    1 - Enabled (All items will be free)
+#
+
+GuildHouse.Free = 0
+
+#    GuildHouse.LoadAll
+#        Description: This will load every option when a Guild House is purchased.
+#            If set to 0, access will be disabled.
+#
+#        Default:    0 - Disabled
+#                    1 - Enabled
+#
+
+GuildHouse.LoadAll = 0
+
+#    GuildHouse.NPCCost
+#        Description: The cost of any NPC hired in copper.
+#
+#        Default:    1000000 - 100 Gold
+#
+
+GuildHouse.NPCCost = 1000000
+
+#    GuildHouse.PortalCost
+#        Description: The cost of any Portal in copper.
+#
+#        Default:    10000000 - 1000 Gold
+#
+
+GuildHouse.PortalCost = 10000000
+
+#    GuildHouse.ObjectCost
+#        Description: The cost of any Object in copper.
+#
+#        Default:    500000 - 50 Gold
+#
+
+GuildHouse.ObjectCost = 500000
 
