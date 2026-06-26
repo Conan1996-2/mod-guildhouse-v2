@@ -38,6 +38,14 @@ GuildHouse.Free = 0
 
 GuildHouse.LoadAll = 0
 
+#    GuildHouse.Cost
+#        Description: The cost of any NPC hired in copper.
+#
+#        Default:    1000000 - 100 Gold
+#
+
+GuildHouse.Cost = 1000000
+
 #    GuildHouse.NPCCost
 #        Description: The cost of any NPC hired in copper.
 #
