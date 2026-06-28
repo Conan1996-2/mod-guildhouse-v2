@@ -1,6 +1,5 @@
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseModule.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseMgr.cpp")
-AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseCommand.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseNpc.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseConfig.cpp")
 
