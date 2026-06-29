@@ -6,26 +6,32 @@
 class GuildHouseConfig
 {
 public:
-    static void Load();
+    static GuildHouseConfig& Instance();
 
-    static bool Enabled();
-    static bool Free();
-    static bool LoadAll();
+    void Load();
 
-    static uint64_t HouseCost();
-    static uint64_t NpcCost();
-    static uint64_t PortalCost();
-    static uint64_t ObjectCost();
+    bool Enabled() const;
+    bool Free() const;
+    bool LoadAll() const;
+
+    uint64_t HouseCost() const;
+    uint64_t NpcCost() const;
+    uint64_t PortalCost() const;
+    uint64_t ObjectCost() const;
 
 private:
-    static bool _enabled;
-    static bool _free;
-    static bool _loadAll;
+    GuildHouseConfig() = default;
 
-    static uint64_t _houseCost;
-    static uint64_t _npcCost;
-    static uint64_t _portalCost;
-    static uint64_t _objectCost;
+    bool _enabled = false;
+    bool _free = false;
+    bool _loadAll = false;
+
+    uint64_t _houseCost = 1000000ULL;
+    uint64_t _npcCost = 1000000ULL;
+    uint64_t _portalCost = 10000000ULL;
+    uint64_t _objectCost = 500000ULL;
 };
+
+#define sGuildHouseConfig GuildHouseConfig::Instance()
 
 #endif
