@@ -1,5 +1,3 @@
-#include <cstdint>
-
 #include "GuildHouseConfig.h"
 
 #include "Config.h"
@@ -21,13 +19,13 @@ void GuildHouseConfig::Load()
 
     _loadAll = sConfigMgr->GetOption<bool>("GuildHouse.LoadAll", false);
 
-    _houseCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.House", 1000000);
+    _houseCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.House", 1000000);
 
-    _npcCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.NPC", 1000000);
+    _npcCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.NPC", 1000000);
 
-    _portalCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.Portal", 10000000);
+    _portalCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Portal", 10000000);
 
-    _objectCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.Object", 500000);
+    _objectCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Object", 500000);
 }
 
 bool GuildHouseConfig::Enabled()
