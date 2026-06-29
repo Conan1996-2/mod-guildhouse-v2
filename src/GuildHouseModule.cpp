@@ -1,21 +1,21 @@
-#include "GuildHouseConfig.h"
-#include "GuildHouseMgr.h"
-#include "GuildHouseNpc.h"
+#include "ScriptMgr.h"
 
-class GuildHouseWorld : public WorldScript
+#include "GuildHouseConfig.h"
+
+class GuildHouseWorldScript : public WorldScript
 {
 public:
-    GuildHouseWorld() : WorldScript("GuildHouseWorld") {}
+    GuildHouseWorldScript() : WorldScript("GuildHouseWorldScript")
+    {
+    }
 
     void OnStartup() override
     {
-        sGuildHouseConfig.Load();
-        sGuildHouseMgr->Load();
+        GuildHouseConfig::Load();
     }
 };
 
 void Addmod_guildhouseScripts()
 {
-    new GuildHouseWorld();
-    new npc_guildhouse();
+    new GuildHouseWorldScript();
 }
