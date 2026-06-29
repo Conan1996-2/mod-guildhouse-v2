@@ -9,7 +9,7 @@ public:
     {
     }
 
-    void OnStartup() override
+    void OnBeforeConfigLoad(bool /*reload*/) override
     {
         sGuildHouseConfig.Load();
     }
