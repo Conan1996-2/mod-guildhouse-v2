@@ -1,19 +1,64 @@
 #include "GuildHouseConfig.h"
 
-static bool enabled;
-static uint64 cost;
-static uint32 phaseOffset;
-static uint32 npcEntry;
+#include "Config.h"
+
+bool GuildHouseConfig::_enabled = false;
+bool GuildHouseConfig::_free = false;
+bool GuildHouseConfig::_loadAll = false;
+
+uint64_t GuildHouseConfig::_houseCost = 1000000;
+uint64_t GuildHouseConfig::_npcCost = 1000000;
+uint64_t GuildHouseConfig::_portalCost = 10000000;
+uint64_t GuildHouseConfig::_objectCost = 500000;
 
 void GuildHouseConfig::Load()
 {
-    enabled = sConfigMgr->GetOption<bool>("GuildHouse.Enable", true);
-    cost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost", 50000000);
-    phaseOffset = sConfigMgr->GetOption<uint32>("GuildHouse.PhaseOffset", 10000);
-    npcEntry = sConfigMgr->GetOption<uint32>("GuildHouse.NpcEntry", 900000);
+    _enabled = sConfigMgr->GetOption<bool>("GuildHouse.Enable", false);
+
+    _free = sConfigMgr->GetOption<bool>("GuildHouse.Free", false);
+
+    _loadAll = sConfigMgr->GetOption<bool>("GuildHouse.LoadAll", false);
+
+    _houseCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.House", 1000000);
+
+    _npcCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.NPC", 1000000);
+
+    _portalCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.Portal", 10000000);
+
+    _objectCost = sConfigMgr->GetOption<uint64>("GuildHouse.Cost.Object", 500000);
 }
 
-bool GuildHouseConfig::IsEnabled() { return enabled; }
-uint64 GuildHouseConfig::GetCost() { return cost; }
-uint32 GuildHouseConfig::GetPhaseOffset() { return phaseOffset; }
-uint32 GuildHouseConfig::GetNpcEntry() { return npcEntry; }
+bool GuildHouseConfig::Enabled()
+{
+    return _enabled;
+}
+
+bool GuildHouseConfig::Free()
+{
+    return _free;
+}
+
+bool GuildHouseConfig::LoadAll()
+{
+    return _loadAll;
+}
+
+uint64_t GuildHouseConfig::HouseCost()
+{
+    return _houseCost;
+}
+
+uint64_t GuildHouseConfig::NpcCost()
+{
+    return _npcCost;
+}
+
+uint64_t GuildHouseConfig::PortalCost()
+{
+    return _portalCost;
+}
+
+uint64_t GuildHouseConfig::ObjectCost()
+{
+    return _objectCost;
+}
