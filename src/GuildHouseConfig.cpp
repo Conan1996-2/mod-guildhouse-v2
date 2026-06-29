@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "GuildHouseConfig.h"
 
 #include "Config.h"
