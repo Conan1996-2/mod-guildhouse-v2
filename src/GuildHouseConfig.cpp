@@ -1,6 +1,7 @@
 #include "GuildHouseConfig.h"
 
 #include "Config.h"
+#include "Log.h"
 
 GuildHouseConfig& GuildHouseConfig::Instance()
 {
