@@ -11,7 +11,7 @@ public:
 
     void OnStartup() override
     {
-        GuildHouseConfig::Load();
+        sGuildHouseConfig.Load();
     }
 };
 
