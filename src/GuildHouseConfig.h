@@ -1,19 +1,31 @@
 #ifndef MOD_GUILDHOUSE_CONFIG_H
 #define MOD_GUILDHOUSE_CONFIG_H
 
-#include "Common.h"
+#include <cstdint>
 
 class GuildHouseConfig
 {
 public:
     static void Load();
 
-    static bool IsEnabled();
-    static uint64 GetCost();
-    static uint32 GetPhaseOffset();
-    static uint32 GetNpcEntry();
-};
+    static bool Enabled();
+    static bool Free();
+    static bool LoadAll();
 
-#define sGuildHouseConfig GuildHouseConfig
+    static uint64_t HouseCost();
+    static uint64_t NpcCost();
+    static uint64_t PortalCost();
+    static uint64_t ObjectCost();
+
+private:
+    static bool _enabled;
+    static bool _free;
+    static bool _loadAll;
+
+    static uint64_t _houseCost;
+    static uint64_t _npcCost;
+    static uint64_t _portalCost;
+    static uint64_t _objectCost;
+};
 
 #endif
