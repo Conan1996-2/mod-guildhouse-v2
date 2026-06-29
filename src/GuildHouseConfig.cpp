@@ -2,63 +2,74 @@
 
 #include "Config.h"
 
-bool GuildHouseConfig::_enabled = false;
-bool GuildHouseConfig::_free = false;
-bool GuildHouseConfig::_loadAll = false;
-
-uint64_t GuildHouseConfig::_houseCost = 1000000;
-uint64_t GuildHouseConfig::_npcCost = 1000000;
-uint64_t GuildHouseConfig::_portalCost = 10000000;
-uint64_t GuildHouseConfig::_objectCost = 500000;
+GuildHouseConfig& GuildHouseConfig::Instance()
+{
+    static GuildHouseConfig instance;
+    return instance;
+}
 
 void GuildHouseConfig::Load()
 {
-    _enabled = sConfigMgr->GetOption<bool>("GuildHouse.Enable", false);
+    _enabled = sConfigMgr->GetOption<bool>(
+        "GuildHouse.Enable",
+        false);
 
-    _free = sConfigMgr->GetOption<bool>("GuildHouse.Free", false);
+    _free = sConfigMgr->GetOption<bool>(
+        "GuildHouse.Free",
+        false);
 
-    _loadAll = sConfigMgr->GetOption<bool>("GuildHouse.LoadAll", false);
+    _loadAll = sConfigMgr->GetOption<bool>(
+        "GuildHouse.LoadAll",
+        false);
 
-    _houseCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.House", 1000000);
+    _houseCost = sConfigMgr->GetOption<uint64_t>(
+        "GuildHouse.Cost.House",
+        1000000ULL);
 
-    _npcCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.NPC", 1000000);
+    _npcCost = sConfigMgr->GetOption<uint64_t>(
+        "GuildHouse.Cost.NPC",
+        1000000ULL);
 
-    _portalCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Portal", 10000000);
+    _portalCost = sConfigMgr->GetOption<uint64_t>(
+        "GuildHouse.Cost.Portal",
+        10000000ULL);
 
-    _objectCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Object", 500000);
+    _objectCost = sConfigMgr->GetOption<uint64_t>(
+        "GuildHouse.Cost.Object",
+        500000ULL);
 }
 
-bool GuildHouseConfig::Enabled()
+bool GuildHouseConfig::Enabled() const
 {
     return _enabled;
 }
 
-bool GuildHouseConfig::Free()
+bool GuildHouseConfig::Free() const
 {
     return _free;
 }
 
-bool GuildHouseConfig::LoadAll()
+bool GuildHouseConfig::LoadAll() const
 {
     return _loadAll;
 }
 
-uint64_t GuildHouseConfig::HouseCost()
+uint64_t GuildHouseConfig::HouseCost() const
 {
     return _houseCost;
 }
 
-uint64_t GuildHouseConfig::NpcCost()
+uint64_t GuildHouseConfig::NpcCost() const
 {
     return _npcCost;
 }
 
-uint64_t GuildHouseConfig::PortalCost()
+uint64_t GuildHouseConfig::PortalCost() const
 {
     return _portalCost;
 }
 
-uint64_t GuildHouseConfig::ObjectCost()
+uint64_t GuildHouseConfig::ObjectCost() const
 {
     return _objectCost;
 }
