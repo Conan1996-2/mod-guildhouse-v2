@@ -15,7 +15,7 @@ public:
     }
 };
 
-void Addmod_guildhouseScripts()
+void Addmod_guildhouse_v2Scripts()
 {
     new GuildHouseWorldScript();
 }
