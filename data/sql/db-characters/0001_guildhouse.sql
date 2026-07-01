@@ -44,3 +44,38 @@ CREATE TABLE `guildhouse_asset`
     KEY `idx_catalog` (`catalogId`),
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `guildhouse_instance`;
+
+CREATE TABLE `guildhouse_instance`
+(
+    `instanceId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    -- The placed package this instance belongs to
+    `assetId` INT UNSIGNED NOT NULL,
+
+    -- The blueprint component that created this instance
+    `componentId` INT UNSIGNED NOT NULL,
+
+    -- Creature, GameObject, Portal, etc.
+    `spawnFlags` INT UNSIGNED NOT NULL,
+
+    -- Spawned GUID in the world
+    `guid` INT UNSIGNED NOT NULL,
+
+    -- Guild phase this instance belongs to
+    `phase` INT UNSIGNED NOT NULL,
+
+    -- Spawn location
+    `positionX` FLOAT NOT NULL,
+    `positionY` FLOAT NOT NULL,
+    `positionZ` FLOAT NOT NULL,
+    `orientation` FLOAT NOT NULL,
+
+    PRIMARY KEY (`instanceId`),
+
+    KEY `idx_asset` (`assetId`),
+    KEY `idx_component` (`componentId`),
+    KEY `idx_guid` (`guid`),
+    KEY `idx_phase` (`phase`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
