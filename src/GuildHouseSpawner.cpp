@@ -72,7 +72,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // CREATURE SPAWN
             // =====================================================
-            if (HasFlag(comp.SpawnFlags, GHSpawnFlags::Creature))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Creature))
             {
                 if (Creature* creature = map->SummonCreature(
                         comp.Entry,
@@ -88,7 +88,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // GAMEOBJECT SPAWN
             // =====================================================
-            if (HasFlag(comp.SpawnFlags, GHSpawnFlags::GameObject))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::GameObject))
             {
                 if (GameObject* go = map->SummonGameObject(
                         comp.Entry,
@@ -105,7 +105,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // PORTAL / SPECIAL LOGIC
             // =====================================================
-            if (HasFlag(comp.SpawnFlags, GHSpawnFlags::Portal))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Portal))
             {
                 LOG_INFO("module",
                     "GuildHouse: Portal component {} ready (teleport logic next step)",
