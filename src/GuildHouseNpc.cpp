@@ -98,7 +98,7 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*
 
             player->ModifyMoney(-int32(cost));
 
-            sGuildHouseMgr.CreateGuildHouse(guildId);
+            sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter());
 
             sGuildHouseSpawner.SpawnGuild(guildId);
 
