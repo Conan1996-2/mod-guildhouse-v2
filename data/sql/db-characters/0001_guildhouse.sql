@@ -47,35 +47,20 @@ CREATE TABLE `guildhouse_asset`
 
 DROP TABLE IF EXISTS `guildhouse_instance`;
 
-CREATE TABLE `guildhouse_instance`
-(
-    `instanceId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS guildhouse_instance (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    guildId INT UNSIGNED NOT NULL,
+    assetId INT UNSIGNED NOT NULL,
+    catalogId INT UNSIGNED NOT NULL,
 
-    -- The placed package this instance belongs to
-    `assetId` INT UNSIGNED NOT NULL,
+    guid INT UNSIGNED NOT NULL,
+    type TINYINT UNSIGNED NOT NULL, -- 0 creature, 1 gameobject
 
-    -- The blueprint component that created this instance
-    `componentId` INT UNSIGNED NOT NULL,
+    mapId INT UNSIGNED NOT NULL,
+    phase INT UNSIGNED NOT NULL,
 
-    -- Creature, GameObject, Portal, etc.
-    `spawnFlags` INT UNSIGNED NOT NULL,
-
-    -- Spawned GUID in the world
-    `guid` INT UNSIGNED NOT NULL,
-
-    -- Guild phase this instance belongs to
-    `phase` INT UNSIGNED NOT NULL,
-
-    -- Spawn location
-    `positionX` FLOAT NOT NULL,
-    `positionY` FLOAT NOT NULL,
-    `positionZ` FLOAT NOT NULL,
-    `orientation` FLOAT NOT NULL,
-
-    PRIMARY KEY (`instanceId`),
-
-    KEY `idx_asset` (`assetId`),
-    KEY `idx_component` (`componentId`),
-    KEY `idx_guid` (`guid`),
-    KEY `idx_phase` (`phase`)
+    x FLOAT NOT NULL,
+    y FLOAT NOT NULL,
+    z FLOAT NOT NULL,
+    o FLOAT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
