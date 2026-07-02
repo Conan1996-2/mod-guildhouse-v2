@@ -97,6 +97,12 @@ namespace GuildHouseUtil
         return (static_cast<uint32_t>(value) &
                 static_cast<uint32_t>(flag)) != 0;
     }
+
+    constexpr uint32 GH_PHASE_OFFSET = 100000;
+    inline uint32 GetGuildHousePhase(uint32 guildId)
+    {
+        return guildId + GH_PHASE_OFFSET;
+    }
 }
 
 #endif
