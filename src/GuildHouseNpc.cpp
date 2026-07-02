@@ -6,6 +6,11 @@
 #include "GuildHouseMgr.h"
 #include "GuildHouseSpawner.h"
 
+#include "ScriptMgr.h"
+#include "Player.h"
+#include "Creature.h"
+#include "ScriptPCH.h"
+
 bool GuildHouseNpc::OnGossipHello(Player* player, Creature* creature)
 {
     player->PlayerTalkClass->ClearMenus();
