@@ -103,7 +103,10 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
                 pos.Relocate(x, y, z, o);
                 
                 QuaternionData rot;
-                rot.Initialize(0.0f, 0.0f, 0.0f, 0.0f);
+                rot.x = 0.0f;
+                rot.y = 0.0f;
+                rot.z = 0.0f;
+                rot.w = 1.0f;
                 
                 if (GameObject* go = map->SummonGameObject(
                         comp.Entry,
