@@ -1,129 +1,134 @@
 #include "GuildHouseNpc.h"
 
-#include "Guild.h"
-#include "GuildMgr.h"
-#include "GuildHouseConfig.h"
 #include "GuildHouseMgr.h"
 #include "GuildHouseSpawner.h"
+#include "GuildHouseConfig.h"
+#include "GuildHouseUtil.h"
 
-#include "ScriptMgr.h"
-#include "Player.h"
-#include "Creature.h"
-#include "ScriptedGossip.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "GossipDef.h"
+
+namespace
+{
+    enum GuildHouseActions
+    {
+        ACTION_NONE      = 0,
+        ACTION_BUY       = 1,
+        ACTION_TELEPORT  = 2
+    };
+}
 
 bool GuildHouseNpc::OnGossipHello(Player* player, Creature* creature)
 {
-    player->PlayerTalkClass->ClearMenus();
+    ClearGossipMenuFor(player);
 
     Guild* guild = player->GetGuild();
 
     if (!guild)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You are not in a guild.", GOSSIP_SENDER_MAIN, 0);
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            "You must be in a guild.",
+            GOSSIP_SENDER_MAIN,
+            ACTION_NONE);
+
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
     uint32 guildId = guild->GetId();
 
     if (!sGuildHouseMgr.HasGuildHouse(guildId))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Buy Guild House", GOSSIP_SENDER_MAIN, 1);
-    else
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Guild House", GOSSIP_SENDER_MAIN, 2);
-
-    player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-    return true;
-}
-
-void GuildHouseNpc::SendMainMenu(Player* player, Creature* creature)
-{
-    player->PlayerTalkClass->ClearMenus();
-
-    Guild* guild = player->GetGuild();
-
-    if (!guild)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You are not in a guild.", GOSSIP_SENDER_MAIN, 0);
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        return;
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            "Purchase Guild House",
+            GOSSIP_SENDER_MAIN,
+            ACTION_BUY);
+    }
+    else
+    {
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            "Teleport to Guild House",
+            GOSSIP_SENDER_MAIN,
+            ACTION_TELEPORT);
     }
 
-    uint32 guildId = guild->GetId();
-
-    if (!sGuildHouseMgr.HasGuildHouse(guildId))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Buy Guild House", GOSSIP_SENDER_MAIN, 1);
-    else
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Guild House", GOSSIP_SENDER_MAIN, 2);
-
-    player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+    SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+    return true;
 }
 
 bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
 {
-    player->PlayerTalkClass->ClearMenus();
+    ClearGossipMenuFor(player);
 
     Guild* guild = player->GetGuild();
+
     if (!guild)
+    {
+        CloseGossipMenuFor(player);
         return true;
+    }
 
     uint32 guildId = guild->GetId();
 
     switch (action)
     {
-        // -----------------------------------------
-        // BUY GUILD HOUSE
-        // -----------------------------------------
-        case 1:
+        case ACTION_BUY:
         {
+            if (sGuildHouseMgr.HasGuildHouse(guildId))
+            {
+                player->SendBroadcastMessage("Your guild already owns a Guild House.");
+                break;
+            }
+
             uint32 cost = sGuildHouseConfig.GetHouseCost();
 
-            if (player->GetMoney() < cost)
+            if (!player->HasEnoughMoney(cost))
             {
-                player->SendBroadcastMessage("Not enough gold.");
-                return true;
+                player->SendBroadcastMessage("You do not have enough gold.");
+                break;
             }
 
             player->ModifyMoney(-int32(cost));
 
-            if (!sGuildHouseMgr.HasGuildHouse(guildId))
-            {
-                sGuildHouseMgr.CreateGuildHouse(guildId);
-                sGuildHouseSpawner.SpawnGuild(guildId);
+            sGuildHouseMgr.CreateGuildHouse(guildId);
 
-                player->SendBroadcastMessage("Guild House purchased!");
-            }
+            sGuildHouseSpawner.SpawnGuild(guildId);
+
+            player->SendBroadcastMessage("Your Guild House has been purchased!");
 
             break;
         }
 
-        // -----------------------------------------
-        // TELEPORT
-        // -----------------------------------------
-        case 2:
+        case ACTION_TELEPORT:
         {
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
-                return true;
+                break;
 
-            uint32 phase = GuildHouseUtil::GetGuildHousePhase(guildId);
+            player->SetPhaseMask(
+                GuildHouseUtil::GetGuildHousePhase(guildId),
+                true);
 
-            player->SetPhaseMask(phase, true);
-
-            player->TeleportTo(1, GH_X, GH_Y, GH_Z, GH_O);
+            player->TeleportTo(
+                GH_MAP,
+                GH_X,
+                GH_Y,
+                GH_Z,
+                GH_O);
 
             break;
         }
+
+        default:
+            break;
     }
 
+    CloseGossipMenuFor(player);
     return true;
 }
-
-class GuildHouseNpcLoader
-{
-public:
-    GuildHouseNpcLoader()
-    {
-        new GuildHouseNpc();
-    }
-};
-
-static GuildHouseNpcLoader loader;
