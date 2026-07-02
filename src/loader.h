@@ -1,6 +1,6 @@
 #ifndef MOD_GUILDHOUSE_LOADER_H
 #define MOD_GUILDHOUSE_LOADER_H
 
-void Addmod_guildhouse_v2Scripts();
+void AddGuildHouseScripts();
 
 #endif
