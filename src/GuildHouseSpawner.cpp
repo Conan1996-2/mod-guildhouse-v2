@@ -6,6 +6,7 @@
 #include "GuildHouseDefines.h"
 
 #include "Map.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Log.h"
 
