@@ -8,6 +8,7 @@
 #include "GuildMgr.h"
 #include "GossipDef.h"
 #include "ScriptedGossip.h"
+#include "Chat.h"
 
 namespace
 {
