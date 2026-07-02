@@ -3,14 +3,17 @@
 
 #include <cstdint>
 
-// ===============================
-// Phase system
-// ===============================
-constexpr uint32_t GH_PHASE_OFFSET = 10000;
+// =====================================================
+// Guild House Constants
+// =====================================================
 
-// ===============================
-// Spawn flags (what to spawn)
-// ===============================
+constexpr uint32_t GH_PHASE_OFFSET = 12;
+
+// =====================================================
+// Spawn Flags
+// Determines WHAT the component spawns.
+// =====================================================
+
 enum class GHSpawnFlags : uint32_t
 {
     None        = 0,
@@ -21,58 +24,99 @@ enum class GHSpawnFlags : uint32_t
     Trigger     = 1 << 3
 };
 
-// ===============================
-// Behavior flags (rules & filters)
-// ===============================
+// =====================================================
+// Behavior Flags
+// Determines HOW the component behaves.
+// =====================================================
+
 enum class GHBehaviorFlags : uint32_t
 {
     None            = 0,
 
+    // Faction
     Alliance        = 1 << 0,
     Horde           = 1 << 1,
     Neutral         = 1 << 2,
 
+    // NPC Roles
     Vendor          = 1 << 3,
     Repair          = 1 << 4,
     Banker          = 1 << 5,
     Auctioneer      = 1 << 6,
+    Innkeeper       = 1 << 7,
+    FlightMaster    = 1 << 8,
+    StableMaster    = 1 << 9,
+    Trainer         = 1 << 10,
 
-    Mailbox         = 1 << 7,
-    Forge           = 1 << 8,
-    Anvil           = 1 << 9,
+    // Objects
+    Mailbox         = 1 << 11,
+    Forge           = 1 << 12,
+    Anvil           = 1 << 13,
 
-    Innkeeper       = 1 << 10,
-    FlightMaster    = 1 << 11,
-
-    StableMaster    = 1 << 12,
-    Trainer         = 1 << 13,
-
+    // Rules
     Unique          = 1 << 14,
     Starter         = 1 << 15
 };
 
-// ===============================
-// Instance state (runtime tracking)
-// ===============================
-enum class GHInstanceState : uint8_t
+// =====================================================
+// Asset Status
+// =====================================================
+
+enum class GHAssetStatus : uint8_t
 {
-    Active      = 0,
-    Hidden      = 1,
-    Disabled    = 2,
-    Pending     = 3
+    Purchased = 0,
+    Placed    = 1,
+    Stored    = 2,
+    Disabled  = 3
 };
 
-// ===============================
-// Script types for components
-// ===============================
+// =====================================================
+// Script Types
+// =====================================================
+
 enum class GHScriptType : uint8_t
 {
-    None        = 0,
-    Portal      = 1,
-    Buff        = 2,
-    Music       = 3,
-    Trigger     = 4,
-    Custom      = 5
+    None = 0,
+
+    Portal,
+    Buff,
+    Trigger,
+    Music,
+    Custom
 };
+
+// =====================================================
+// Bitmask Operators
+// =====================================================
+
+template<typename Enum>
+constexpr Enum operator|(Enum lhs, Enum rhs)
+{
+    return static_cast<Enum>(
+        static_cast<uint32_t>(lhs) |
+        static_cast<uint32_t>(rhs));
+}
+
+template<typename Enum>
+constexpr Enum operator&(Enum lhs, Enum rhs)
+{
+    return static_cast<Enum>(
+        static_cast<uint32_t>(lhs) &
+        static_cast<uint32_t>(rhs));
+}
+
+template<typename Enum>
+constexpr Enum& operator|=(Enum& lhs, Enum rhs)
+{
+    lhs = lhs | rhs;
+    return lhs;
+}
+
+template<typename Enum>
+constexpr bool HasFlag(Enum value, Enum flag)
+{
+    return (static_cast<uint32_t>(value) &
+            static_cast<uint32_t>(flag)) != 0;
+}
 
 #endif
