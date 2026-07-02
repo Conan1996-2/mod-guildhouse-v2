@@ -4,10 +4,10 @@
 #include <cstdint>
 
 // =====================================================
-// Guild House Constants
+// Guild House Constants 12
 // =====================================================
 
-constexpr uint32_t GH_PHASE_OFFSET = 12;
+constexpr uint32_t GH_PHASE_OFFSET = 100000;
 
 // =====================================================
 // Spawn Flags
@@ -98,7 +98,6 @@ namespace GuildHouseUtil
                 static_cast<uint32_t>(flag)) != 0;
     }
 
-    constexpr uint32 GH_PHASE_OFFSET = 100000;
     inline uint32 GetGuildHousePhase(uint32 guildId)
     {
         return guildId + GH_PHASE_OFFSET;
