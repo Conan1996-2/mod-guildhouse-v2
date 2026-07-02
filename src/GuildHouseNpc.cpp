@@ -35,7 +35,7 @@ void GuildHouseNpc::SendMainMenu(Player* player, Creature* creature)
     player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32, uint32 action)
+bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
 {
     player->PlayerTalkClass->ClearMenus();
 
@@ -45,40 +45,50 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32, u
 
     uint32 guildId = guild->GetId();
 
-    // -------------------------------------------------
-    // BUY HOUSE
-    // -------------------------------------------------
-    if (action == 1)
+    switch (action)
     {
-        uint32 cost = sGuildHouseConfig.GetHouseCost();
-
-        if (!player->HasEnoughMoney(cost))
+        // -----------------------------------------
+        // BUY GUILD HOUSE
+        // -----------------------------------------
+        case 1:
         {
-            player->SendBroadcastMessage("Not enough gold.");
-            return true;
+            uint32 cost = sGuildHouseConfig.GetHouseCost();
+
+            if (player->GetMoney() < cost)
+            {
+                player->SendBroadcastMessage("Not enough gold.");
+                return true;
+            }
+
+            player->ModifyMoney(-int32(cost));
+
+            if (!sGuildHouseMgr.HasGuildHouse(guildId))
+            {
+                sGuildHouseMgr.CreateGuildHouse(guildId);
+                sGuildHouseSpawner.SpawnGuild(guildId);
+
+                player->SendBroadcastMessage("Guild House purchased!");
+            }
+
+            break;
         }
 
-        player->ModifyMoney(-int32(cost));
+        // -----------------------------------------
+        // TELEPORT
+        // -----------------------------------------
+        case 2:
+        {
+            if (!sGuildHouseMgr.HasGuildHouse(guildId))
+                return true;
 
-        sGuildHouseMgr.CreateGuildHouse(guildId);
+            uint32 phase = GuildHouseUtil::GetGuildHousePhase(guildId);
 
-        sGuildHouseSpawner.SpawnGuild(guildId);
+            player->SetPhaseMask(phase, true);
 
-        player->SendBroadcastMessage("Guild House purchased!");
-    }
+            player->TeleportTo(1, GH_X, GH_Y, GH_Z, GH_O);
 
-    // -------------------------------------------------
-    // TELEPORT
-    // -------------------------------------------------
-    if (action == 2)
-    {
-        if (!sGuildHouseMgr.HasGuildHouse(guildId))
-            return true;
-
-        uint32 phase = GuildHouseUtil::GetGuildHousePhase(guildId);
-
-        player->SetPhaseMask(phase, true);
-        player->TeleportTo(1, GH_X, GH_Y, GH_Z, GH_O);
+            break;
+        }
     }
 
     return true;
