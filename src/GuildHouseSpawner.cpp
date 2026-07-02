@@ -26,7 +26,7 @@ void GuildHouseSpawner::SpawnGuild(uint32_t guildId)
     if (!house)
         return;
 
-    Map* map = sMapMgr->CreateBaseMap(1); // TEMP: GM island map (adjust if needed)
+    Map* map = MapManager::Instance()->CreateBaseMap(1); // TEMP: GM island map (adjust if needed)
     if (!map)
         return;
 
@@ -57,7 +57,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
         if (!catalog)
             return;
 
-        Map* map = sMapMgr->FindMap(1, 0); // GM island fallback
+        Map* map = MapManager::Instance()->FindMap(1, 0); // GM island fallback
         if (!map)
             return;
 
