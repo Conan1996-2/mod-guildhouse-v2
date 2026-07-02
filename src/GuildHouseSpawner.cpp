@@ -59,7 +59,7 @@ void GuildHouseSpawner::DespawnGuild(uint32_t guildId)
         // -------------------------------------------------
         if (inst.type == 0)
         {
-            if (Creature* creature = ObjectAccessor::GetCreature(*map, ObjectGuid(HighGuid::Unit, 0, inst.guid)))
+            if (Creature* creature = map->GetCreature(ObjectGuid(HighGuid::Unit, 0, inst.guid)))
             {
                 creature->DespawnOrUnsummon();
             }
@@ -70,7 +70,7 @@ void GuildHouseSpawner::DespawnGuild(uint32_t guildId)
         // -------------------------------------------------
         if (inst.type == 1)
         {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*map, ObjectGuid(HighGuid::GameObject, 0, inst.guid)))
+            if (GameObject* go = map->GetGameObject(ObjectGuid(HighGuid::GameObject, 0, inst.guid)))
             {
                 go->Delete();
             }
