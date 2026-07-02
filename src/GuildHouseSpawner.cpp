@@ -78,11 +78,11 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
                 
                 if (Creature* creature = map->SummonCreature(
                         comp.Entry,
+                        props,
                         x,
                         y,
                         z,
                         o,
-                        props,
                         0,
                         0))
                 {
