@@ -1,4 +1,5 @@
 #include "GuildHouseSpawner.h"
+#include "Position.h"
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
@@ -76,13 +77,13 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             {
                 const SummonPropertiesEntry* props = nullptr;
                 
+                Position pos;
+                pos.Relocate(x, y, z, o);
+                
                 if (Creature* creature = map->SummonCreature(
                         comp.Entry,
+                        pos,
                         props,
-                        x,
-                        y,
-                        z,
-                        o,
                         0,
                         0))
                 {
