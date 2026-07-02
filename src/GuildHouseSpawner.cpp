@@ -74,10 +74,13 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Creature))
             {
+                const SummonPropertiesEntry* props = nullptr;
+                
                 if (Creature* creature = map->SummonCreature(
                         comp.Entry,
                         x, y, z, o,
-                        TEMPSUMMON_MANUAL_DESPAWN))
+                        props,
+                        0))
                 {
                     LOG_INFO("module",
                         "GuildHouse: Spawned creature {} for guild {}",
