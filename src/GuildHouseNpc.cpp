@@ -83,7 +83,7 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*
         {
             if (sGuildHouseMgr.HasGuildHouse(guildId))
             {
-                player->GetSession().PSendSysMessage("Your guild already owns a Guild House.");
+                ChatHandler(player->GetSession()).PSendSysMessage("Your guild already owns a Guild House.");
                 break;
             }
 
@@ -91,7 +91,7 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*
 
             if (!player->HasEnoughMoney(cost))
             {
-                player->GetSession().PSendSysMessage("You do not have enough gold.");
+                ChatHandler(player->GetSession()).PSendSysMessage("You do not have enough gold.");
                 break;
             }
 
@@ -101,7 +101,7 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*
 
             sGuildHouseSpawner.SpawnGuild(guildId);
 
-            player->GetSession().PSendSysMessage("Your Guild House has been purchased!");
+            ChatHandler(player->GetSession()).PSendSysMessage("Your Guild House has been purchased!");
 
             break;
         }
