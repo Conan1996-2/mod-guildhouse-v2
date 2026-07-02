@@ -7,6 +7,7 @@
 #include "GuildHouseDefines.h"
 
 #include "GameObject.h"
+#include "ObjectAccessor.h"
 #include "Position.h"
 #include "Map.h"
 #include "MapMgr.h"
@@ -42,8 +43,48 @@ void GuildHouseSpawner::SpawnGuild(uint32_t guildId)
 
 void GuildHouseSpawner::DespawnGuild(uint32_t guildId)
 {
-    // TODO: implement tracking table (guildhouse_instance)
-    // We will add this AFTER we confirm spawn works
+    const auto& instances = sGuildHouseInstanceMgr.GetGuildInstances(guildId);
+
+    if (instances.empty())
+        return;
+
+    for (const auto& inst : instances)
+    {
+        Map* map = sMapMgr->FindMap(inst.mapId, inst.phase);
+        if (!map)
+            continue;
+
+        // -------------------------------------------------
+        // CREATURE DESPAWN
+        // -------------------------------------------------
+        if (inst.type == 0)
+        {
+            if (Creature* creature = ObjectAccessor::GetCreature(*map, ObjectGuid(HighGuid::Unit, 0, inst.guid)))
+            {
+                creature->DespawnOrUnsummon();
+            }
+        }
+
+        // -------------------------------------------------
+        // GAMEOBJECT DESPAWN
+        // -------------------------------------------------
+        if (inst.type == 1)
+        {
+            if (GameObject* go = ObjectAccessor::GetGameObject(*map, ObjectGuid(HighGuid::GameObject, 0, inst.guid)))
+            {
+                go->Delete();
+            }
+        }
+    }
+
+    // -------------------------------------------------
+    // CLEAN DB + MEMORY
+    // -------------------------------------------------
+    sGuildHouseInstanceMgr.RemoveGuild(guildId);
+
+    LOG_INFO("module",
+        "GuildHouse: Despawned all assets for guild {}",
+        guildId);
 }
 
 void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
