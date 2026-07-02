@@ -9,6 +9,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Creature.h"
+#include "ScriptedGossip.h"
 
 bool GuildHouseNpc::OnGossipHello(Player* player, Creature* creature)
 {
