@@ -8,6 +8,12 @@
 // =====================================================
 
 constexpr uint32_t GH_PHASE_OFFSET = 100000;
+constexpr uint32_t GH_MAP = 1;
+
+constexpr float GH_X = 16222.57f;
+constexpr float GH_Y = 16265.91f;
+constexpr float GH_Z = 13.21f;
+constexpr float GH_O = 0.0f;
 
 // =====================================================
 // Spawn Flags
