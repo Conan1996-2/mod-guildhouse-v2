@@ -8,7 +8,45 @@
 
 bool GuildHouseNpc::OnGossipHello(Player* player, Creature* creature)
 {
-    SendMainMenu(player, creature);
+    player->PlayerTalkClass->ClearMenus();
+
+    Guild* guild = player->GetGuild();
+
+    if (!guild)
+    {
+        player->PlayerTalkClass->GetGossipMenu().AddMenuItem(
+            GOSSIP_ICON_CHAT,
+            0,
+            "You are not in a guild.",
+            0,
+            0);
+
+        player->PlayerTalkClass->SendGossipMenu(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        return true;
+    }
+
+    uint32 guildId = guild->GetId();
+
+    if (!sGuildHouseMgr.HasGuildHouse(guildId))
+    {
+        player->PlayerTalkClass->GetGossipMenu().AddMenuItem(
+            GOSSIP_ICON_CHAT,
+            0,
+            "Buy Guild House",
+            GOSSIP_SENDER_MAIN,
+            1);
+    }
+    else
+    {
+        player->PlayerTalkClass->GetGossipMenu().AddMenuItem(
+            GOSSIP_ICON_CHAT,
+            0,
+            "Teleport to Guild House",
+            GOSSIP_SENDER_MAIN,
+            2);
+    }
+
+    player->PlayerTalkClass->SendGossipMenu(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
     return true;
 }
 
