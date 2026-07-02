@@ -2,5 +2,5 @@
 
 void Addmod_guildhouse_v2Scripts()
 {
-    // Scripts are auto-registered via constructors in your NPC scripts
+    // Scripts are self-registered via static constructors
 }
