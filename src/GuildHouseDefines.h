@@ -102,6 +102,17 @@ namespace GuildHouseUtil
     {
         return guildId + GH_PHASE_OFFSET;
     }
+
+    inline bool IsAlliance(GHSpawnFlags flags)
+    {
+        return HasFlag(flags, GHSpawnFlags::Alliance);
+    }
+    
+    inline bool IsHorde(GHSpawnFlags flags)
+    {
+        return HasFlag(flags, GHSpawnFlags::Horde);
+    }
+
 }
 
 #endif
