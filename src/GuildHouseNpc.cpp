@@ -3,7 +3,6 @@
 #include "GuildHouseMgr.h"
 #include "GuildHouseSpawner.h"
 #include "GuildHouseConfig.h"
-#include "GuildHouseUtil.h"
 
 #include "Guild.h"
 #include "GuildMgr.h"
