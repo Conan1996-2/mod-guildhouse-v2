@@ -7,7 +7,8 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GossipDef.h"
-#include "ScriptedGossip.h"
+
+
 namespace
 {
     enum GuildHouseActions
