@@ -1,11 +1,12 @@
 #include "GuildHouseSpawner.h"
-#include "Position.h"
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseTypes.h"
 #include "GuildHouseDefines.h"
 
+#include "GameObject.h"
+#include "Position.h"
 #include "Map.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
@@ -98,11 +99,18 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::GameObject))
             {
+                Position pos;
+                pos.Relocate(x, y, z, o);
+                
+                QuaternionData rot;
+                rot.Initialize(0.0f, 0.0f, 0.0f, 0.0f);
+                
                 if (GameObject* go = map->SummonGameObject(
                         comp.Entry,
-                        x, y, z, o,
-                        0, 0, 0, 0,
-                        0))
+                        pos,
+                        rot,
+                        0,
+                        GO_STATE_READY))
                 {
                     LOG_INFO("module",
                         "GuildHouse: Spawned GO {} for guild {}",
