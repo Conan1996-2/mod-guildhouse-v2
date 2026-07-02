@@ -128,7 +128,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
                     rec.guid      = go->GetGUID().GetCounter();
                     rec.type      = 1; // gameobject
                     rec.mapId     = map->GetId();
-                    rec.phase     = GetPhase(guildId);
+                    rec.phase     = GuildHouseUtil::GetGuildHousePhase(guildId);
                     rec.x = x; rec.y = y; rec.z = z; rec.o = o;
             
                     sGuildHouseInstanceMgr.AddInstance(rec);
