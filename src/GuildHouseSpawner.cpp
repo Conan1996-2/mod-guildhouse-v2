@@ -1,3 +1,4 @@
+#include "GuildHouseInstanceMgr.h"
 #include "GuildHouseSpawner.h"
 
 #include "GuildHouseMgr.h"
@@ -77,10 +78,10 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Creature))
             {
                 const SummonPropertiesEntry* props = nullptr;
-                
+            
                 Position pos;
                 pos.Relocate(x, y, z, o);
-                
+            
                 if (Creature* creature = map->SummonCreature(
                         comp.Entry,
                         pos,
@@ -88,9 +89,21 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
                         0,
                         0))
                 {
+                    GHInstanceRecord rec;
+                    rec.guildId   = guildId;
+                    rec.assetId   = asset.AssetId;
+                    rec.catalogId = asset.CatalogId;
+                    rec.guid      = creature->GetGUID().GetCounter();
+                    rec.type      = 0; // creature
+                    rec.mapId     = map->GetId();
+                    rec.phase     = GetPhase(guildId);
+                    rec.x = x; rec.y = y; rec.z = z; rec.o = o;
+            
+                    sGuildHouseInstanceMgr.AddInstance(rec);
+            
                     LOG_INFO("module",
-                        "GuildHouse: Spawned creature {} for guild {}",
-                        comp.Entry, guildId);
+                        "GH: Stored creature {} for guild {}",
+                        rec.guid, guildId);
                 }
             }
 
@@ -99,15 +112,30 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::GameObject))
             {
+                Position pos;
+                pos.Relocate(x, y, z, o);
+            
                 if (GameObject* go = map->SummonGameObject(
                         comp.Entry,
                         x, y, z, o,
                         0,
                         GO_STATE_READY))
                 {
+                    GHInstanceRecord rec;
+                    rec.guildId   = guildId;
+                    rec.assetId   = asset.AssetId;
+                    rec.catalogId = asset.CatalogId;
+                    rec.guid      = go->GetGUID().GetCounter();
+                    rec.type      = 1; // gameobject
+                    rec.mapId     = map->GetId();
+                    rec.phase     = GetPhase(guildId);
+                    rec.x = x; rec.y = y; rec.z = z; rec.o = o;
+            
+                    sGuildHouseInstanceMgr.AddInstance(rec);
+            
                     LOG_INFO("module",
-                        "GuildHouse: Spawned GO {} for guild {}",
-                        comp.Entry, guildId);
+                        "GH: Stored GO {} for guild {}",
+                        rec.guid, guildId);
                 }
             }
 
