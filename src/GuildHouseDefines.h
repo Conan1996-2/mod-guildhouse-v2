@@ -89,34 +89,14 @@ enum class GHScriptType : uint8_t
 // Bitmask Operators
 // =====================================================
 
-template<typename Enum>
-constexpr Enum operator|(Enum lhs, Enum rhs)
+namespace GuildHouseUtil
 {
-    return static_cast<Enum>(
-        static_cast<uint32_t>(lhs) |
-        static_cast<uint32_t>(rhs));
-}
-
-template<typename Enum>
-constexpr Enum operator&(Enum lhs, Enum rhs)
-{
-    return static_cast<Enum>(
-        static_cast<uint32_t>(lhs) &
-        static_cast<uint32_t>(rhs));
-}
-
-template<typename Enum>
-constexpr Enum& operator|=(Enum& lhs, Enum rhs)
-{
-    lhs = lhs | rhs;
-    return lhs;
-}
-
-template<typename Enum>
-constexpr bool HasFlag(Enum value, Enum flag)
-{
-    return (static_cast<uint32_t>(value) &
-            static_cast<uint32_t>(flag)) != 0;
+    template<typename T>
+    inline bool HasFlag(T value, T flag)
+    {
+        return (static_cast<uint32_t>(value) &
+                static_cast<uint32_t>(flag)) != 0;
+    }
 }
 
 #endif
