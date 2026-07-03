@@ -1,4 +1,4 @@
-#include "ScriptMgr.h"
+#include "GuildHouseNpc.h"
 
 void AddGuildHouseScripts()
 {
