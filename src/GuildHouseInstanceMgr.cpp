@@ -47,12 +47,23 @@ void GuildHouseInstanceMgr::Load()
 
 void GuildHouseInstanceMgr::Save(const GHInstanceRecord& r)
 {
-    CharacterDatabase.Execute(
-        "REPLACE INTO guildhouse_instance "
-        "(guildId, assetId, catalogId, guid, type, mapId, phase, x, y, z, o) "
-        "VALUES (%u,%u,%u,%u,%u,%u,%u,%f,%f,%f,%f)",
-        r.guildId, r.assetId, r.catalogId, r.guid, r.type,
-        r.mapId, r.phase, r.x, r.y, r.z, r.o);
+    std::ostringstream ss;
+    
+    ss << "REPLACE INTO guildhouse_instance "
+          "(guildId, assetId, catalogId, guid, type, mapId, phase, x, y, z, o) VALUES ("
+       << r.guildId << ", "
+       << r.assetId << ", "
+       << r.catalogId << ", "
+       << r.guid << ", "
+       << r.type << ", "
+       << r.mapId << ", "
+       << r.phase << ", "
+       << r.x << ", "
+       << r.y << ", "
+       << r.z << ", "
+       << r.o << ")";
+    
+    CharacterDatabase.Execute(ss.str());
 }
 
 void GuildHouseInstanceMgr::AddInstance(const GHInstanceRecord& record)
@@ -65,9 +76,12 @@ void GuildHouseInstanceMgr::RemoveGuild(uint32_t guildId)
 {
     _instances.erase(guildId);
 
-    CharacterDatabase.Execute(
-        "DELETE FROM guildhouse_instance WHERE guildId = %u",
-        guildId);
+    std::ostringstream ss;
+
+    ss << "DELETE FROM guildhouse_instance WHERE guildId = "
+       << guildId;
+
+    CharacterDatabase.Execute(ss.str());
 }
 
 const std::vector<GHInstanceRecord>&
