@@ -102,15 +102,19 @@ public:
     {
         Map* map = player->GetMap();
 
-        for (auto const& obj : map->GetObjectsStore())
+        MapStoredObjectTypesContainer& store = map->GetObjectsStore();
+        
+        for (auto itr = store.begin<Creature>(); itr != store.end<Creature>(); ++itr)
         {
-            if (Creature* creature = obj.second->ToCreature())
+            Creature* creature = *itr;
+        
+            if (!creature)
+                continue;
+        
+            if (creature->GetEntry() == entry &&
+                creature->IsWithinDist(player, range))
             {
-                if (creature->GetEntry() == entry &&
-                    creature->IsWithinDist(player, range))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 
