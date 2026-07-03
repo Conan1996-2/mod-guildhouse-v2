@@ -1,4 +1,3 @@
-#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "ChatCommand.h"
@@ -6,6 +5,8 @@
 #include "Creature.h"
 #include "ObjectMgr.h"
 #include "Map.h"
+#include "GuildHouseMgr.h"
+#include "DatabaseEnv.h"
 
 using namespace Acore::ChatCommands;
 
@@ -16,20 +17,15 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
-        static ChatCommandTable npcSubTable =
+        static ChatCommandTable npcTable =
         {
             { "broker",   HandleAddBroker,   SEC_GAMEMASTER, Console::No },
             { "salesman", HandleAddSalesman, SEC_GAMEMASTER, Console::No }
         };
 
-        static ChatCommandTable npcTable =
-        {
-            { "npc", npcSubTable }
-        };
-
         static ChatCommandTable addTable =
         {
-            { "add", npcTable }
+            { "npc", npcTable }
         };
 
         static ChatCommandTable root =
@@ -42,9 +38,8 @@ public:
     }
 
     // -------------------------------------------------------
-    // Helpers
+    // Spawn core (same pipeline as .npc add)
     // -------------------------------------------------------
-
     static bool SpawnPermanentCreature(Player* player, uint32 entry)
     {
         float x = player->GetPositionX();
@@ -58,7 +53,7 @@ public:
 
         CreatureData& data = sObjectMgr->NewOrExistCreatureData(spawnId);
         data.id = entry;
-        data.mapid = map->GetId();
+        data.mapid = map->GetId();   // IMPORTANT: mapid (your correction)
         data.phaseMask = player->GetPhaseMaskForSpawn();
         data.posX = x;
         data.posY = y;
@@ -87,6 +82,7 @@ public:
         delete creature;
 
         creature = new Creature();
+
         if (!creature->LoadCreatureFromDB(newSpawnId, map, true, true))
         {
             delete creature;
@@ -99,14 +95,8 @@ public:
         return true;
     }
 
-    static bool ExistsNearPlayer(Player* /*player*/, uint32 /*entry*/, float /*range*/ = 5.0f)
-    {
-        // Not supported reliably in this core branch
-        return false;
-    }
-
     // -------------------------------------------------------
-    // Broker (GM only)
+    // BROKER (GM only, global world NPC)
     // -------------------------------------------------------
     static bool HandleAddBroker(ChatHandler* handler)
     {
@@ -116,17 +106,10 @@ public:
             ? 900000
             : 900001;
 
-        if (ExistsNearPlayer(player, entry))
-        {
-            ChatHandler(player->GetSession()).PSendSysMessage(
-                "Broker already exists nearby.");
-            return true;
-        }
-
         if (!SpawnPermanentCreature(player, entry))
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn broker.");
+                "Failed to spawn Guild House Broker.");
             return false;
         }
 
@@ -137,7 +120,7 @@ public:
     }
 
     // -------------------------------------------------------
-    // Salesman (GM or Guild Master later expanded)
+    // SALESMAN (GM or Guild Master, guild + phase bound)
     // -------------------------------------------------------
     static bool HandleAddSalesman(ChatHandler* handler)
     {
@@ -151,23 +134,61 @@ public:
             return true;
         }
 
+        uint32 guildId = guild->GetId();
+        uint32 phase   = GuildHouseMgr::Instance().GetPhase(guildId);
+
         uint32 entry = (player->GetTeam() == ALLIANCE)
             ? 900002
             : 900003;
 
-        if (ExistsNearPlayer(player, entry))
+        // ---------------------------------------------------
+        // DB CHECK (NO WORLD SCANNING)
+        // ---------------------------------------------------
+        std::ostringstream ss;
+        ss << "SELECT guid FROM guildhouse_instance "
+              "WHERE guildId = " << guildId
+           << " AND phase = " << phase
+           << " AND type = 1 LIMIT 1"; // 1 = salesman
+
+        QueryResult result = CharacterDatabase.Query(ss.str());
+
+        if (result)
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
-                "Salesman already exists.");
+                "Salesman already exists for this guild.");
             return true;
         }
 
+        // ---------------------------------------------------
+        // SPAWN
+        // ---------------------------------------------------
         if (!SpawnPermanentCreature(player, entry))
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn salesman.");
+                "Failed to spawn Guild House Salesman.");
             return false;
         }
+
+        // ---------------------------------------------------
+        // RECORD INTO MODULE DB
+        // ---------------------------------------------------
+        std::ostringstream ins;
+        ins << "INSERT INTO guildhouse_instance "
+               "(guildId, assetId, catalogId, guid, type, mapid, phase, x, y, z, o) VALUES ("
+            << guildId << ","
+            << 0 << ","
+            << 0 << ","
+            << 0 << ","
+            << 1 << "," // salesman
+            << player->GetMapId() << ","
+            << phase << ","
+            << player->GetPositionX() << ","
+            << player->GetPositionY() << ","
+            << player->GetPositionZ() << ","
+            << player->GetOrientation()
+            << ")";
+
+        CharacterDatabase.Execute(ins.str());
 
         ChatHandler(player->GetSession()).PSendSysMessage(
             "Guild House Salesman spawned.");
