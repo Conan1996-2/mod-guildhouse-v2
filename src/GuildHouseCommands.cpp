@@ -126,17 +126,16 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        Guild* guild = player->GetGuild();
-        if (!guild)
+        uint32 guildId = player->GetGuildId();
+        
+        if (!guildId)
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
                 "You are not in a guild.");
             return true;
         }
 
-        uint32 guildId = player->GetGuildId();
-        uint32 phase   = GuildHouseMgr::Instance().GetPhase(guildId);
-
+        uint32 phase = GuildHouseMgr::Instance().GetPhase(guildId);
         uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE)
             ? 900002
             : 900003;
