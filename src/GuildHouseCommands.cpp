@@ -1,3 +1,4 @@
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "ChatCommand.h"
@@ -101,24 +102,11 @@ public:
     static bool ExistsNearPlayer(Player* player, uint32 entry, float range = 5.0f)
     {
         Map* map = player->GetMap();
-
-        MapStoredObjectTypesContainer& store = map->GetObjectsStore();
-        
-        for (auto itr = store.begin<Creature>(); itr != store.end<Creature>(); ++itr)
-        {
-            Creature* creature = *itr;
-        
-            if (!creature)
-                continue;
-        
-            if (creature->GetEntry() == entry &&
-                creature->IsWithinDist(player, range))
-            {
-                return true;
-            }
-        }
-
-        return false;
+    
+        std::list<Creature*> creatures;
+        ObjectAccessor::GetCreaturesOfEntryInRange(creatures, player, range, entry);
+    
+        return !creatures.empty();
     }
 
     // -------------------------------------------------------
