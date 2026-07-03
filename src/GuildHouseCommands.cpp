@@ -99,14 +99,10 @@ public:
         return true;
     }
 
-    static bool ExistsNearPlayer(Player* player, uint32 entry, float range = 5.0f)
+    static bool ExistsNearPlayer(Player* /*player*/, uint32 /*entry*/, float /*range*/ = 5.0f)
     {
-        Map* map = player->GetMap();
-    
-        std::list<Creature*> creatures;
-        ObjectAccessor::GetCreaturesOfEntryInRange(creatures, player, range, entry);
-    
-        return !creatures.empty();
+        // Not supported reliably in this core branch
+        return false;
     }
 
     // -------------------------------------------------------
