@@ -48,8 +48,7 @@ public:
     }
 };
 
-void AddGuildHouseScripts()
+void AddSC_GuildHouseCommands()
 {
-    new GuildHouseNpc();
     new GuildHouseCommandScript();
 }
