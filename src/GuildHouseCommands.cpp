@@ -127,7 +127,7 @@ public:
     static bool HandleAddSalesman(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-
+        
         uint32 guildId = player->GetGuildId();
         
         if (!guildId)
@@ -136,6 +136,11 @@ public:
                 "You are not in a guild.");
             return true;
         }
+
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+        float z = player->GetPositionZ();
+        float o = player->GetOrientation();
 
         uint32 phase = GuildHouseMgr::Instance().GetPhase(guildId);
         uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE)
@@ -191,8 +196,6 @@ public:
             << z << ","
             << o
             << ")";
-
-CharacterDatabase.Execute(ins.str());
 
         CharacterDatabase.Execute(ins.str());
 
