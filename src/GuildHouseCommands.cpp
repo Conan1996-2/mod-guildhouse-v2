@@ -57,7 +57,7 @@ public:
 
         CreatureData& data = sObjectMgr->NewOrExistCreatureData(spawnId);
         data.id = entry;
-        data.mapId = map->GetId();
+        data.mapid = map->GetId();
         data.phaseMask = player->GetPhaseMaskForSpawn();
         data.posX = x;
         data.posY = y;
