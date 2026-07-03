@@ -102,9 +102,13 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid)
 
     _houses.emplace(guildId, house);
 
-    CharacterDatabase.Execute(
-        "INSERT INTO guildhouse (guildId, ownerGuid) VALUES (%u, %u)",
-        guildId, ownerGuid);
+    std::ostringstream ss;
+    
+    ss << "INSERT INTO guildhouse (guildId, ownerGuid) VALUES ("
+       << guildId << ", "
+       << ownerGuid << ")";
+    
+    CharacterDatabase.Execute(ss.str());
 
     return true;
 }
