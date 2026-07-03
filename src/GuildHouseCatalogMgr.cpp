@@ -96,3 +96,12 @@ void GuildHouseCatalogMgr::Load()
 
     LOG_INFO("module", "GuildHouseCatalogMgr loaded {} catalogs", _catalogs.size());
 }
+
+const GHCatalog* GuildHouseCatalogMgr::GetCatalog(uint32 id) const
+{
+    auto itr = _catalogs.find(id);
+    if (itr == _catalogs.end())
+        return nullptr;
+
+    return &itr->second;
+}
