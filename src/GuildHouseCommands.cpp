@@ -102,7 +102,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        uint32 entry = (player->GetTeam() == ALLIANCE)
+        uint32 entry = (player->GetTeamId() == ALLIANCE)
             ? 900000
             : 900001;
 
@@ -137,7 +137,7 @@ public:
         uint32 guildId = guild->GetId();
         uint32 phase   = GuildHouseMgr::Instance().GetPhase(guildId);
 
-        uint32 entry = (player->GetTeam() == ALLIANCE)
+        uint32 entry = (player->GetTeamId() == ALLIANCE)
             ? 900002
             : 900003;
 
