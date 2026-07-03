@@ -134,3 +134,8 @@ bool GuildHouseNpc::OnGossipSelect(Player* player, Creature* creature, uint32 /*
     CloseGossipMenuFor(player);
     return true;
 }
+
+void AddSC_GuildHouseNpc()
+{
+    new GuildHouseNpc();
+}
