@@ -1,7 +1,10 @@
-#include "GuildHouseNpc.h"
+#include "ScriptMgr.h"
+
+void AddSC_GuildHouseNpc();
+void AddSC_GuildHouseCommands();
 
 void AddGuildHouseScripts()
 {
-    new GuildHouseNpc();
-    // Scripts are self-registered via static constructors
+    AddSC_GuildHouseNpc();
+    AddSC_GuildHouseCommands();
 }
