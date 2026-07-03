@@ -30,6 +30,7 @@ public:
 
     void AddInstance(const GHInstanceRecord& record);
     void RemoveGuild(uint32_t guildId);
+    void LoadInstances();
 
     const std::vector<GHInstanceRecord>& GetGuildInstances(uint32_t guildId) const;
 
