@@ -40,28 +40,28 @@ public:
     // -------------------------------------------------------
     // Spawn core (same pipeline as .npc add)
     // -------------------------------------------------------
-    static bool SpawnPermanentCreature(Player* player, uint32 entry)
+    static ObjectGuid::LowType SpawnPermanentCreature(Player* player, uint32 entry)
     {
         float x = player->GetPositionX();
         float y = player->GetPositionY();
         float z = player->GetPositionZ();
         float o = player->GetOrientation();
-
+    
         Map* map = player->GetMap();
-
+    
         ObjectGuid::LowType spawnId = sObjectMgr->GenerateCreatureSpawnId();
-
+    
         CreatureData& data = sObjectMgr->NewOrExistCreatureData(spawnId);
         data.id = entry;
-        data.mapid = map->GetId();   // IMPORTANT: mapid (your correction)
+        data.mapid = map->GetId();
         data.phaseMask = player->GetPhaseMaskForSpawn();
         data.posX = x;
         data.posY = y;
         data.posZ = z;
         data.orientation = o;
-
+    
         Creature* creature = new Creature();
-
+    
         if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(),
                               map,
                               player->GetPhaseMaskForSpawn(),
@@ -69,30 +69,30 @@ public:
                               x, y, z, o))
         {
             delete creature;
-            return false;
+            return 0;
         }
-
+    
         creature->SaveToDB(map->GetId(),
                            (1 << map->GetSpawnMode()),
                            player->GetPhaseMaskForSpawn());
-
+    
         ObjectGuid::LowType newSpawnId = creature->GetSpawnId();
-
+    
         creature->CleanupsBeforeDelete();
         delete creature;
-
+    
         creature = new Creature();
-
+    
         if (!creature->LoadCreatureFromDB(newSpawnId, map, true, true))
         {
             delete creature;
-            return false;
+            return 0;
         }
-
+    
         sObjectMgr->AddCreatureToGrid(newSpawnId,
             sObjectMgr->GetCreatureData(newSpawnId));
-
-        return true;
+    
+        return newSpawnId;
     }
 
     // -------------------------------------------------------
@@ -106,10 +106,12 @@ public:
             ? 900000
             : 900001;
 
-        if (!SpawnPermanentCreature(player, entry))
+        ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry);
+        
+        if (!spawnId)
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn Guild House Broker.");
+                "Failed to spawn broker.");
             return false;
         }
 
@@ -161,10 +163,12 @@ public:
         // ---------------------------------------------------
         // SPAWN
         // ---------------------------------------------------
-        if (!SpawnPermanentCreature(player, entry))
+        ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry);
+        
+        if (!spawnId)
         {
             ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn Guild House Salesman.");
+                "Failed to spawn salesman.");
             return false;
         }
 
@@ -172,20 +176,23 @@ public:
         // RECORD INTO MODULE DB
         // ---------------------------------------------------
         std::ostringstream ins;
+        
         ins << "INSERT INTO guildhouse_instance "
                "(guildId, assetId, catalogId, guid, type, mapid, phase, x, y, z, o) VALUES ("
             << guildId << ","
-            << 0 << ","
-            << 0 << ","
-            << 0 << ","
-            << 1 << "," // salesman
+            << 0 << ","              // assetId (not used yet)
+            << 0 << ","              // catalogId (not used yet)
+            << spawnId << ","        // ✔ REAL GUID FIX
+            << 1 << ","              // salesman type
             << player->GetMapId() << ","
             << phase << ","
-            << player->GetPositionX() << ","
-            << player->GetPositionY() << ","
-            << player->GetPositionZ() << ","
-            << player->GetOrientation()
+            << x << ","
+            << y << ","
+            << z << ","
+            << o
             << ")";
+
+CharacterDatabase.Execute(ins.str());
 
         CharacterDatabase.Execute(ins.str());
 
