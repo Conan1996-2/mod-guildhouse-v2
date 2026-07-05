@@ -2,6 +2,7 @@
 #define MOD_GUILDHOUSE_CATALOG_MGR_H
 
 #include <unordered_map>
+#include <vector>
 
 #include "GuildHouseTypes.h"
 
@@ -12,8 +13,20 @@ public:
 
     void Load();
 
+    // =====================================================
+    // Direct lookups
+    // =====================================================
     const GHCatalog* GetCatalog(uint32_t catalogId) const;
-    const std::vector<GHCatalog>& GetAllCatalogs() const;
+    const GHCategory* GetCategory(uint32_t categoryId) const;
+
+    // =====================================================
+    // Salesman / UI helpers
+    // =====================================================
+    std::vector<const GHCategory*> GetRootCategories() const;
+    std::vector<const GHCategory*> GetChildCategories(uint32_t parentId) const;
+
+    std::vector<const GHCatalog*> GetCatalogs(uint32_t categoryId) const;
+    std::vector<const GHCatalog*> GetAllCatalogs() const;
 
 private:
     GuildHouseCatalogMgr() = default;
