@@ -17,9 +17,10 @@ struct GHCategory
     uint32_t ParentId;
     std::string Name;
     uint16_t SortOrder;
+    bool Enabled;
 };
 
-struct GHComponent
+struct GHCatalogAsset
 {
     uint32_t ComponentId;
     uint32_t CatalogId;
@@ -32,9 +33,26 @@ struct GHComponent
     GHSpawnFlags SpawnFlags;
     GHBehaviorFlags BehaviorFlags;
 
-    GHScriptType ScriptType;
-
     float X, Y, Z, O;
+    
+    uint16_t ScriptType;
+    std::string ScriptData;
+    
+    float XOffset;
+    float YOffset;
+    float ZOffset;
+    float OOffset;
+    
+    uint32_t TargetMap;
+    
+    float TargetX;
+    float TargetY;
+    float TargetZ;
+    float TargetO;
+    
+    uint32_t ChildCatalogId;
+    
+    uint16_t SortOrder;
 };
 
 // =====================================================
@@ -48,7 +66,12 @@ struct GHCatalog
 
     std::string Name;
 
-    std::vector<GHComponent> Components;
+    GHSpawnFlags SpawnFlags;
+    GHBehaviorFlags BehaviorFlags;
+
+    bool Enabled;
+
+    std::vector<GHCatalogAsset> Components;
 };
 
 // =====================================================
