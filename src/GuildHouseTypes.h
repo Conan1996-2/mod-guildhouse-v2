@@ -78,12 +78,14 @@ struct GHCatalog
 // Player placed asset (guild-owned)
 // =====================================================
 
-struct GHPlacedAsset
+struct GHGuildAsset
 {
     uint32_t AssetId;
     uint32_t GuildId;
     uint32_t CatalogId;
-
+    uint16_t LayoutId;
+    
+    GHAssetStatus Status;
     uint32_t Phase;
 
     float X, Y, Z, O;
@@ -97,18 +99,24 @@ struct GHInstance
 {
     uint32_t InstanceId;
 
+    uint32_t GuildId;
+
     uint32_t AssetId;
-    uint32_t ComponentId;
+
+    uint32_t CatalogId;
 
     uint32_t Guid;
 
+    uint8_t Type;
+
+    uint32_t MapId;
+
     uint32_t Phase;
 
-    float X, Y, Z, O;
-
-    GHAssetStatus State;
-
-    GHSpawnFlags SpawnFlags;
+    float X;
+    float Y;
+    float Z;
+    float O;
 };
 
 // =====================================================
@@ -122,7 +130,7 @@ struct GHGuildHouse
 
     uint32_t Phase;
 
-    std::vector<GHPlacedAsset> Assets;
+    std::vector<GHGuildAsset> Assets;
 };
 
 #endif
