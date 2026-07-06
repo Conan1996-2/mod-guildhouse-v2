@@ -26,10 +26,10 @@ private:
     bool _free = false;
     bool _loadAll = false;
 
-    uint64_t _houseCost = 1000000;
-    uint64_t _npcCost = 1000000;
-    uint64_t _portalCost = 10000000;
-    uint64_t _objectCost = 500000;
+    uint64_t _houseCost;
+    uint64_t _npcCost;
+    uint64_t _portalCost;
+    uint64_t _objectCost;
 };
 
 #define sGuildHouseConfig GuildHouseConfig::Instance()
