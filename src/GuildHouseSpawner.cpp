@@ -183,7 +183,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // PORTAL / SPECIAL LOGIC
             // =====================================================
-            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Portal))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GH_SPAWN_PORTAL))
             {
                 LOG_INFO("module",
                     "GuildHouse: Portal component {} ready (teleport logic next step)",
