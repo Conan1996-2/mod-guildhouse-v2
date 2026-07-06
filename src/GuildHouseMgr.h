@@ -20,6 +20,8 @@ public:
 
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
 
+    bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
+
 private:
     GuildHouseMgr() = default;
 
