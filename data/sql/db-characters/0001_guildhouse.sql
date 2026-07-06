@@ -42,25 +42,37 @@ CREATE TABLE `guildhouse_asset`
     KEY `idx_guild` (`guildId`),
     KEY `idx_layout` (`layoutId`),
     KEY `idx_catalog` (`catalogId`),
-    KEY `idx_status` (`status`)
+    KEY `idx_status` (`status`),
+
+    enabled TINYINT(1) NOT NULL DEFAULT 1
+    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `guildhouse_instance`;
 
-CREATE TABLE IF NOT EXISTS guildhouse_instance (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    guildId INT UNSIGNED NOT NULL,
-    assetId INT UNSIGNED NOT NULL,
-    catalogId INT UNSIGNED NOT NULL,
+CREATE TABLE `guildhouse_instance`
+(
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-    guid INT UNSIGNED NOT NULL,
-    type TINYINT UNSIGNED NOT NULL, -- 0 creature, 1 gameobject
+    `guildId` INT UNSIGNED NOT NULL,
+    `assetId` INT UNSIGNED NOT NULL,
+    `catalogId` INT UNSIGNED NOT NULL,
 
-    mapId INT UNSIGNED NOT NULL,
-    phase INT UNSIGNED NOT NULL,
+    `guid` INT UNSIGNED NOT NULL,
+    `type` TINYINT UNSIGNED NOT NULL, -- 0 creature, 1 gameobject
 
-    x FLOAT NOT NULL,
-    y FLOAT NOT NULL,
-    z FLOAT NOT NULL,
-    o FLOAT NOT NULL
+    `mapId` INT UNSIGNED NOT NULL,
+    `phase` INT UNSIGNED NOT NULL,
+
+    `x` FLOAT NOT NULL,
+    `y` FLOAT NOT NULL,
+    `z` FLOAT NOT NULL,
+    `o` FLOAT NOT NULL,
+
+    PRIMARY KEY (`id`),
+
+    KEY `idx_guild` (`guildId`),
+    KEY `idx_phase` (`phase`),
+    KEY `idx_map_phase` (`mapId`, `phase`),
+    KEY `idx_asset` (`assetId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
