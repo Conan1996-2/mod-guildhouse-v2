@@ -101,23 +101,27 @@ public:
     static bool HandleAddBroker(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-
+    
         uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE)
             ? 900000
             : 900001;
-
+    
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+        float z = player->GetPositionZ();
+        float o = player->GetOrientation();
+    
+        Map* map = player->GetMap();
+    
         ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry);
-        
+    
         if (!spawnId)
         {
-            ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn broker.");
+            handler->PSendSysMessage("Failed to spawn broker.");
             return false;
         }
-
-        ChatHandler(player->GetSession()).PSendSysMessage(
-            "Guild House Broker spawned.");
-
+    
+        handler->PSendSysMessage("Guild Broker spawned.");
         return true;
     }
 
@@ -127,84 +131,57 @@ public:
     static bool HandleAddSalesman(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        
+    
         uint32 guildId = player->GetGuildId();
-        
         if (!guildId)
         {
-            ChatHandler(player->GetSession()).PSendSysMessage(
-                "You are not in a guild.");
-            return true;
+            handler->PSendSysMessage("You are not in a guild.");
+            return false;
         }
-
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float o = player->GetOrientation();
-
-        uint32 phase = GuildHouseMgr::Instance().GetPhase(guildId);
+    
+        // ONLY GUILD MASTER CAN PLACE
+        if (player->GetGUID() != sGuildHouseMgr.GetGuildHouse(guildId)->OwnerGuid)
+        {
+            handler->PSendSysMessage("Only the Guild Master can place the salesman.");
+            return false;
+        }
+    
+        uint32 phase = sGuildHouseMgr.GetPhase(guildId);
+    
+        // enforce single salesman per guild (DB check inside manager would be better)
+        if (sGuildHouseMgr.HasSalesman(guildId))
+        {
+            handler->PSendSysMessage("Guild already has a salesman.");
+            return false;
+        }
+    
         uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE)
             ? 900002
             : 900003;
-
-        // ---------------------------------------------------
-        // DB CHECK (NO WORLD SCANNING)
-        // ---------------------------------------------------
-        std::ostringstream ss;
-        ss << "SELECT guid FROM guildhouse_instance "
-              "WHERE guildId = " << guildId
-           << " AND phase = " << phase
-           << " AND type = 1 LIMIT 1"; // 1 = salesman
-
-        QueryResult result = CharacterDatabase.Query(ss.str());
-
-        if (result)
-        {
-            ChatHandler(player->GetSession()).PSendSysMessage(
-                "Salesman already exists for this guild.");
-            return true;
-        }
-
-        // ---------------------------------------------------
-        // SPAWN
-        // ---------------------------------------------------
+    
         ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry);
-        
+    
         if (!spawnId)
         {
-            ChatHandler(player->GetSession()).PSendSysMessage(
-                "Failed to spawn salesman.");
+            handler->PSendSysMessage("Failed to spawn salesman.");
             return false;
         }
-
-        // ---------------------------------------------------
-        // RECORD INTO MODULE DB
-        // ---------------------------------------------------
-        std::ostringstream ins;
-        
-        ins << "INSERT INTO guildhouse_instance "
-               "(guildId, assetId, catalogId, guid, type, mapid, phase, x, y, z, o) VALUES ("
-            << guildId << ","
-            << 0 << ","              // assetId (not used yet)
-            << 0 << ","              // catalogId (not used yet)
-            << spawnId << ","        // ✔ REAL GUID FIX
-            << 1 << ","              // salesman type
-            << player->GetMapId() << ","
-            << phase << ","
-            << x << ","
-            << y << ","
-            << z << ","
-            << o
-            << ")";
-
-        CharacterDatabase.Execute(ins.str());
-
-        ChatHandler(player->GetSession()).PSendSysMessage(
-            "Guild House Salesman spawned.");
-
+    
+        // IMPORTANT: persist as guildhouse_asset (NOT instance table)
+        sGuildHouseMgr.RecordSalesmanSpawn(
+            guildId,
+            spawnId,
+            player->GetMapId(),
+            phase,
+            player->GetPositionX(),
+            player->GetPositionY(),
+            player->GetPositionZ(),
+            player->GetOrientation()
+        );
+    
+        handler->PSendSysMessage("Guild Salesman placed.");
         return true;
     }
-};
 
 void AddSC_GuildHouseCommands()
 {
