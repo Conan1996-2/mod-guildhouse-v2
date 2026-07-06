@@ -35,7 +35,7 @@ struct GHCatalogAsset
 
     float X, Y, Z, O;
     
-    uint16_t ScriptType;
+    uint32_t ScriptType;
     std::string ScriptData;
     
     float XOffset;
