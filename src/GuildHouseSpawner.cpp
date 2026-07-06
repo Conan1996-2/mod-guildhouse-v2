@@ -116,7 +116,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // CREATURE SPAWN
             // =====================================================
-            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::Creature))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GH_SPAWN_CREATURE))
             {
                 const SummonPropertiesEntry* props = nullptr;
             
@@ -151,7 +151,7 @@ void GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
             // =====================================================
             // GAMEOBJECT SPAWN
             // =====================================================
-            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GHSpawnFlags::GameObject))
+            if (GuildHouseUtil::HasFlag(comp.SpawnFlags, GH_SPAWN_GAMEOBJECT))
             {
                 Position pos;
                 pos.Relocate(x, y, z, o);
