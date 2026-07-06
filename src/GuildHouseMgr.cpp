@@ -157,7 +157,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
        << player->GetGUID().GetCounter()
        << ")";
 
-    CharacterDatabase.Execute(ins.str());
+    CharacterDatabase.Execute(ss.str());
     
     QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
     if (!result)
