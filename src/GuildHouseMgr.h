@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include "Player.h"
 #include "GuildHouseTypes.h"
 
 class GuildHouseMgr
