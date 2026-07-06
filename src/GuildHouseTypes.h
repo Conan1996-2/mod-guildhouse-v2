@@ -33,25 +33,23 @@ struct GHCatalogAsset
     GHSpawnFlags SpawnFlags;
     GHBehaviorFlags BehaviorFlags;
 
-    float X, Y, Z, O;
-    
-    uint32_t ScriptType;
+    GHScriptType ScriptType;
     std::string ScriptData;
-    
+
     float XOffset;
     float YOffset;
     float ZOffset;
     float OOffset;
-    
+
     uint32_t TargetMap;
-    
+
     float TargetX;
     float TargetY;
     float TargetZ;
     float TargetO;
-    
+
     uint32_t ChildCatalogId;
-    
+
     uint16_t SortOrder;
 };
 
@@ -87,7 +85,6 @@ struct GHGuildAsset
     
     GHAssetStatus Status;
     uint32_t Phase;
-
     float X, Y, Z, O;
 };
 
@@ -98,25 +95,16 @@ struct GHGuildAsset
 struct GHInstance
 {
     uint32_t InstanceId;
-
     uint32_t GuildId;
-
     uint32_t AssetId;
-
     uint32_t CatalogId;
 
     uint32_t Guid;
-
-    uint8_t Type;
+    GHInstanceType Type;
 
     uint32_t MapId;
-
     uint32_t Phase;
-
-    float X;
-    float Y;
-    float Z;
-    float O;
+    float X, Y, Z, O;
 };
 
 // =====================================================
