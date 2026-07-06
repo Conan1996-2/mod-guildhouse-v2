@@ -14,7 +14,7 @@ public:
     void SpawnGuild(uint32_t guildId);
     void DespawnGuild(uint32_t guildId);
 
-    uint32 Spawn(const GHComponent& comp, const GHInstance& inst);
+    void SpawnAsset(uint32_t guildId, uint32_t assetId);
 
 private:
     GuildHouseSpawner() = default;
