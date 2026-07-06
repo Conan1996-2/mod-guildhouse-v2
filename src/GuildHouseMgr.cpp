@@ -5,6 +5,11 @@
 #include "GuildHouseConfig.h"
 #include "GuildHouseDefines.h"
 #include "Log.h"
+#include "GuildHouseCatalogMgr.h"
+#include "GuildHouseSpawner.h"
+#include "GuildHouseInstanceMgr.h"
+#include "Player.h"
+#include "Chat.h"
 
 GuildHouseMgr& GuildHouseMgr::Instance()
 {
@@ -110,5 +115,87 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid)
     
     CharacterDatabase.Execute(ss.str());
 
+    return true;
+}
+
+bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
+{
+    if (!player)
+        return false;
+
+    uint32 guildId = player->GetGuildId();
+    if (!guildId)
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage("You are not in a guild.");
+        return false;
+    }
+
+    const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
+    if (!catalog || !catalog->Enabled)
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage("Invalid catalog item.");
+        return false;
+    }
+
+    float x = player->GetPositionX();
+    float y = player->GetPositionY();
+    float z = player->GetPositionZ();
+    float o = player->GetOrientation();
+
+    uint32 phase = GetPhase(guildId);
+
+    std::ostringstream ss;
+    ss << "INSERT INTO guildhouse_asset "
+          "(guildId, layoutId, catalogId, status, phase, "
+          "positionX, positionY, positionZ, orientation, createdBy) VALUES ("
+       << guildId << ","
+       << 1 << ","
+       << catalogId << ","
+       << 0 << ","
+       << phase << ","
+       << x << "," << y << "," << z << "," << o << ","
+       << player->GetGUID().GetCounter()
+       << ")";
+
+    CharacterDatabase.Execute(ss.str());
+
+    uint32 assetId = CharacterDatabase.GetLastInsertId();
+
+    for (auto const& comp : catalog->Components)
+    {
+        GHInstance inst;
+
+        inst.AssetId   = assetId;
+        inst.CatalogId = catalogId;
+        inst.GuildId   = guildId;
+        inst.Phase     = phase;
+        inst.Type      = 0;
+
+        inst.X = x + comp.XOffset;
+        inst.Y = y + comp.YOffset;
+        inst.Z = z + comp.ZOffset;
+        inst.O = o + comp.OOffset;
+
+        uint32 guid = sGuildHouseSpawner.Spawn(comp, inst);
+        inst.Guid = guid;
+
+        std::ostringstream ins;
+        ins << "INSERT INTO guildhouse_instance "
+               "(guildId, assetId, catalogId, guid, type, mapId, phase, x, y, z, o) VALUES ("
+            << guildId << ","
+            << assetId << ","
+            << catalogId << ","
+            << guid << ","
+            << 0 << ","
+            << player->GetMapId() << ","
+            << phase << ","
+            << inst.X << ","
+            << inst.Y << ","
+            << inst.Z << ","
+            << inst.O << ")";
+
+        CharacterDatabase.Execute(ins.str());
+    }
+    ChatHandler(player->GetSession()).PSendSysMessage("Guild House item purchased.");
     return true;
 }
