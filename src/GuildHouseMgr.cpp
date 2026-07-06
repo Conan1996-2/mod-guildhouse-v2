@@ -61,7 +61,7 @@ void GuildHouseMgr::Load()
             if (it == _houses.end())
                 continue;
 
-            GHPlacedAsset asset;
+            GHGuildAsset asset;
             asset.AssetId   = fields[0].Get<uint32_t>();
             asset.GuildId   = guildId;
             asset.CatalogId = fields[2].Get<uint32_t>();
