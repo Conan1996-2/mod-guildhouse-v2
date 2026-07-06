@@ -81,7 +81,7 @@ enum GHAssetStatus : uint8_t
 // Script Types (runtime behavior hooks)
 // =====================================================
 
-enum GHScriptType : uint32_t
+enum GHScriptType : uint8_t
 {
     GH_SCRIPT_NONE = 0,
 
@@ -103,19 +103,29 @@ namespace GuildHouseUtil
         return (value & flag) != 0;
     }
 
+    inline bool HasFlag(GHSpawnFlags value, GHSpawnFlags flag)
+    {
+        return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
+    }
+    
+    inline bool HasFlag(GHBehaviorFlags value, GHBehaviorFlags flag)
+    {
+        return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
+    }
+
     inline uint32_t GetGuildHousePhase(uint32_t guildId)
     {
         return guildId + GH_PHASE_OFFSET;
     }
 
-    inline bool IsAlliance(uint32_t flags)
+    inline bool IsAlliance(GHBehaviorFlags flags)
     {
-        return HasFlag(flags, GH_FACTION_ALLIANCE);
+        return HasFlag(static_cast<uint32_t>(flags), GH_FACTION_ALLIANCE);
     }
 
-    inline bool IsHorde(uint32_t flags)
+    inline bool IsHorde(GHBehaviorFlags flags)
     {
-        return HasFlag(flags, GH_FACTION_HORDE);
+        return HasFlag(static_cast<uint32_t>(flags), GH_FACTION_HORDE);
     }
 }
 
