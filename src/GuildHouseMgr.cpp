@@ -275,23 +275,28 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     Player* player,
     uint32_t catalogId)
 {
-
     if (!player)
         return false;
 
 
-
-    uint32_t guildId =
-        player->GetGuildId();
-
+    uint32 guildId = player->GetGuildId();
 
 
     if (!guildId)
     {
-        ChatHandler(
-            player->GetSession())
+        ChatHandler(player->GetSession())
             .PSendSysMessage(
-                "You must be in a guild.");
+                "You are not in a guild.");
+
+        return false;
+    }
+
+
+    if (!HasGuildHouse(guildId))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Your guild does not own a Guild House.");
 
         return false;
     }
@@ -299,33 +304,23 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
 
     const GHCatalog* catalog =
-        sGuildHouseCatalogMgr.GetCatalog(
-            catalogId);
+        sGuildHouseCatalogMgr.GetCatalog(catalogId);
 
 
 
     if (!catalog || !catalog->Enabled)
     {
-        ChatHandler(
-            player->GetSession())
+        ChatHandler(player->GetSession())
             .PSendSysMessage(
-                "Invalid guild house item.");
+                "Invalid Guild House item.");
 
         return false;
     }
 
 
 
-    if (!HasGuildHouse(guildId))
-    {
-        ChatHandler(
-            player->GetSession())
-            .PSendSysMessage(
-                "Your guild does not own a guild house.");
-
-        return false;
-    }
-
+    uint32 phase =
+        GetPhase(guildId);
 
 
 
@@ -343,17 +338,10 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
 
 
-    uint32_t phase =
-        GetPhase(guildId);
+    std::ostringstream ss;
 
 
-
-
-    std::ostringstream sql;
-
-
-
-    sql <<
+    ss <<
     "INSERT INTO guildhouse_asset "
     "(guildId, layoutId, catalogId, status, phase,"
     "positionX, positionY, positionZ, orientation, createdBy)"
@@ -361,7 +349,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     << guildId << ","
     << 1 << ","
     << catalogId << ","
-    << GH_ASSET_PURCHASED << ","
+    << GH_ASSET_PLACED << ","
     << phase << ","
     << x << ","
     << y << ","
@@ -371,10 +359,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     << ")";
 
 
-
-    CharacterDatabase.Execute(
-        sql.str());
-
+    CharacterDatabase.Execute(ss.str());
 
 
 
@@ -383,66 +368,88 @@ bool GuildHouseMgr::PurchaseCatalogItem(
             "SELECT LAST_INSERT_ID()");
 
 
-
     if (!result)
         return false;
 
 
 
-    uint32_t assetId =
+    uint32 assetId =
         result->Fetch()[0]
-        .Get<uint32_t>();
+        .Get<uint32>();
 
 
 
-
-    GHGuildAsset asset;
-
-
-    asset.AssetId =
-        assetId;
-
-    asset.GuildId =
-        guildId;
-
-    asset.CatalogId =
-        catalogId;
-
-    asset.Status =
-        GH_ASSET_PURCHASED;
-
-    asset.Phase =
-        phase;
-
-    asset.X=x;
-    asset.Y=y;
-    asset.Z=z;
-    asset.O=o;
-
-
-
-    _houses[guildId]
-        .Assets.push_back(asset);
-
-
-
-
-    //
-    // Permanent spawn
-    //
     sGuildHouseSpawner.SpawnAsset(
         guildId,
         assetId);
 
 
 
-
-    ChatHandler(
-        player->GetSession())
+    ChatHandler(player->GetSession())
         .PSendSysMessage(
-            "Guild house item purchased.");
+            "Guild House item placed.");
 
 
 
     return true;
+}
+
+bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
+{
+    std::ostringstream ss;
+
+    ss <<
+    "SELECT COUNT(*) "
+    "FROM guildhouse_asset "
+    "WHERE guildId="
+    << guildId
+    <<
+    " AND catalogId=0";
+
+
+    QueryResult result =
+        CharacterDatabase.Query(ss.str());
+
+
+    if (!result)
+        return false;
+
+
+    return result->Fetch()[0]
+        .Get<uint32>() > 0;
+}
+
+void GuildHouseMgr::RecordSalesmanSpawn(
+    uint32_t guildId,
+    uint32_t spawnId,
+    uint32_t mapId,
+    uint32_t phase,
+    float x,
+    float y,
+    float z,
+    float o)
+{
+
+    std::ostringstream ss;
+
+
+    ss <<
+    "INSERT INTO guildhouse_asset "
+    "(guildId,layoutId,catalogId,status,phase,"
+    "positionX,positionY,positionZ,orientation,createdBy)"
+    " VALUES ("
+    << guildId << ","
+    << 0 << ","
+    << 0 << ","
+    << GH_ASSET_PLACED << ","
+    << phase << ","
+    << x << ","
+    << y << ","
+    << z << ","
+    << o << ","
+    << spawnId
+    << ")";
+
+
+    CharacterDatabase.Execute(ss.str());
 }
