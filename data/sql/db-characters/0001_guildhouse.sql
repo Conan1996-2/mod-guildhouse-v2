@@ -141,3 +141,24 @@ CREATE TABLE `guildhouse_spawn`
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `guildhouse_salesman`;
+
+CREATE TABLE `guildhouse_salesman`
+(
+    `guildId` INT UNSIGNED NOT NULL,
+
+    `guid` INT UNSIGNED NOT NULL,
+
+    `mapId` INT UNSIGNED NOT NULL,
+
+    `phase` INT UNSIGNED NOT NULL,
+
+    `positionX` FLOAT NOT NULL,
+    `positionY` FLOAT NOT NULL,
+    `positionZ` FLOAT NOT NULL,
+    `orientation` FLOAT NOT NULL,
+
+    PRIMARY KEY (`guildId`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
