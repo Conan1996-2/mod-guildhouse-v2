@@ -91,3 +91,42 @@ GuildHouseInstanceMgr::GetGuildInstances(uint32_t guildId) const
     auto it = _instances.find(guildId);
     return (it != _instances.end()) ? it->second : empty;
 }
+
+GHInstanceRecord* GuildHouseInstanceMgr::GetByGuid(uint32_t guid)
+{
+    for (auto& guild : _instances)
+    {
+        for (auto& rec : guild.second)
+        {
+            if (rec.guid == guid)
+                return &rec;
+        }
+    }
+
+    return nullptr;
+}
+
+void GuildHouseInstanceMgr::RemoveGuid(uint32_t guid)
+{
+    for (auto& guild : _instances)
+    {
+        auto& list = guild.second;
+
+        for (auto itr = list.begin(); itr != list.end(); ++itr)
+        {
+            if (itr->guid == guid)
+            {
+                std::ostringstream ss;
+
+                ss << "DELETE FROM guildhouse_instance "
+                      "WHERE guid="
+                   << guid;
+
+                CharacterDatabase.Execute(ss.str());
+
+                list.erase(itr);
+                return;
+            }
+        }
+    }
+}
