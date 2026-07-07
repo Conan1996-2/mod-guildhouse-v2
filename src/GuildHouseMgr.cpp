@@ -379,9 +379,16 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
 
 
-    sGuildHouseSpawner.SpawnAsset(
-        guildId,
-        assetId);
+    if (!sGuildHouseSpawner.SpawnAsset(
+            guildId,
+            assetId))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Failed to place Guild House item.");
+    
+        return false;
+    }
 
 
 
@@ -400,11 +407,9 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 
     ss <<
     "SELECT COUNT(*) "
-    "FROM guildhouse_asset "
+    "FROM guildhouse_salesman "
     "WHERE guildId="
-    << guildId
-    <<
-    " AND catalogId=0";
+    << guildId;
 
 
     QueryResult result =
@@ -416,7 +421,7 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 
 
     return result->Fetch()[0]
-        .Get<uint32>() > 0;
+        .Get<uint32_t>() > 0;
 }
 
 void GuildHouseMgr::RecordSalesmanSpawn(
@@ -429,25 +434,22 @@ void GuildHouseMgr::RecordSalesmanSpawn(
     float z,
     float o)
 {
-
     std::ostringstream ss;
 
 
     ss <<
-    "INSERT INTO guildhouse_asset "
-    "(guildId,layoutId,catalogId,status,phase,"
-    "positionX,positionY,positionZ,orientation,createdBy)"
+    "INSERT INTO guildhouse_salesman "
+    "(guildId,guid,mapId,phase,"
+    "positionX,positionY,positionZ,orientation)"
     " VALUES ("
     << guildId << ","
-    << 0 << ","
-    << 0 << ","
-    << GH_ASSET_PLACED << ","
+    << spawnId << ","
+    << mapId << ","
     << phase << ","
     << x << ","
     << y << ","
     << z << ","
-    << o << ","
-    << spawnId
+    << o
     << ")";
 
 
