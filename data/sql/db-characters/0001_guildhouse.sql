@@ -28,25 +28,46 @@ CREATE TABLE `guildhouse_asset`
 
     `phase` INT UNSIGNED NOT NULL,
 
+
+    -- actual spawned world object
+    `spawnGuid` INT UNSIGNED NOT NULL DEFAULT 0,
+
+    -- 0 = creature
+    -- 1 = gameobject
+    `spawnType` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+
+
     `positionX` FLOAT NOT NULL,
     `positionY` FLOAT NOT NULL,
     `positionZ` FLOAT NOT NULL,
     `orientation` FLOAT NOT NULL,
 
+
     `createdBy` INT UNSIGNED NOT NULL,
+
+
+    `enabled` TINYINT(1) NOT NULL DEFAULT 1,
+
 
     `createdDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
+
     PRIMARY KEY (`assetId`),
 
+
     KEY `idx_guild` (`guildId`),
+
     KEY `idx_layout` (`layoutId`),
+
     KEY `idx_catalog` (`catalogId`),
+
     KEY `idx_status` (`status`),
 
-    enabled TINYINT(1) NOT NULL DEFAULT 1
-    
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    KEY `idx_spawn` (`spawnGuid`)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `guildhouse_instance`;
 
