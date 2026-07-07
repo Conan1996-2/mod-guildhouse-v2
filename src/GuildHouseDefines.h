@@ -8,65 +8,80 @@
 // =====================================================
 
 constexpr uint32_t GH_PHASE_OFFSET = 100000;
+
 constexpr uint32_t GH_MAP = 1;
 
-// Default fallback spawn position (GM island / housing zone)
+// Default Guild House location
 constexpr float GH_X = 16222.57f;
 constexpr float GH_Y = 16265.91f;
 constexpr float GH_Z = 13.21f;
 constexpr float GH_O = 0.0f;
 
+
 // =====================================================
-// Spawn Flags (WHAT is spawned)
-// Bitmask system (DB-driven)
+// Spawn Flags
+//
+// Defines WHAT permanent world object is created.
+//
+// Stored in database as INT UNSIGNED.
 // =====================================================
 
 enum GHSpawnFlags : uint32_t
 {
     GH_SPAWN_NONE        = 0,
 
-    GH_SPAWN_CREATURE   = 1 << 0,
-    GH_SPAWN_GAMEOBJECT = 1 << 1,
-    GH_SPAWN_PORTAL     = 1 << 2,
-    GH_SPAWN_TRIGGER    = 1 << 3
+    GH_SPAWN_CREATURE    = 1 << 0,
+    GH_SPAWN_GAMEOBJECT  = 1 << 1,
+    GH_SPAWN_PORTAL      = 1 << 2,
+    GH_SPAWN_TRIGGER     = 1 << 3
 };
 
+
 // =====================================================
-// Behavior Flags (HOW it behaves)
-// Bitmask system (DB-driven)
+// Behavior Flags
+//
+// Defines WHAT the object does.
+//
+// Stored in database as INT UNSIGNED.
 // =====================================================
 
 enum GHBehaviorFlags : uint32_t
 {
-    GH_BEHAVIOR_NONE        = 0,
+    GH_BEHAVIOR_NONE = 0,
 
-    // Faction restrictions
-    GH_FACTION_ALLIANCE     = 1 << 0,
-    GH_FACTION_HORDE        = 1 << 1,
-    GH_FACTION_NEUTRAL      = 1 << 2,
+    // Faction
+    GH_FACTION_ALLIANCE = 1 << 0,
+    GH_FACTION_HORDE    = 1 << 1,
+    GH_FACTION_NEUTRAL  = 1 << 2,
 
-    // NPC roles
-    GH_ROLE_VENDOR          = 1 << 3,
-    GH_ROLE_REPAIR          = 1 << 4,
-    GH_ROLE_BANKER          = 1 << 5,
-    GH_ROLE_AUCTIONEER      = 1 << 6,
-    GH_ROLE_INNKEEPER       = 1 << 7,
-    GH_ROLE_FLIGHTMASTER    = 1 << 8,
-    GH_ROLE_STABLEMASTER    = 1 << 9,
-    GH_ROLE_TRAINER         = 1 << 10,
 
-    // World objects
-    GH_ROLE_MAILBOX         = 1 << 11,
-    GH_ROLE_FORGE           = 1 << 12,
-    GH_ROLE_ANVIL           = 1 << 13,
+    // NPC Services
+    GH_ROLE_VENDOR       = 1 << 3,
+    GH_ROLE_REPAIR       = 1 << 4,
+    GH_ROLE_BANKER       = 1 << 5,
+    GH_ROLE_AUCTIONEER   = 1 << 6,
+    GH_ROLE_INNKEEPER    = 1 << 7,
+    GH_ROLE_FLIGHTMASTER = 1 << 8,
+    GH_ROLE_STABLEMASTER = 1 << 9,
+    GH_ROLE_TRAINER      = 1 << 10,
+
+
+    // Objects
+    GH_ROLE_MAILBOX = 1 << 11,
+    GH_ROLE_FORGE   = 1 << 12,
+    GH_ROLE_ANVIL   = 1 << 13,
+
 
     // Rules
-    GH_FLAG_UNIQUE          = 1 << 14,
-    GH_FLAG_STARTER         = 1 << 15
+    GH_FLAG_UNIQUE  = 1 << 14,
+    GH_FLAG_STARTER = 1 << 15
 };
 
+
 // =====================================================
-// Asset Status (persistent state)
+// Persistent Asset Status
+//
+// Stored in guildhouse_asset.status
 // =====================================================
 
 enum GHAssetStatus : uint8_t
@@ -77,11 +92,14 @@ enum GHAssetStatus : uint8_t
     GH_ASSET_DISABLED  = 3
 };
 
+
 // =====================================================
-// Script Types (runtime behavior hooks)
+// Script Types
+//
+// Used for special permanent objects.
 // =====================================================
 
-enum GHScriptType : uint8_t
+enum GHScriptType : uint32_t
 {
     GH_SCRIPT_NONE = 0,
 
@@ -92,51 +110,43 @@ enum GHScriptType : uint8_t
     GH_SCRIPT_CUSTOM
 };
 
-// =====================================================
-// Instance Types
-// =====================================================
-
-enum GHInstanceType : uint8_t
-{
-    GH_INSTANCE_CREATURE = 0,
-    GH_INSTANCE_GAMEOBJECT = 1
-};
 
 // =====================================================
-// Utility helpers
+// Utility Helpers
 // =====================================================
 
 namespace GuildHouseUtil
 {
-    inline bool HasFlag(uint32_t value, uint32_t flag)
-    {
-        return (value & flag) != 0;
-    }
 
-    inline bool HasFlag(GHSpawnFlags value, GHSpawnFlags flag)
-    {
-        return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
-    }
-    
-    inline bool HasFlag(GHBehaviorFlags value, GHBehaviorFlags flag)
-    {
-        return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
-    }
+inline bool HasFlag(uint32_t value, uint32_t flag)
+{
+    return (value & flag) != 0;
+}
 
-    inline uint32_t GetGuildHousePhase(uint32_t guildId)
-    {
-        return guildId + GH_PHASE_OFFSET;
-    }
 
-    inline bool IsAlliance(GHBehaviorFlags flags)
-    {
-        return HasFlag(static_cast<uint32_t>(flags), GH_FACTION_ALLIANCE);
-    }
+inline uint32_t GetGuildHousePhase(uint32_t guildId)
+{
+    return guildId + GH_PHASE_OFFSET;
+}
 
-    inline bool IsHorde(GHBehaviorFlags flags)
-    {
-        return HasFlag(static_cast<uint32_t>(flags), GH_FACTION_HORDE);
-    }
+
+inline bool IsAlliance(uint32_t flags)
+{
+    return HasFlag(flags, GH_FACTION_ALLIANCE);
+}
+
+
+inline bool IsHorde(uint32_t flags)
+{
+    return HasFlag(flags, GH_FACTION_HORDE);
+}
+
+
+inline bool IsNeutral(uint32_t flags)
+{
+    return HasFlag(flags, GH_FACTION_NEUTRAL);
+}
+
 }
 
 #endif
