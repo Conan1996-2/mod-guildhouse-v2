@@ -31,9 +31,8 @@ public:
 
 private:
 
-    static bool IsGuildMaster(
-        Player* player);
+    bool IsGuildMaster(Player* player);
 
-};
+    void SendMainMenu(Player* player, Creature* creature);
 
 #endif
