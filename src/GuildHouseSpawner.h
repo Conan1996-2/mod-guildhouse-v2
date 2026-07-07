@@ -3,41 +3,54 @@
 
 #include <cstdint>
 
-#include "GuildHouseTypes.h"
-
-class Creature;
-class GameObject;
-class Player;
-
 class GuildHouseSpawner
 {
 public:
+
     static GuildHouseSpawner& Instance();
 
-    // =====================================================
-    // Permanent spawn creation
-    // =====================================================
 
-    bool SpawnCatalogAsset(
-        Player* player,
+    // Called on server startup
+    void LoadAllGuildHouses();
+
+
+    // Spawn all permanent assets for one guild
+    void SpawnGuild(uint32_t guildId);
+
+
+    // Spawn one purchased catalog asset
+    bool SpawnAsset(
         uint32_t guildId,
-        uint32_t assetId,
-        const GHCatalogAsset& component,
-        float baseX,
-        float baseY,
-        float baseZ,
-        float baseO);
+        uint32_t assetId);
 
-    // =====================================================
-    // Permanent removal
-    // =====================================================
 
-    bool RemoveAsset(uint32_t assetId);
 
 private:
+
     GuildHouseSpawner() = default;
+
+
+    bool SpawnCreature(
+        uint32_t guildId,
+        uint32_t entry,
+        float x,
+        float y,
+        float z,
+        float o);
+
+
+    bool SpawnGameObject(
+        uint32_t guildId,
+        uint32_t entry,
+        float x,
+        float y,
+        float z,
+        float o);
+
 };
 
+
 #define sGuildHouseSpawner GuildHouseSpawner::Instance()
+
 
 #endif
