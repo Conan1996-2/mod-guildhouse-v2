@@ -1,58 +1,85 @@
 #ifndef MOD_GUILDHOUSE_INSTANCE_MGR_H
 #define MOD_GUILDHOUSE_INSTANCE_MGR_H
 
-#include <unordered_map>
-#include <vector>
+#include <cstdint>
+
+/*
+    DEPRECATED
+
+    GuildHouse no longer uses runtime instances.
+
+    Permanent objects are stored in:
+
+        guildhouse_asset
+
+    and loaded by:
+
+        GuildHouseSpawner
+
+    This class remains temporarily so older code does not break.
+*/
+
 
 struct GHInstanceRecord
 {
-    uint32_t guildId;
+    uint32_t GuildId = 0;
+    uint32_t AssetId = 0;
+    uint32_t CatalogId = 0;
 
-    uint32_t assetId;
-    uint32_t catalogId;
+    uint32_t Guid = 0;
 
-    uint32_t guid;
+    uint8_t Type = 0;
 
-    uint8_t type;          // creature/gameobject/salesman
+    uint32_t MapId = 0;
+    uint32_t Phase = 0;
 
-    uint32_t mapId;
-    uint32_t phase;
-
-    float x;
-    float y;
-    float z;
-    float o;
+    float X = 0;
+    float Y = 0;
+    float Z = 0;
+    float O = 0;
 };
+
+
 
 class GuildHouseInstanceMgr
 {
+
 public:
 
     static GuildHouseInstanceMgr& Instance();
 
+
+    /*
+        Deprecated compatibility functions
+    */
+
     void Load();
 
-    void Save(const GHInstanceRecord& record);
+    void LoadInstances();
 
-    void AddInstance(const GHInstanceRecord& record);
 
-    void RemoveGuild(uint32_t guildId);
+    void Save(
+        const GHInstanceRecord& record);
 
-    void RemoveGuid(uint32_t guid);
 
-    const std::vector<GHInstanceRecord>&
-    GetGuildInstances(uint32_t guildId) const;
+    void AddInstance(
+        const GHInstanceRecord& record);
 
-    GHInstanceRecord* GetByGuid(uint32_t guid);
+
+    void RemoveGuild(
+        uint32_t guildId);
+
+
 
 private:
 
     GuildHouseInstanceMgr() = default;
 
-    std::unordered_map<uint32_t,
-        std::vector<GHInstanceRecord>> _instances;
 };
 
+
+
 #define sGuildHouseInstanceMgr GuildHouseInstanceMgr::Instance()
+
 
 #endif
