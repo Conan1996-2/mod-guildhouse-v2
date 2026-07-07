@@ -10,19 +10,19 @@ public:
     static GuildHouseSpawner& Instance();
 
 
-    // Called on server startup
+    // Optional startup loading
+    // Disabled by default
     void LoadAllGuildHouses();
 
 
-    // Spawn all permanent assets for one guild
+    // Spawn every purchased asset belonging to guild
     void SpawnGuild(uint32_t guildId);
 
 
-    // Spawn one purchased catalog asset
+    // Spawn one purchased catalog item
     bool SpawnAsset(
         uint32_t guildId,
         uint32_t assetId);
-
 
 
 private:
@@ -30,7 +30,7 @@ private:
     GuildHouseSpawner() = default;
 
 
-    bool SpawnCreature(
+    bool CreatePermanentCreature(
         uint32_t guildId,
         uint32_t entry,
         float x,
@@ -39,7 +39,7 @@ private:
         float o);
 
 
-    bool SpawnGameObject(
+    bool CreatePermanentGameObject(
         uint32_t guildId,
         uint32_t entry,
         float x,
