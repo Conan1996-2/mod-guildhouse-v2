@@ -35,4 +35,6 @@ private:
 
     void SendMainMenu(Player* player, Creature* creature);
 
+};
+
 #endif
