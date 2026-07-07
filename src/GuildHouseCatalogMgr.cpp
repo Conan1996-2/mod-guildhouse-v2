@@ -4,6 +4,8 @@
 #include "QueryResult.h"
 #include "Log.h"
 
+#include <algorithm>
+
 GuildHouseCatalogMgr& GuildHouseCatalogMgr::Instance()
 {
     static GuildHouseCatalogMgr instance;
@@ -129,4 +131,91 @@ const GHCatalog* GuildHouseCatalogMgr::GetCatalog(uint32 id) const
         return nullptr;
 
     return &itr->second;
+}
+
+const GHCategory* GuildHouseCatalogMgr::GetCategory(uint32_t id) const
+{
+    auto itr = _categories.find(id);
+
+    if (itr == _categories.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
+std::vector<const GHCategory*> GuildHouseCatalogMgr::GetRootCategories() const
+{
+    std::vector<const GHCategory*> result;
+
+    for (auto const& pair : _categories)
+    {
+        if (!pair.second.Enabled)
+            continue;
+
+        if (pair.second.ParentId == 0)
+            result.push_back(&pair.second);
+    }
+
+    std::sort(result.begin(), result.end(),
+        [](GHCategory const* a, GHCategory const* b)
+        {
+            return a->SortOrder < b->SortOrder;
+        });
+
+    return result;
+}
+
+std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
+{
+    std::vector<const GHCategory*> result;
+
+    for (auto const& pair : _categories)
+    {
+        if (!pair.second.Enabled)
+            continue;
+
+        if (pair.second.ParentId == parentId)
+            result.push_back(&pair.second);
+    }
+
+    std::sort(result.begin(), result.end(),
+        [](GHCategory const* a, GHCategory const* b)
+        {
+            return a->SortOrder < b->SortOrder;
+        });
+
+    return result;
+}
+
+std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
+{
+    std::vector<const GHCatalog*> result;
+
+    for (auto const& pair : _catalogs)
+    {
+        if (!pair.second.Enabled)
+            continue;
+
+        if (pair.second.CategoryId == categoryId)
+            result.push_back(&pair.second);
+    }
+
+    return result;
+}
+
+std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetAllCatalogs() const
+{
+    std::vector<const GHCatalog*> result;
+
+    result.reserve(_catalogs.size());
+
+    for (auto const& pair : _catalogs)
+    {
+        if (!pair.second.Enabled)
+            continue;
+
+        result.push_back(&pair.second);
+    }
+
+    return result;
 }
