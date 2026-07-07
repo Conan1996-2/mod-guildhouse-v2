@@ -29,14 +29,6 @@ CREATE TABLE `guildhouse_asset`
     `phase` INT UNSIGNED NOT NULL,
 
 
-    -- actual spawned world object
-    `spawnGuid` INT UNSIGNED NOT NULL DEFAULT 0,
-
-    -- 0 = creature
-    -- 1 = gameobject
-    `spawnType` TINYINT UNSIGNED NOT NULL DEFAULT 0,
-
-
     `positionX` FLOAT NOT NULL,
     `positionY` FLOAT NOT NULL,
     `positionZ` FLOAT NOT NULL,
@@ -97,3 +89,55 @@ CREATE TABLE `guildhouse_instance`
     KEY `idx_map_phase` (`mapId`, `phase`),
     KEY `idx_asset` (`assetId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `guildhouse_spawn`;
+
+CREATE TABLE `guildhouse_spawn`
+(
+    `spawnId` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    `assetId` INT UNSIGNED NOT NULL,
+
+    `guildId` INT UNSIGNED NOT NULL,
+
+
+    -- Real AzerothCore spawn GUID
+    `spawnGuid` INT UNSIGNED NOT NULL,
+
+
+    -- 0 = creature
+    -- 1 = gameobject
+    `spawnType` TINYINT UNSIGNED NOT NULL,
+
+
+    `mapId` INT UNSIGNED NOT NULL,
+
+    `phase` INT UNSIGNED NOT NULL,
+
+
+    `positionX` FLOAT NOT NULL,
+    `positionY` FLOAT NOT NULL,
+    `positionZ` FLOAT NOT NULL,
+    `orientation` FLOAT NOT NULL,
+
+
+    `enabled` TINYINT(1) NOT NULL DEFAULT 1,
+
+
+    `createdDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+
+    PRIMARY KEY (`spawnId`),
+
+
+    KEY `idx_asset` (`assetId`),
+
+    KEY `idx_guild` (`guildId`),
+
+    KEY `idx_spawnGuid` (`spawnGuid`),
+
+    KEY `idx_enabled` (`enabled`)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
