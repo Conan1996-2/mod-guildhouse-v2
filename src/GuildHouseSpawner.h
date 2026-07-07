@@ -2,19 +2,37 @@
 #define MOD_GUILDHOUSE_SPAWNER_H
 
 #include <cstdint>
+
 #include "GuildHouseTypes.h"
+
+class Creature;
+class GameObject;
+class Player;
 
 class GuildHouseSpawner
 {
 public:
     static GuildHouseSpawner& Instance();
 
-    void LoadAllGuildHouses();
+    // =====================================================
+    // Permanent spawn creation
+    // =====================================================
 
-    void SpawnGuild(uint32_t guildId);
-    void DespawnGuild(uint32_t guildId);
+    bool SpawnCatalogAsset(
+        Player* player,
+        uint32_t guildId,
+        uint32_t assetId,
+        const GHCatalogAsset& component,
+        float baseX,
+        float baseY,
+        float baseZ,
+        float baseO);
 
-    void SpawnAsset(uint32_t guildId, uint32_t assetId);
+    // =====================================================
+    // Permanent removal
+    // =====================================================
+
+    bool RemoveAsset(uint32_t assetId);
 
 private:
     GuildHouseSpawner() = default;
