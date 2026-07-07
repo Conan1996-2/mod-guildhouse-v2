@@ -172,63 +172,68 @@ bool GuildHouseNpc::OnGossipSelect(
 
         case ACTION_BUY:
         {
-
+        
             if (!IsGuildMaster(player))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "Only the Guild Master may purchase a Guild House.");
-
+        
                 break;
             }
-
-
-
+        
+        
             if (sGuildHouseMgr.HasGuildHouse(guildId))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "Your guild already owns a Guild House.");
-
+        
                 break;
             }
-
-
-
+        
+        
+        
             uint64 cost =
                 sGuildHouseConfig.GetHouseCost();
-
-
-
+        
+        
+        
             if (!player->HasEnoughMoney(cost))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "You do not have enough gold.");
-
+        
                 break;
             }
-
-
-
+        
+        
+        
+            if (!sGuildHouseMgr.CreateGuildHouse(
+                    guildId,
+                    player->GetGUID().GetCounter()))
+            {
+                ChatHandler(player->GetSession())
+                    .PSendSysMessage(
+                        "Failed to create Guild House.");
+        
+                break;
+            }
+        
+        
+        
             player->ModifyMoney(
                 -int64(cost));
-
-
-
-            sGuildHouseMgr.CreateGuildHouse(
-                guildId,
-                player->GetGUID().GetCounter());
-
-
-
+        
+        
+        
             ChatHandler(player->GetSession())
                 .PSendSysMessage(
-                    "Your Guild House has been purchased. The Guild Master may now place the salesman.");
-
+                    "Guild House purchased. The Guild Master may now place the salesman.");
+        
             break;
         }
-
 
 
         case ACTION_TELEPORT:
