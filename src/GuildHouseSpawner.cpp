@@ -2,14 +2,9 @@
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
-#include "GuildHouseTypes.h"
 #include "GuildHouseDefines.h"
+#include "GuildHouseTypes.h"
 
-#include "ObjectMgr.h"
-#include "Map.h"
-#include "MapMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 
@@ -18,32 +13,30 @@ GuildHouseSpawner&
 GuildHouseSpawner::Instance()
 {
     static GuildHouseSpawner instance;
-
     return instance;
 }
-
 
 
 
 void GuildHouseSpawner::LoadAllGuildHouses()
 {
     /*
-        Optional startup loading.
+        Optional future feature.
 
-        Currently disabled because spawning
-        every guild house automatically is optional.
+        If enabled later:
 
-        Later:
+        for every guildhouse_asset
+            SpawnAsset()
 
-        for each guildhouse
-            SpawnGuild(guildId)
+        Currently disabled because
+        purchases spawn immediately.
     */
-
 
     LOG_INFO(
         "module",
-        "GuildHouseSpawner startup load skipped");
+        "GuildHouseSpawner startup loading disabled");
 }
+
 
 
 
@@ -60,14 +53,15 @@ void GuildHouseSpawner::SpawnGuild(
 
 
 
-    for (const GHGuildAsset& asset :
-         house->Assets)
+    for (const GHGuildAsset& asset : house->Assets)
     {
         SpawnAsset(
             guildId,
             asset.AssetId);
     }
 }
+
+
 
 
 
@@ -89,8 +83,7 @@ bool GuildHouseSpawner::SpawnAsset(
     const GHGuildAsset* asset = nullptr;
 
 
-    for (const auto& a :
-         house->Assets)
+    for (const auto& a : house->Assets)
     {
         if (a.AssetId == assetId)
         {
@@ -105,6 +98,7 @@ bool GuildHouseSpawner::SpawnAsset(
 
 
 
+
     const GHCatalog* catalog =
         sGuildHouseCatalogMgr.GetCatalog(
             asset->CatalogId);
@@ -116,10 +110,10 @@ bool GuildHouseSpawner::SpawnAsset(
 
 
 
-
     uint32_t phase =
         GuildHouseUtil::GetGuildHousePhase(
             guildId);
+
 
 
 
@@ -142,10 +136,10 @@ bool GuildHouseSpawner::SpawnAsset(
 
 
         if (GuildHouseUtil::HasFlag(
-                static_cast<uint32_t>(component.SpawnFlags),
+                component.SpawnFlags,
                 GH_SPAWN_CREATURE))
         {
-            SpawnCreature(
+            CreatePermanentCreature(
                 guildId,
                 component.Entry,
                 x,
@@ -156,29 +150,18 @@ bool GuildHouseSpawner::SpawnAsset(
 
 
 
+
         if (GuildHouseUtil::HasFlag(
-                static_cast<uint32_t>(component.SpawnFlags),
+                component.SpawnFlags,
                 GH_SPAWN_GAMEOBJECT))
         {
-            SpawnGameObject(
+            CreatePermanentGameObject(
                 guildId,
                 component.Entry,
                 x,
                 y,
                 z,
                 o);
-        }
-
-
-
-        if (GuildHouseUtil::HasFlag(
-                static_cast<uint32_t>(component.SpawnFlags),
-                GH_SPAWN_PORTAL))
-        {
-            LOG_INFO(
-                "module",
-                "GuildHouse portal component {} ready",
-                component.Entry);
         }
     }
 
@@ -192,7 +175,10 @@ bool GuildHouseSpawner::SpawnAsset(
 
 
 
-bool GuildHouseSpawner::SpawnCreature(
+
+
+
+bool GuildHouseSpawner::CreatePermanentCreature(
     uint32_t guildId,
     uint32_t entry,
     float x,
@@ -201,72 +187,46 @@ bool GuildHouseSpawner::SpawnCreature(
     float o)
 {
 
-    Map* map =
-        sMapMgr->CreateBaseMap(
-            GH_MAP);
-
-
-    if (!map)
-        return false;
-
-
-
-    uint32_t spawnId =
-        sObjectMgr->GenerateCreatureSpawnId();
-
-
-
-    CreatureData& data =
-        sObjectMgr->NewOrExistCreatureData(
-            spawnId);
-
-
-
-    data.id =
-        entry;
-
-
-    data.mapid =
-        GH_MAP;
-
-
-    data.phaseMask =
+    uint32_t phase =
         GuildHouseUtil::GetGuildHousePhase(
             guildId);
-
-
-
-    data.posX = x;
-    data.posY = y;
-    data.posZ = z;
-    data.orientation = o;
 
 
 
     std::ostringstream sql;
 
 
-    sql << "INSERT INTO creature "
-        << "(guid, id, map, position_x, position_y, "
-        << "position_z, orientation, phaseMask) VALUES ("
-        << spawnId << ","
-        << entry << ","
-        << GH_MAP << ","
-        << x << ","
-        << y << ","
-        << z << ","
-        << o << ","
-        << data.phaseMask
-        << ")";
+    sql <<
+    "INSERT INTO creature "
+    "(id,map,spawnMask,phaseMask,"
+    "position_x,position_y,position_z,orientation,"
+    "spawntimesecs,MovementType,Comment) VALUES ("
+
+    << entry << ","
+    << GH_MAP << ","
+    << 1 << ","
+    << phase << ","
+
+    << x << ","
+    << y << ","
+    << z << ","
+    << o << ","
+
+    << 300 << ","
+    << 0 << ","
+
+    << "'GuildHouse permanent spawn')";
 
 
-    WorldDatabase.Execute(sql.str());
+
+    WorldDatabase.Execute(
+        sql.str());
 
 
 
     LOG_INFO(
         "module",
-        "GuildHouse permanent creature {} spawned for guild {}",
+        "GuildHouse creature {} created for guild {}",
         entry,
         guildId);
 
@@ -280,7 +240,10 @@ bool GuildHouseSpawner::SpawnCreature(
 
 
 
-bool GuildHouseSpawner::SpawnGameObject(
+
+
+
+bool GuildHouseSpawner::CreatePermanentGameObject(
     uint32_t guildId,
     uint32_t entry,
     float x,
@@ -289,18 +252,45 @@ bool GuildHouseSpawner::SpawnGameObject(
     float o)
 {
 
-    /*
-        Same permanent philosophy.
+    uint32_t phase =
+        GuildHouseUtil::GetGuildHousePhase(
+            guildId);
 
-        Insert into gameobject table.
 
-        No runtime GUID tracking.
-    */
+
+    std::ostringstream sql;
+
+
+    sql <<
+    "INSERT INTO gameobject "
+    "(id,map,spawnMask,phaseMask,"
+    "position_x,position_y,position_z,"
+    "orientation,spawntimesecs,Comment) VALUES ("
+
+    << entry << ","
+    << GH_MAP << ","
+    << 1 << ","
+    << phase << ","
+
+    << x << ","
+    << y << ","
+    << z << ","
+    << o << ","
+
+    << 300 << ","
+
+    << "'GuildHouse permanent object')";
+
+
+
+    WorldDatabase.Execute(
+        sql.str());
+
 
 
     LOG_INFO(
         "module",
-        "GuildHouse permanent gameobject {} spawned for guild {}",
+        "GuildHouse gameobject {} created for guild {}",
         entry,
         guildId);
 
