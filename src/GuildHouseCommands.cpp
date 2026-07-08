@@ -27,7 +27,7 @@ public:
         static ChatCommandTable npcTable =
         {
             { "broker",   HandleAddBroker,   SEC_GAMEMASTER, Console::No },
-            { "salesman", HandleAddSalesman, SEC_GAMEMASTER, Console::No }
+            { "salesman", HandleAddSalesman, SEC_PLAYER, Console::No }
         };
 
 
