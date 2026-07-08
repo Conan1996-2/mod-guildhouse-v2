@@ -293,18 +293,14 @@ bool GuildHouseMgr::PlaceAsset(
     if (!player)
         return false;
 
-
     if (!GuildHouseUtil::IsGuildMaster(player))
         return false;
-
 
     uint32 guildId =
         player->GetGuildId();
 
-
     if (!guildId)
         return false;
-
 
     if (!GuildHouseUtil::IsOnGMIsland(player))
     {
@@ -314,7 +310,6 @@ bool GuildHouseMgr::PlaceAsset(
 
         return false;
     }
-
 
     // Load asset from database
 
@@ -327,22 +322,17 @@ bool GuildHouseMgr::PlaceAsset(
             assetId,
             guildId);
 
-
     if (!result)
         return false;
-
 
     Field* f =
         result->Fetch();
 
-
     uint32 catalogId =
         f[0].Get<uint32>();
 
-
     uint8 status =
         f[1].Get<uint8>();
-
 
     if (status != GH_ASSET_PURCHASED)
     {
@@ -352,8 +342,6 @@ bool GuildHouseMgr::PlaceAsset(
 
         return false;
     }
-
-
 
     //
     // Update location
@@ -376,18 +364,14 @@ bool GuildHouseMgr::PlaceAsset(
         player->GetOrientation(),
         assetId);
 
-
-
     sGuildHouseSpawner.SpawnAsset(
         guildId,
         assetId);
-
 
     ChatHandler(player->GetSession())
         .PSendSysMessage(
             "Placed Guild House asset ID %u",
             assetId);
-
 
     return true;
 }
