@@ -2,6 +2,7 @@
 #define MOD_GUILDHOUSE_DEFINES_H
 
 #include <cstdint>
+#include "Player.h"
 
 // =====================================================
 // Core Constants
@@ -117,6 +118,33 @@ enum GHScriptType : uint32_t
 
 namespace GuildHouseUtil
 {
+
+inline bool IsOnGMIsland(Player* player)
+{
+    if (!player)
+        return false;
+
+    return player->GetMapId() == GH_MAP;
+}
+
+inline bool IsGuildMaster(Player* player)
+{
+    if (!player)
+        return false;
+
+    Guild* guild = player->GetGuild();
+
+    if (!guild)
+        return false;
+
+    return guild->GetLeaderGUID() == player->GetGUID();
+}
+
+
+inline uint32 GetGuildHousePhase(uint32 guildId)
+{
+    return guildId + GH_PHASE_OFFSET;
+}
 
 inline bool HasFlag(uint32_t value, uint32_t flag)
 {
