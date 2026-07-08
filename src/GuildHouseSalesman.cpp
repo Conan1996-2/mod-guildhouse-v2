@@ -43,6 +43,15 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(
         return false;
     }
 
+    if (guild->GetLeaderGUID() != player->GetGUID())
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may use the Guild House salesman.");
+    
+        return false;
+    }
+    
     uint32 guildId =
         guild->GetId();
 
