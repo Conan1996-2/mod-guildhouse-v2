@@ -6,140 +6,129 @@
 #include "GuildHouseTypes.h"
 
 #include "DatabaseEnv.h"
+#include "MapMgr.h"
+#include "Map.h"
+#include "ObjectMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "Log.h"
 
-
-GuildHouseSpawner&
-GuildHouseSpawner::Instance()
+GuildHouseSpawner& GuildHouseSpawner::Instance()
 {
     static GuildHouseSpawner instance;
     return instance;
 }
 
+// =====================================================
+// Startup loader
+//
+// Only respawns assets that are already placed.
+// Purchased items remain stored.
+// =====================================================
 
-
-void GuildHouseSpawner::LoadAllGuildHouses()
+void GuildHouseSpawner::LoadPlacedAssets()
 {
-    /*
-        Optional future feature.
+    if (QueryResult result =
+        CharacterDatabase.Query(
+            "SELECT guildId, assetId "
+            "FROM guildhouse_asset "
+            "WHERE status = 1"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
 
-        If enabled later:
+            uint32 guildId =
+                fields[0].Get<uint32>();
 
-        for every guildhouse_asset
-            SpawnAsset()
+            uint32 assetId =
+                fields[1].Get<uint32>();
 
-        Currently disabled because
-        purchases spawn immediately.
-    */
+            SpawnAsset(
+                guildId,
+                assetId);
+
+        } while (result->NextRow());
+    }
 
     LOG_INFO(
         "module",
-        "GuildHouseSpawner startup loading disabled");
+        "GuildHouseSpawner loaded placed assets");
 }
 
-
-
-
-
-void GuildHouseSpawner::SpawnGuild(
-    uint32_t guildId)
-{
-    const GHGuildHouse* house =
-        sGuildHouseMgr.GetGuildHouse(guildId);
-
-
-    if (!house)
-        return;
-
-
-
-    for (const GHGuildAsset& asset : house->Assets)
-    {
-        SpawnAsset(
-            guildId,
-            asset.AssetId);
-    }
-}
-
-
-
-
-
-
+// =====================================================
+// Spawn one asset
+// =====================================================
 
 bool GuildHouseSpawner::SpawnAsset(
-    uint32_t guildId,
-    uint32_t assetId)
+    uint32 guildId,
+    uint32 assetId)
 {
-    const GHGuildHouse* house =
-        sGuildHouseMgr.GetGuildHouse(guildId);
+    QueryResult result =
+        CharacterDatabase.Query(
+            "SELECT catalogId, status, "
+            "positionX, positionY, positionZ, orientation "
+            "FROM guildhouse_asset "
+            "WHERE assetId=%u "
+            "AND guildId=%u",
+            assetId,
+            guildId);
 
-
-    if (!house)
+    if (!result)
         return false;
 
+    Field* fields =
+        result->Fetch();
 
+    uint32 catalogId =
+        fields[0].Get<uint32>();
 
-    const GHGuildAsset* asset = nullptr;
+    uint8 status =
+        fields[1].Get<uint8>();
 
-
-    for (const auto& a : house->Assets)
-    {
-        if (a.AssetId == assetId)
-        {
-            asset = &a;
-            break;
-        }
-    }
-
-
-    if (!asset)
+    if (status != GH_ASSET_PLACED)
         return false;
 
+    float baseX =
+        fields[2].Get<float>();
 
+    float baseY =
+        fields[3].Get<float>();
 
+    float baseZ =
+        fields[4].Get<float>();
+
+    float baseO =
+        fields[5].Get<float>();
 
     const GHCatalog* catalog =
         sGuildHouseCatalogMgr.GetCatalog(
-            asset->CatalogId);
-
-
+            catalogId);
 
     if (!catalog)
         return false;
-
-
-
-    uint32_t phase =
-        GuildHouseUtil::GetGuildHousePhase(
-            guildId);
-
-
-
 
     for (const GHCatalogAsset& component :
          catalog->Components)
     {
 
         float x =
-            asset->X + component.XOffset;
+            baseX + component.XOffset;
 
         float y =
-            asset->Y + component.YOffset;
+            baseY + component.YOffset;
 
         float z =
-            asset->Z + component.ZOffset;
+            baseZ + component.ZOffset;
 
         float o =
-            asset->O + component.OOffset;
-
-
+            baseO + component.OOffset;
 
         if (GuildHouseUtil::HasFlag(
                 component.SpawnFlags,
                 GH_SPAWN_CREATURE))
         {
-            CreatePermanentCreature(
+            SpawnCreature(
                 guildId,
                 component.Entry,
                 x,
@@ -148,14 +137,11 @@ bool GuildHouseSpawner::SpawnAsset(
                 o);
         }
 
-
-
-
         if (GuildHouseUtil::HasFlag(
                 component.SpawnFlags,
                 GH_SPAWN_GAMEOBJECT))
         {
-            CreatePermanentGameObject(
+            SpawnGameObject(
                 guildId,
                 component.Entry,
                 x,
@@ -165,136 +151,116 @@ bool GuildHouseSpawner::SpawnAsset(
         }
     }
 
-
-
     return true;
 }
 
+// =====================================================
+// Creature permanent spawn
+// =====================================================
 
-
-
-
-
-
-
-
-bool GuildHouseSpawner::CreatePermanentCreature(
-    uint32_t guildId,
-    uint32_t entry,
+bool GuildHouseSpawner::SpawnCreature(
+    uint32 guildId,
+    uint32 entry,
     float x,
     float y,
     float z,
     float o)
 {
-
-    uint32_t phase =
-        GuildHouseUtil::GetGuildHousePhase(
-            guildId);
-
-
-
     std::ostringstream sql;
-
 
     sql <<
     "INSERT INTO creature "
-    "(id,map,spawnMask,phaseMask,"
-    "position_x,position_y,position_z,orientation,"
-    "spawntimesecs,MovementType,Comment) VALUES ("
-
+    "(id,map,phaseMask,"
+    "position_x,position_y,position_z,"
+    "orientation)"
+    " VALUES ("
     << entry << ","
     << GH_MAP << ","
-    << 1 << ","
-    << phase << ","
-
+    << GuildHouseUtil::GetGuildHousePhase(guildId)
+    << ","
     << x << ","
     << y << ","
     << z << ","
-    << o << ","
-
-    << 300 << ","
-    << 0 << ","
-
-    << "'GuildHouse permanent spawn')";
-
-
+    << o
+    << ")";
 
     WorldDatabase.Execute(
         sql.str());
 
-
-
     LOG_INFO(
         "module",
-        "GuildHouse creature {} created for guild {}",
+        "GuildHouse creature {} spawned for guild {}",
         entry,
         guildId);
-
-
 
     return true;
 }
 
+// =====================================================
+// GameObject permanent spawn
+// =====================================================
 
-
-
-
-
-
-
-
-bool GuildHouseSpawner::CreatePermanentGameObject(
-    uint32_t guildId,
-    uint32_t entry,
+bool GuildHouseSpawner::SpawnGameObject(
+    uint32 guildId,
+    uint32 entry,
     float x,
     float y,
     float z,
     float o)
 {
-
-    uint32_t phase =
-        GuildHouseUtil::GetGuildHousePhase(
-            guildId);
-
-
-
     std::ostringstream sql;
-
 
     sql <<
     "INSERT INTO gameobject "
-    "(id,map,spawnMask,phaseMask,"
+    "(id,map,phaseMask,"
     "position_x,position_y,position_z,"
-    "orientation,spawntimesecs,Comment) VALUES ("
-
+    "orientation)"
+    " VALUES ("
     << entry << ","
     << GH_MAP << ","
-    << 1 << ","
-    << phase << ","
-
+    << GuildHouseUtil::GetGuildHousePhase(guildId)
+    << ","
     << x << ","
     << y << ","
     << z << ","
-    << o << ","
-
-    << 300 << ","
-
-    << "'GuildHouse permanent object')";
-
-
+    << o
+    << ")";
 
     WorldDatabase.Execute(
         sql.str());
 
-
-
     LOG_INFO(
         "module",
-        "GuildHouse gameobject {} created for guild {}",
+        "GuildHouse gameobject {} spawned for guild {}",
         entry,
         guildId);
 
+    return true;
+}
 
+// =====================================================
+// Remove asset
+//
+// Placeholder for .gh store / sell / move
+// =====================================================
+
+bool GuildHouseSpawner::RemoveAsset(
+    uint32 guildId,
+    uint32 assetId)
+{
+    //
+    // Future:
+    //
+    // Find creature/gameobject rows
+    // belonging to assetId
+    // remove them
+    //
+
+    LOG_INFO(
+        "module",
+        "GuildHouse remove requested guild {} asset {}",
+        guildId,
+        assetId);
 
     return true;
 }
