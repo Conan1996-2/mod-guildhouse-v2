@@ -46,11 +46,21 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(
     uint32 guildId =
         guild->GetId();
 
-    //
-    // Must be inside guild phase
-    //
+    if (!sGuildHouseMgr.HasGuildHouse(guildId))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Your guild does not own a Guild House.");
+
+        return false;
+    }
+
     uint32 phase =
         GuildHouseUtil::GetGuildHousePhase(guildId);
+
+    //
+    // Player must be in guild phase
+    //
 
     if ((player->GetPhaseMask() & phase) == 0)
     {
@@ -62,8 +72,9 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(
     }
 
     //
-    // Must be GM Island
+    // Player must be on GM Island
     //
+
     if (!GuildHouseUtil::IsOnGMIsland(player))
     {
         ChatHandler(player->GetSession())
@@ -74,13 +85,27 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(
     }
 
     //
-    // Guild must own a house
+    // Salesman must also be in correct phase
     //
-    if (!sGuildHouseMgr.HasGuildHouse(guildId))
+
+    if ((creature->GetPhaseMask() & phase) == 0)
     {
         ChatHandler(player->GetSession())
             .PSendSysMessage(
-                "Your guild does not own a Guild House.");
+                "This Guild House salesman is incorrectly phased.");
+
+        return false;
+    }
+
+    //
+    // Salesman must be on GM Island
+    //
+
+    if (creature->GetMapId() != GH_MAP)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Guild House salesman is not on GM Island.");
 
         return false;
     }
