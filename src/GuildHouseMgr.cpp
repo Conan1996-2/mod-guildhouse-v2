@@ -199,7 +199,10 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     if (!player)
         return false;
 
-    uint32 guildId = player->GetGuildId();
+
+    uint32 guildId =
+        player->GetGuildId();
+
 
     if (!guildId)
     {
@@ -210,6 +213,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
+
+
     if (!HasGuildHouse(guildId))
     {
         ChatHandler(player->GetSession())
@@ -219,8 +224,27 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
+
+
+    //
+    // Only Guild Master can purchase
+    //
+    if (!GuildHouseUtil::IsGuildMaster(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may purchase Guild House items.");
+
+        return false;
+    }
+
+
+
     const GHCatalog* catalog =
-        sGuildHouseCatalogMgr.GetCatalog(catalogId);
+        sGuildHouseCatalogMgr.GetCatalog(
+            catalogId);
+
+
 
     if (!catalog || !catalog->Enabled)
     {
@@ -231,22 +255,20 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
+
+
     uint32 phase =
         GetPhase(guildId);
 
-    float x =
-        player->GetPositionX();
 
-    float y =
-        player->GetPositionY();
 
-    float z =
-        player->GetPositionZ();
-
-    float o =
-        player->GetOrientation();
-
+    //
+    // Purchased but NOT placed.
+    //
+    // Position values remain 0 until .gh place
+    //
     std::ostringstream ss;
+
 
     ss <<
     "INSERT INTO guildhouse_asset "
@@ -256,32 +278,46 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     << guildId << ","
     << 1 << ","
     << catalogId << ","
-    << GH_ASSET_PLACED << ","
+    << GH_ASSET_PURCHASED << ","
     << phase << ","
-    << x << ","
-    << y << ","
-    << z << ","
-    << o << ","
+    << 0 << ","
+    << 0 << ","
+    << 0 << ","
+    << 0 << ","
     << player->GetGUID().GetCounter()
     << ")";
 
-    CharacterDatabase.Execute(ss.str());
+
+
+    CharacterDatabase.Execute(
+        ss.str());
+
+
 
     QueryResult result =
         CharacterDatabase.Query(
             "SELECT LAST_INSERT_ID()");
 
+
+
     if (!result)
         return false;
+
+
 
     uint32 assetId =
         result->Fetch()[0]
         .Get<uint32>();
 
+
+
     ChatHandler(player->GetSession())
         .PSendSysMessage(
-            "Guild House item purchased. Use .gh place %u to place it.",
+            "Guild House item purchased. Asset ID: %u. Use .gh place %u to place it.",
+            assetId,
             assetId);
+
+
 
     return true;
 }
