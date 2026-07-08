@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include "Player.h"
+#include "Guild.h"
 
 // =====================================================
 // Core Constants
@@ -150,13 +151,6 @@ inline bool HasFlag(uint32_t value, uint32_t flag)
 {
     return (value & flag) != 0;
 }
-
-
-inline uint32_t GetGuildHousePhase(uint32_t guildId)
-{
-    return guildId + GH_PHASE_OFFSET;
-}
-
 
 inline bool IsAlliance(uint32_t flags)
 {
