@@ -78,6 +78,17 @@ bool GuildHouseSpawner::SpawnAsset(
     uint32 guildId,
     uint32 assetId)
 {
+    if (HasExistingSpawn(assetId))
+    {
+        LOG_INFO(
+            "module",
+            "GuildHouse asset {} already spawned.",
+            assetId);
+
+        return true;
+    }
+
+
     QueryResult result =
         CharacterDatabase.Query(
             "SELECT catalogId, status, "
