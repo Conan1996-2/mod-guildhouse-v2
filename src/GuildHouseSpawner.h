@@ -8,15 +8,7 @@ class GuildHouseSpawner
 public:
 
     static GuildHouseSpawner& Instance();
-
-
-    // Optional startup loading
-    // Disabled by default
-    void LoadAllGuildHouses();
-
-
-    // Spawn every purchased asset belonging to guild
-    void SpawnGuild(uint32_t guildId);
+    void LoadPlacedAssets();
 
 
     // Spawn one purchased catalog item
@@ -24,13 +16,15 @@ public:
         uint32_t guildId,
         uint32_t assetId);
 
+    bool RemoveAsset(
+        uint32_t guildId,
+        uint32_t assetId);
 
 private:
 
     GuildHouseSpawner() = default;
 
-
-    bool CreatePermanentCreature(
+    bool SpawnCreature(
         uint32_t guildId,
         uint32_t entry,
         float x,
@@ -38,8 +32,7 @@ private:
         float z,
         float o);
 
-
-    bool CreatePermanentGameObject(
+    bool SpawnGameObject(
         uint32_t guildId,
         uint32_t entry,
         float x,
@@ -48,7 +41,6 @@ private:
         float o);
 
 };
-
 
 #define sGuildHouseSpawner GuildHouseSpawner::Instance()
 
