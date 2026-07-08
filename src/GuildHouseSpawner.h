@@ -26,6 +26,7 @@ private:
 
     bool SpawnCreature(
         uint32_t guildId,
+        uint32_t assetId,
         uint32_t entry,
         float x,
         float y,
@@ -34,6 +35,7 @@ private:
 
     bool SpawnGameObject(
         uint32_t guildId,
+        uint32_t assetId,
         uint32_t entry,
         float x,
         float y,
