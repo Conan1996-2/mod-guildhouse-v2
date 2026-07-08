@@ -296,7 +296,6 @@ GuildHouseCatalogMgr::GetRootCategories() const
 {
     std::vector<const GHCategory*> result;
 
-
     for (auto const& [id, category] : _categories)
     {
         if (category.ParentId == 0 &&
@@ -306,18 +305,21 @@ GuildHouseCatalogMgr::GetRootCategories() const
         }
     }
 
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](const GHCategory* a, const GHCategory* b)
+        {
+            return a->SortOrder < b->SortOrder;
+        });
 
     return result;
 }
-
-
-
 
 std::vector<const GHCategory*>
 GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
 {
     std::vector<const GHCategory*> result;
-
 
     for (auto const& [id, category] : _categories)
     {
@@ -328,18 +330,21 @@ GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
         }
     }
 
-
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](const GHCategory* a, const GHCategory* b)
+        {
+            return a->SortOrder < b->SortOrder;
+        });
+    
     return result;
 }
-
-
-
 
 std::vector<const GHCatalog*>
 GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
 {
     std::vector<const GHCatalog*> result;
-
 
     for (auto const& [id, catalog] : _catalogs)
     {
@@ -350,25 +355,27 @@ GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
         }
     }
 
-
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](const GHCatalog* a, const GHCatalog* b)
+        {
+            return a->Name < b->Name;
+        });
+    
     return result;
 }
-
-
-
 
 std::vector<const GHCatalog*>
 GuildHouseCatalogMgr::GetAllCatalogs() const
 {
     std::vector<const GHCatalog*> result;
 
-
     for (auto const& [id, catalog] : _catalogs)
     {
         if (catalog.Enabled)
             result.push_back(&catalog);
     }
-
 
     return result;
 }
