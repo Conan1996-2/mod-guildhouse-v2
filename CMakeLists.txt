@@ -1,6 +1,6 @@
 AC_ADD_SCRIPT_LOADER("GuildHouse" "${CMAKE_CURRENT_LIST_DIR}/src/loader.h")
 
-AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseNpc.cpp")
+AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseBroker.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseMgr.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseSpawner.cpp")
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/GuildHouseConfig.cpp")
