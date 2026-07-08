@@ -11,7 +11,6 @@
 #include "Chat.h"
 #include "Log.h"
 
-
 GuildHouseMgr&
 GuildHouseMgr::Instance()
 {
@@ -20,14 +19,9 @@ GuildHouseMgr::Instance()
     return instance;
 }
 
-
-
-
 void GuildHouseMgr::Load()
 {
     _houses.clear();
-
-
 
     //
     // Load guild ownership
@@ -37,20 +31,16 @@ void GuildHouseMgr::Load()
             "SELECT guildId, ownerGuid "
             "FROM guildhouse"))
     {
-
         do
         {
             Field* fields =
                 result->Fetch();
 
-
             uint32_t guildId =
                 fields[0].Get<uint32_t>();
 
-
             uint32_t ownerGuid =
                 fields[1].Get<uint32_t>();
-
 
             GHGuildHouse house;
 
@@ -63,8 +53,6 @@ void GuildHouseMgr::Load()
             house.Phase =
                 GetPhase(guildId);
 
-
-
             _houses.emplace(
                 guildId,
                 house);
@@ -72,10 +60,6 @@ void GuildHouseMgr::Load()
 
         } while(result->NextRow());
     }
-
-
-
-
 
     //
     // Load permanent placed assets
@@ -87,51 +71,37 @@ void GuildHouseMgr::Load()
             "positionX, positionY, positionZ, orientation "
             "FROM guildhouse_asset"))
     {
-
         do
         {
-
             Field* fields =
                 result->Fetch();
-
-
 
             uint32_t guildId =
                 fields[1].Get<uint32_t>();
 
-
             auto itr =
                 _houses.find(guildId);
-
 
             if (itr == _houses.end())
                 continue;
 
-
-
             GHGuildAsset asset;
-
 
             asset.AssetId =
                 fields[0].Get<uint32_t>();
 
-
             asset.GuildId =
                 guildId;
 
-
             asset.CatalogId =
                 fields[2].Get<uint32_t>();
-
 
             asset.Status =
                 static_cast<GHAssetStatus>(
                     fields[3].Get<uint8_t>());
 
-
             asset.Phase =
                 fields[4].Get<uint32_t>();
-
 
             asset.X =
                 fields[5].Get<float>();
@@ -145,27 +115,16 @@ void GuildHouseMgr::Load()
             asset.O =
                 fields[8].Get<float>();
 
-
-
             itr->second.Assets.push_back(asset);
-
-
 
         } while(result->NextRow());
     }
-
-
 
     LOG_INFO(
         "module",
         "GuildHouseMgr loaded {} guild houses",
         _houses.size());
 }
-
-
-
-
-
 
 bool GuildHouseMgr::HasGuildHouse(
     uint32_t guildId) const
@@ -175,21 +134,11 @@ bool GuildHouseMgr::HasGuildHouse(
         != _houses.end();
 }
 
-
-
-
-
-
 uint32_t GuildHouseMgr::GetPhase(
     uint32_t guildId) const
 {
     return guildId + GH_PHASE_OFFSET;
 }
-
-
-
-
-
 
 const GHGuildHouse*
 GuildHouseMgr::GetGuildHouse(
@@ -199,53 +148,35 @@ GuildHouseMgr::GetGuildHouse(
     auto itr =
         _houses.find(guildId);
 
-
     if (itr == _houses.end())
         return nullptr;
 
-
     return &itr->second;
 }
-
-
-
-
-
 
 bool GuildHouseMgr::CreateGuildHouse(
     uint32_t guildId,
     uint32_t ownerGuid)
 {
-
     if (HasGuildHouse(guildId))
         return false;
 
-
-
     GHGuildHouse house;
-
 
     house.GuildId =
         guildId;
 
-
     house.OwnerGuid =
         ownerGuid;
 
-
     house.Phase =
         GetPhase(guildId);
-
-
 
     _houses.emplace(
         guildId,
         house);
 
-
-
     std::ostringstream sql;
-
 
     sql <<
     "INSERT INTO guildhouse "
@@ -255,21 +186,11 @@ bool GuildHouseMgr::CreateGuildHouse(
     << ownerGuid
     << ")";
 
-
-
     CharacterDatabase.Execute(
         sql.str());
 
-
-
     return true;
 }
-
-
-
-
-
-
 
 bool GuildHouseMgr::PurchaseCatalogItem(
     Player* player,
@@ -278,9 +199,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     if (!player)
         return false;
 
-
     uint32 guildId = player->GetGuildId();
-
 
     if (!guildId)
     {
@@ -291,7 +210,6 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
-
     if (!HasGuildHouse(guildId))
     {
         ChatHandler(player->GetSession())
@@ -301,12 +219,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
-
-
     const GHCatalog* catalog =
         sGuildHouseCatalogMgr.GetCatalog(catalogId);
-
-
 
     if (!catalog || !catalog->Enabled)
     {
@@ -317,12 +231,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(
         return false;
     }
 
-
-
     uint32 phase =
         GetPhase(guildId);
-
-
 
     float x =
         player->GetPositionX();
@@ -336,10 +246,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     float o =
         player->GetOrientation();
 
-
-
     std::ostringstream ss;
-
 
     ss <<
     "INSERT INTO guildhouse_asset "
@@ -358,44 +265,128 @@ bool GuildHouseMgr::PurchaseCatalogItem(
     << player->GetGUID().GetCounter()
     << ")";
 
-
     CharacterDatabase.Execute(ss.str());
-
-
 
     QueryResult result =
         CharacterDatabase.Query(
             "SELECT LAST_INSERT_ID()");
+
+    if (!result)
+        return false;
+
+    uint32 assetId =
+        result->Fetch()[0]
+        .Get<uint32>();
+
+    ChatHandler(player->GetSession())
+        .PSendSysMessage(
+            "Guild House item purchased. Use .gh place %u to place it.",
+            assetId);
+
+    return true;
+}
+
+bool GuildHouseMgr::PlaceAsset(
+    Player* player,
+    uint32_t assetId)
+{
+    if (!player)
+        return false;
+
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+        return false;
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    if (!guildId)
+        return false;
+
+
+    if (!GuildHouseUtil::IsOnGMIsland(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Guild House items must be placed on GM Island.");
+
+        return false;
+    }
+
+
+    // Load asset from database
+
+    QueryResult result =
+        CharacterDatabase.Query(
+            "SELECT catalogId,status "
+            "FROM guildhouse_asset "
+            "WHERE assetId=%u "
+            "AND guildId=%u",
+            assetId,
+            guildId);
 
 
     if (!result)
         return false;
 
 
-
-    uint32 assetId =
-        result->Fetch()[0]
-        .Get<uint32>();
+    Field* f =
+        result->Fetch();
 
 
+    uint32 catalogId =
+        f[0].Get<uint32>();
 
-    if (!sGuildHouseSpawner.SpawnAsset(
-            guildId,
-            assetId))
+
+    uint8 status =
+        f[1].Get<uint8>();
+
+
+    if (status != GH_ASSET_PURCHASED)
     {
         ChatHandler(player->GetSession())
             .PSendSysMessage(
-                "Failed to place Guild House item.");
-    
+                "This item is already placed.");
+
         return false;
     }
 
 
 
+    //
+    // Update location
+    //
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset SET "
+        "status=%u,"
+        "phase=%u,"
+        "positionX=%f,"
+        "positionY=%f,"
+        "positionZ=%f,"
+        "orientation=%f "
+        "WHERE assetId=%u",
+        GH_ASSET_PLACED,
+        GuildHouseUtil::GetGuildHousePhase(guildId),
+        player->GetPositionX(),
+        player->GetPositionY(),
+        player->GetPositionZ(),
+        player->GetOrientation(),
+        assetId);
+
+
+
+    sGuildHouseSpawner.SpawnAsset(
+        guildId,
+        assetId);
+
+
     ChatHandler(player->GetSession())
         .PSendSysMessage(
-            "Guild House item placed.");
-
+            "Placed Guild House asset ID %u",
+            assetId);
 
 
     return true;
@@ -411,14 +402,11 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
     "WHERE guildId="
     << guildId;
 
-
     QueryResult result =
         CharacterDatabase.Query(ss.str());
 
-
     if (!result)
         return false;
-
 
     return result->Fetch()[0]
         .Get<uint32_t>() > 0;
@@ -436,7 +424,6 @@ void GuildHouseMgr::RecordSalesmanSpawn(
 {
     std::ostringstream ss;
 
-
     ss <<
     "INSERT INTO guildhouse_salesman "
     "(guildId,guid,mapId,phase,"
@@ -451,7 +438,6 @@ void GuildHouseMgr::RecordSalesmanSpawn(
     << z << ","
     << o
     << ")";
-
 
     CharacterDatabase.Execute(ss.str());
 }
