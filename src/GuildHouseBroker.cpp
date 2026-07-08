@@ -1,4 +1,4 @@
-#include "GuildHouseNpc.h"
+#include "GuildHouseBroker.h"
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseConfig.h"
@@ -8,7 +8,6 @@
 #include "GossipDef.h"
 #include "ScriptedGossip.h"
 #include "Chat.h"
-
 
 namespace
 {
@@ -22,42 +21,29 @@ enum GuildHouseActions
 
 }
 
-
-
-bool GuildHouseNpc::IsGuildMaster(Player* player)
+bool GuildHouseBroker::IsGuildMaster(Player* player)
 {
     if (!player)
         return false;
 
-
     Guild* guild =
         player->GetGuild();
 
-
     if (!guild)
         return false;
-
 
     return guild->GetLeaderGUID()
         == player->GetGUID();
 }
 
-
-
-
-
-bool GuildHouseNpc::OnGossipHello(
+bool GuildHouseBroker::OnGossipHello(
     Player* player,
     Creature* creature)
 {
-
     ClearGossipMenuFor(player);
-
 
     Guild* guild =
         player->GetGuild();
-
-
 
     if (!guild)
     {
@@ -68,7 +54,6 @@ bool GuildHouseNpc::OnGossipHello(
             GOSSIP_SENDER_MAIN,
             ACTION_NONE);
 
-
         SendGossipMenuFor(
             player,
             DEFAULT_GOSSIP_MESSAGE,
@@ -77,17 +62,11 @@ bool GuildHouseNpc::OnGossipHello(
         return true;
     }
 
-
-
     uint32 guildId =
         guild->GetId();
 
-
-
-
     if (!sGuildHouseMgr.HasGuildHouse(guildId))
     {
-
         if (IsGuildMaster(player))
         {
             AddGossipItemFor(
@@ -106,52 +85,35 @@ bool GuildHouseNpc::OnGossipHello(
                 GOSSIP_SENDER_MAIN,
                 ACTION_NONE);
         }
-
     }
     else
     {
-
         AddGossipItemFor(
             player,
             GOSSIP_ICON_CHAT,
             "Teleport to Guild House",
             GOSSIP_SENDER_MAIN,
             ACTION_TELEPORT);
-
     }
-
-
 
     SendGossipMenuFor(
         player,
         DEFAULT_GOSSIP_MESSAGE,
         creature->GetGUID());
 
-
     return true;
 }
 
-
-
-
-
-
-
-bool GuildHouseNpc::OnGossipSelect(
+bool GuildHouseBroker::OnGossipSelect(
     Player* player,
     Creature* creature,
     uint32,
     uint32 action)
 {
-
     ClearGossipMenuFor(player);
-
-
 
     Guild* guild =
         player->GetGuild();
-
-
 
     if (!guild)
     {
@@ -159,20 +121,13 @@ bool GuildHouseNpc::OnGossipSelect(
         return true;
     }
 
-
-
     uint32 guildId =
         guild->GetId();
 
-
-
-
     switch(action)
     {
-
         case ACTION_BUY:
         {
-        
             if (!IsGuildMaster(player))
             {
                 ChatHandler(player->GetSession())
@@ -182,33 +137,24 @@ bool GuildHouseNpc::OnGossipSelect(
                 break;
             }
         
-        
             if (sGuildHouseMgr.HasGuildHouse(guildId))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "Your guild already owns a Guild House.");
-        
                 break;
             }
-        
-        
-        
+  
             uint64 cost =
                 sGuildHouseConfig.GetHouseCost();
-        
-        
         
             if (!player->HasEnoughMoney(cost))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "You do not have enough gold.");
-        
                 break;
             }
-        
-        
         
             if (!sGuildHouseMgr.CreateGuildHouse(
                     guildId,
@@ -217,38 +163,26 @@ bool GuildHouseNpc::OnGossipSelect(
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
                         "Failed to create Guild House.");
-        
                 break;
             }
-        
-        
         
             player->ModifyMoney(
                 -int64(cost));
         
-        
-        
             ChatHandler(player->GetSession())
                 .PSendSysMessage(
                     "Guild House purchased. The Guild Master may now place the salesman.");
-        
             break;
         }
 
-
         case ACTION_TELEPORT:
         {
-
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
                 break;
-
-
 
             player->SetPhaseMask(
                 GuildHouseUtil::GetGuildHousePhase(guildId),
                 true);
-
-
 
             player->TeleportTo(
                 GH_MAP,
@@ -256,30 +190,19 @@ bool GuildHouseNpc::OnGossipSelect(
                 GH_Y,
                 GH_Z,
                 GH_O);
-
-
             break;
         }
-
-
 
         default:
             break;
     }
-
-
 
     CloseGossipMenuFor(player);
 
     return true;
 }
 
-
-
-
-
-
-void AddSC_GuildHouseNpc()
+void AddSC_GuildHouseBroker()
 {
-    new GuildHouseNpc();
+    new GuildHouseBroker();
 }
