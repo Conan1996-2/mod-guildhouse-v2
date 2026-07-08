@@ -1,0 +1,26 @@
+#ifndef MOD_GUILDHOUSE_COMMANDS_H
+#define MOD_GUILDHOUSE_COMMANDS_H
+
+#include "ScriptMgr.h"
+
+class GuildHouseCommandScript : public CommandScript
+{
+public:
+
+    GuildHouseCommandScript();
+
+    ChatCommandTable GetCommands() const override;
+
+
+private:
+
+    static bool HandleList(
+        ChatHandler* handler,
+        char const* args);
+
+    static bool HandlePlace(
+        ChatHandler* handler,
+        char const* args);
+};
+
+#endif
