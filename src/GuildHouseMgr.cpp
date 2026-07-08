@@ -434,3 +434,127 @@ void GuildHouseMgr::RecordSalesmanSpawn(
 
     CharacterDatabase.Execute(ss.str());
 }
+
+const GHGuildAsset* GuildHouseMgr::GetAsset(
+    uint32_t guildId,
+    uint32_t assetId) const
+{
+    auto houseItr = _houses.find(guildId);
+
+    if (houseItr == _houses.end())
+        return nullptr;
+
+    for (const GHGuildAsset& asset : houseItr->second.Assets)
+    {
+        if (asset.AssetId == assetId)
+            return &asset;
+    }
+
+    return nullptr;
+}
+
+GHGuildAsset* GuildHouseMgr::GetAsset(
+    uint32_t guildId,
+    uint32_t assetId)
+{
+    auto houseItr = _houses.find(guildId);
+
+    if (houseItr == _houses.end())
+        return nullptr;
+
+    for (GHGuildAsset& asset : houseItr->second.Assets)
+    {
+        if (asset.AssetId == assetId)
+            return &asset;
+    }
+
+    return nullptr;
+}
+
+bool GuildHouseMgr::PlaceAsset(
+    Player* player,
+    uint32 assetId)
+{
+    if (!player)
+        return false;
+
+    //
+    // Must be on GM Island, inside guild phase
+    //
+    if (!GuildHouseUtil::IsOnGMIsland(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "You must be inside your Guild House to place items.");
+
+        return false;
+    }
+
+    //
+    // Guild Master only
+    //
+    if (!GuildHouseUtil::IsGuildMaster(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may place Guild House items.");
+
+        return false;
+    }
+
+    uint32 guildId =
+        player->GetGuildId();
+
+    if (!HasGuildHouse(guildId))
+        return false;
+
+    GHGuildAsset* asset =
+        GetAsset(
+            guildId,
+            assetId);
+
+    if (!asset)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Unknown asset.");
+
+        return false;
+    }
+
+    if (asset->Status != GH_ASSET_PURCHASED)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "That item has already been placed.");
+
+        return false;
+    }
+
+    asset->Status = GH_ASSET_PLACED;
+
+    asset->X = player->GetPositionX();
+    asset->Y = player->GetPositionY();
+    asset->Z = player->GetPositionZ();
+    asset->O = player->GetOrientation();
+
+    std::ostringstream ss;
+
+    ss <<
+    "UPDATE guildhouse_asset "
+    "SET "
+    "status=" << GH_ASSET_PLACED << ","
+    "positionX=" << asset->X << ","
+    "positionY=" << asset->Y << ","
+    "positionZ=" << asset->Z << ","
+    "orientation=" << asset->O
+    << " WHERE assetId=" << assetId;
+
+    CharacterDatabase.Execute(ss.str());
+
+    sGuildHouseSpawner.SpawnAsset(
+        guildId,
+        assetId);
+
+    return true;
+}
