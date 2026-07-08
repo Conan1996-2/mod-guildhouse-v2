@@ -11,7 +11,6 @@ public:
 
     ChatCommandTable GetCommands() const override;
 
-
 private:
 
     static bool HandleList(
@@ -21,6 +20,15 @@ private:
     static bool HandlePlace(
         ChatHandler* handler,
         char const* args);
-};
 
+    static bool HandleListAssets(
+        ChatHandler* handler,
+        char const* args);
+        
+    static bool HandlePlaceAsset(
+        ChatHandler* handler,
+        char const* args);
+
+};
+    
 #endif
