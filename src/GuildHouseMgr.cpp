@@ -558,3 +558,8 @@ bool GuildHouseMgr::PlaceAsset(
 
     return true;
 }
+
+// Placeholders until finished
+bool  GuildHouseMgr::MoveAsset(Player* player, uint32 assetId) {};    
+bool  GuildHouseMgr::StoreAsset(Player* player, uint32 assetId) {};    
+bool  GuildHouseMgr::SellAsset(Player* player, uint32 assetId) {};
