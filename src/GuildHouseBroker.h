@@ -7,12 +7,12 @@ class Player;
 class Creature;
 
 
-class GuildHouseNpc : public CreatureScript
+class GuildHouseBroker : public CreatureScript
 {
 public:
 
-    GuildHouseNpc()
-        : CreatureScript("GuildHouseNpc")
+    GuildHouseBroker()
+        : CreatureScript("GuildHouseBroker")
     {
     }
 
