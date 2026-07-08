@@ -9,6 +9,7 @@
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
+#include "GuildHouseCommands.h"
 
 using namespace Acore::ChatCommands;
 
@@ -16,10 +17,7 @@ class GuildHouseCommandScript : public CommandScript
 {
 public:
 
-    GuildHouseCommandScript()
-        : CommandScript("GuildHouseCommandScript")
-    {
-    }
+    GuildHouseCommandScript() : CommandScript("GuildHouseCommandScript") { }
 
     ChatCommandTable GetCommands() const override
     {
@@ -56,17 +54,18 @@ private:
     // Permission Check
     // =====================================================
 
-    static bool IsGuildMaster(Player* player)
+    static bool CanManageGuildHouse(Player* player)
     {
         if (!player)
             return false;
-
-        Guild* guild = player->GetGuild();
-
-        if (!guild)
+    
+        if (!GuildHouseUtil::IsGuildMaster(player))
             return false;
-
-        return guild->GetLeaderGUID() == player->GetGUID();
+    
+        if (!GuildHouseUtil::IsOnGMIsland(player))
+            return false;
+    
+        return true;
     }
 
     // =====================================================
@@ -79,10 +78,7 @@ private:
     //      guild phase = guild house visibility
     // =====================================================
 
-    static ObjectGuid::LowType SpawnPermanentCreature(
-        Player* player,
-        uint32 entry,
-        uint32 phaseMask)
+    static ObjectGuid::LowType SpawnPermanentCreature(Player* player, uint32 entry, uint32 phaseMask)
     {
         if (!player)
             return 0;
@@ -111,48 +107,24 @@ private:
 
         Creature* creature = new Creature();
 
-        if (!creature->Create(
-                map->GenerateLowGuid<HighGuid::Unit>(),
-                map,
-                phaseMask,
-                entry,
-                0,
-                x,
-                y,
-                z,
-                o))
+        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, phaseMask, entry, 0, x, y, z, o))
         {
             delete creature;
             return 0;
         }
 
-        creature->SaveToDB(
-            map->GetId(),
-            (1 << map->GetSpawnMode()),
-            phaseMask);
-
-        ObjectGuid::LowType newSpawnId =
-            creature->GetSpawnId();
-
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phaseMask);
+        ObjectGuid::LowType newSpawnId = creature->GetSpawnId();
         creature->CleanupsBeforeDelete();
-
         delete creature;
-
         creature = new Creature();
-
-        if (!creature->LoadCreatureFromDB(
-                newSpawnId,
-                map,
-                true,
-                true))
+        if (!creature->LoadCreatureFromDB(newSpawnId, map, true, true))
         {
             delete creature;
             return 0;
         }
 
-        sObjectMgr->AddCreatureToGrid(
-            newSpawnId,
-            sObjectMgr->GetCreatureData(newSpawnId));
+        sObjectMgr->AddCreatureToGrid(newSpawnId, sObjectMgr->GetCreatureData(newSpawnId));
 
         return newSpawnId;
     }
@@ -167,31 +139,19 @@ private:
 
     static bool HandleAddBroker(ChatHandler* handler)
     {
-        Player* player =
-            handler->GetSession()->GetPlayer();
+        Player* player = handler->GetSession()->GetPlayer();
 
+        uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900000 : 900001;
 
-        uint32 entry =
-            (player->GetTeamId() == TEAM_ALLIANCE)
-                ? 900000
-                : 900001;
-
-        ObjectGuid::LowType spawnId =
-            SpawnPermanentCreature(
-                player,
-                entry,
-                player->GetPhaseMaskForSpawn());
-
+        ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry, player->GetPhaseMaskForSpawn()); 
         if (!spawnId)
         {
-            handler->PSendSysMessage(
-                "Failed to spawn Guild House Broker.");
+            handler->PSendSysMessage("Failed to spawn Guild House Broker.");
 
             return false;
         }
 
-        handler->PSendSysMessage(
-            "Guild House Broker spawned.");
+        handler->PSendSysMessage("Guild House Broker spawned.");
 
         return true;
     }
@@ -206,85 +166,59 @@ private:
 
     static bool HandleAddSalesman(ChatHandler* handler)
     {
-        Player* player =
-            handler->GetSession()->GetPlayer();
+        Player* player = handler->GetSession()->GetPlayer();
 
         if (!GuildHouseUtil::IsOnGMIsland(player))
         {
-            handler->PSendSysMessage(
-                "The Guild House salesman can only be placed on GM Island.");
+            handler->PSendSysMessage("The Guild House salesman can only be placed on GM Island.");
         
             return false;
         }
         
         if (!IsGuildMaster(player))
         {
-            handler->PSendSysMessage(
-                "Only the Guild Master may place a Guild House salesman.");
+            handler->PSendSysMessage("Only the Guild Master may place a Guild House salesman.");
 
             return false;
         }
 
-        uint32 guildId =
-            player->GetGuildId();
+        uint32 guildId = player->GetGuildId();
 
         if (!guildId)
         {
-            handler->PSendSysMessage(
-                "You are not in a guild.");
+            handler->PSendSysMessage("You are not in a guild.");
 
             return false;
         }
 
-        uint32 phase =
-            sGuildHouseMgr.GetPhase(guildId);
-
+        uint32 phase = sGuildHouseMgr.GetPhase(guildId);
+        
         if (sGuildHouseMgr.HasSalesman(guildId))
         {
-            handler->PSendSysMessage(
-                "This guild already has a Guild House salesman.");
+            handler->PSendSysMessage("This guild already has a Guild House salesman.");
 
             return false;
         }
 
-        uint32 entry =
-            (player->GetTeamId() == TEAM_ALLIANCE)
-                ? 900002
-                : 900003;
+        uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900002 : 900003;
 
-        ObjectGuid::LowType spawnId =
-            SpawnPermanentCreature(
-                player,
-                entry,
-                phase);
+        ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry, phase);
 
         if (!spawnId)
         {
-            handler->PSendSysMessage(
-                "Failed to spawn Guild House salesman.");
+            handler->PSendSysMessage("Failed to spawn Guild House salesman.");
 
             return false;
         }
 
-        sGuildHouseMgr.RecordSalesmanSpawn(
-            guildId,
-            spawnId,
-            player->GetMapId(),
-            phase,
-            player->GetPositionX(),
-            player->GetPositionY(),
-            player->GetPositionZ(),
-            player->GetOrientation());
+        sGuildHouseMgr.RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phase, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
-        handler->PSendSysMessage(
-            "Guild House salesman placed.");
+        handler->PSendSysMessage("Guild House salesman placed.");
 
         return true;
     }
 
-    static bool HandleListAssets(
-        ChatHandler* handler,
-        char const*)
+    static bool HandleListAssets(ChatHandler* handler, char const*)
     {
         Player* player = handler->GetSession()->GetPlayer();
        
@@ -313,9 +247,7 @@ private:
         
         for (const GHGuildAsset& asset : house->Assets)
         {
-    
             const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(asset.CatalogId);
-      
             char const* status = "Unknown";
         
             switch(asset.Status)
@@ -337,60 +269,50 @@ private:
                     break;
             }
        
-            handler->PSendSysMessage(
-                "ID: %u | %s | %s",
-                asset.AssetId,
-                catalog
-                    ? catalog->Name.c_str()
-                    : "Unknown",
-                status);
+            handler->PSendSysMessage("ID: %u | %s | %s", asset.AssetId, catalog ? catalog->Name.c_str() : "Unknown", status);
         }
         
         return true;
     }
     
-    static bool HandlePlaceAsset(
-        ChatHandler* handler,
-        char const* args)
+    static bool HandlePlaceAsset(ChatHandler* handler, char const* args)
     {
-        Player* player =
-            handler->GetSession()->GetPlayer();
+        Player* player = handler->GetSession()->GetPlayer();
         
         if (!player)
             return false;
        
         if (!args || !*args)
         {
-            handler->PSendSysMessage(
-                "Usage: .gh asset place <assetId>");
+            handler->PSendSysMessage("Usage: .gh asset place <assetId>");
     
             return false;
         }
         
-        uint32 assetId =
-            atoi(args);
+        uint32 assetId = atoi(args);
        
         if (!assetId)
         {
-            handler->PSendSysMessage(
-                "Invalid asset id.");
+            handler->PSendSysMessage("Invalid asset id.");
     
             return false;
         }
-        
-        if (!sGuildHouseMgr.PlaceAsset(
-                player,
-                assetId))
+
+        if (!CanManageGuildHouse(player))
         {
-            handler->PSendSysMessage(
-                "Failed to place asset.");
+            handler->PSendSysMessage("Only the Guild Master may place Guild House assets on GM Island.");
+        
+            return false;
+        }
+        
+        if (!sGuildHouseMgr.PlaceAsset(player, assetId))
+        {
+            handler->PSendSysMessage("Failed to place asset.");
     
             return false;
         }
         
-        handler->PSendSysMessage(
-            "Guild House asset %u placed.",
-            assetId);
+        handler->PSendSysMessage("Guild House asset %u placed.", assetId);
        
         return true;
     }
