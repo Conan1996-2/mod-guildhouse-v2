@@ -31,9 +31,6 @@ constexpr float GH_GM_ISLAND_MAX_X = 16500.0f;
 constexpr float GH_GM_ISLAND_MIN_Y = 16000.0f;
 constexpr float GH_GM_ISLAND_MAX_Y = 16500.0f;
 
-constexpr float GH_GM_ISLAND_MIN_Z = -50.0f;
-constexpr float GH_GM_ISLAND_MAX_Z = 500.0f;
-
 // =====================================================
 // Spawn Flags
 //
@@ -139,37 +136,31 @@ inline bool IsOnGMIsland(Player* player)
     if (!player)
         return false;
 
-
     if (player->GetMapId() != GH_MAP)
         return false;
 
-
     float x = player->GetPositionX();
     float y = player->GetPositionY();
-    float z = player->GetPositionZ();
-
 
     if (x < GH_GM_ISLAND_MIN_X ||
-        x > GH_GM_ISLAND_MAX_X)
-    {
-        return false;
-    }
-
-
-    if (y < GH_GM_ISLAND_MIN_Y ||
+        x > GH_GM_ISLAND_MAX_X ||
+        y < GH_GM_ISLAND_MIN_Y ||
         y > GH_GM_ISLAND_MAX_Y)
     {
         return false;
     }
 
+    Guild* guild = player->GetGuild();
 
-    if (z < GH_GM_ISLAND_MIN_Z ||
-        z > GH_GM_ISLAND_MAX_Z)
-    {
+    if (!guild)
         return false;
-    }
 
+    uint32_t expectedPhase =
+        GetGuildHousePhase(guild->GetId());
 
+    if ((player->GetPhaseMask() & expectedPhase) == 0)
+        return false;
+    
     return true;
 }
 
