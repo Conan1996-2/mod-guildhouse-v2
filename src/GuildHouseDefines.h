@@ -11,14 +11,28 @@
 
 constexpr uint32_t GH_PHASE_OFFSET = 100000;
 
-constexpr uint32_t GH_MAP = 1;
-
 // Default Guild House location
+constexpr uint32_t GH_MAP = 1;
 constexpr float GH_X = 16222.57f;
 constexpr float GH_Y = 16265.91f;
 constexpr float GH_Z = 13.21f;
 constexpr float GH_O = 0.0f;
 
+// =====================================================
+// GM Island Placement Boundary
+//
+// Salesman and Guild House objects may only be placed
+// inside this area.
+// =====================================================
+
+constexpr float GH_GM_ISLAND_MIN_X = 16000.0f;
+constexpr float GH_GM_ISLAND_MAX_X = 16500.0f;
+
+constexpr float GH_GM_ISLAND_MIN_Y = 16000.0f;
+constexpr float GH_GM_ISLAND_MAX_Y = 16500.0f;
+
+constexpr float GH_GM_ISLAND_MIN_Z = -50.0f;
+constexpr float GH_GM_ISLAND_MAX_Z = 500.0f;
 
 // =====================================================
 // Spawn Flags
@@ -125,7 +139,38 @@ inline bool IsOnGMIsland(Player* player)
     if (!player)
         return false;
 
-    return player->GetMapId() == GH_MAP;
+
+    if (player->GetMapId() != GH_MAP)
+        return false;
+
+
+    float x = player->GetPositionX();
+    float y = player->GetPositionY();
+    float z = player->GetPositionZ();
+
+
+    if (x < GH_GM_ISLAND_MIN_X ||
+        x > GH_GM_ISLAND_MAX_X)
+    {
+        return false;
+    }
+
+
+    if (y < GH_GM_ISLAND_MIN_Y ||
+        y > GH_GM_ISLAND_MAX_Y)
+    {
+        return false;
+    }
+
+
+    if (z < GH_GM_ISLAND_MIN_Z ||
+        z > GH_GM_ISLAND_MAX_Z)
+    {
+        return false;
+    }
+
+
+    return true;
 }
 
 inline bool IsGuildMaster(Player* player)
