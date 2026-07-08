@@ -13,14 +13,6 @@ public:
 
 private:
 
-    static bool HandleList(
-        ChatHandler* handler,
-        char const* args);
-
-    static bool HandlePlace(
-        ChatHandler* handler,
-        char const* args);
-
     static bool HandleListAssets(
         ChatHandler* handler,
         char const* args);
