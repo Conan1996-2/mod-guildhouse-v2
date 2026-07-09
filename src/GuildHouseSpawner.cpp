@@ -37,6 +37,17 @@ void GuildHouseSpawner::LoadPlacedAssets()
         "GuildHouseSpawner permanent spawn mode enabled.");
 }
 
+bool GuildHouseSpawner::HasExistingSpawn(uint32 assetId)
+{
+    QueryResult result = CharacterDatabase.Query(
+        "SELECT COUNT(*) FROM guildhouse_spawn WHERE assetId=%u AND enabled=1",
+        assetId);
+
+    if (!result)
+        return false;
+
+    return result->Fetch()[0].Get<uint32>() > 0;
+}
 
 // =====================================================
 // Spawn one placed asset
