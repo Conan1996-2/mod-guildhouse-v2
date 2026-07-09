@@ -80,7 +80,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
     if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), PHASEMASK_ANYWHERE, entry, 0,  player->GetPositionX(),  player->GetPositionY(),  player->GetPositionZ(), player->GetOrientation()))
     {
         delete creature;
-        return;
+        return false;
     }
     creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), PHASEMASK_ANYWHERE);
     uint32 db_guid = creature->GetSpawnId();
@@ -91,7 +91,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
     if (!creature->LoadCreatureFromDB(db_guid, player->GetMap()))
     {
         delete creature;
-        return;
+        return false;
     }
 
     sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
