@@ -48,30 +48,6 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
     }
 
 // =====================================================
-// Permission Check
-// =====================================================
-
-bool GuildHouseCommandScript::CanManageGuildHouse(ChatHandler* handler, Player* player)
-{
-    if (!player)
-        return false;
-
-    if (!GuildHouseUtil::IsGuildMaster(player))
-    {
-        handler->PSendSysMessage("Only the Guild Master may use this function.");
-        return false;
-    }
-
-    if (!GuildHouseUtil::IsOnGMIsland(player))
-    {
-        handler->PSendSysMessage("This function can only be done on the island.");
-        return false;
-    }
-
-    return true;
-}
-
-// =====================================================
 // BROKER
 //
 // Global faction NPC.
@@ -113,13 +89,16 @@ bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 {
     Player* player = handler->GetSession()->GetPlayer();
 
-    if (!GuildHouseUtil::CanManageGuildHouse(handler, player))
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
+    {
+        handler->PSendSysMessage("Failed to place Guild House salesman: Incorrect location or no rights.");
         return false;
+    }
 
     uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900002 : 900003;
     if (!sGuildHouseMgr.CreatePermanentSalesman(player, entry))
     {
-        handler->PSendSysMessage("Failed to place Guild House salesman.");
+        handler->PSendSysMessage("Failed to place Guild House salesman: Error creating.");
         return false;
     }
 
