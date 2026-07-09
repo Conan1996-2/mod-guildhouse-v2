@@ -2,7 +2,6 @@
 #define MOD_GUILDHOUSE_COMMANDS_H
 
 #include "ScriptMgr.h"
-#include "CommandScript.h"
 
 class GuildHouseCommandScript : public CommandScript
 {
@@ -10,7 +9,7 @@ public:
 
     GuildHouseCommandScript();
 
-    ChatCommandTable GetCommands() const override;
+    Acore::ChatCommands::ChatCommandTable GetCommands() const override;
 
 private:
 
