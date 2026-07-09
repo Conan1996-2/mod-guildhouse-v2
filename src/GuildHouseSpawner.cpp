@@ -32,41 +32,9 @@ GuildHouseSpawner::Instance()
 
 void GuildHouseSpawner::LoadPlacedAssets()
 {
-    if (QueryResult result =
-        CharacterDatabase.Query(
-            "SELECT guildId, assetId "
-            "FROM guildhouse_asset "
-            "WHERE status = 1 "
-            "AND enabled = 1"))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 guildId =
-                fields[0].Get<uint32>();
-
-            uint32 assetId =
-                fields[1].Get<uint32>();
-
-
-            if (!SpawnAsset(guildId, assetId))
-            {
-                LOG_ERROR(
-                    "module",
-                    "Failed loading GuildHouse asset {} for guild {}",
-                    assetId,
-                    guildId);
-            }
-
-
-        } while (result->NextRow());
-    }
-
-
     LOG_INFO(
         "module",
-        "GuildHouseSpawner loaded placed assets.");
+        "GuildHouseSpawner permanent spawn mode enabled.");
 }
 
 
