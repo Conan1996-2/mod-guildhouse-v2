@@ -62,6 +62,8 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
         return false;
 
     uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900000 : 900001;
+
+/* OLD Code    
     ObjectGuid::LowType spawnGuid = sObjectMgr->GenerateCreatureSpawnId();
 
     std::ostringstream sql;
@@ -71,6 +73,28 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 
     if (Map* map = player->GetMap())
         map->LoadGrid(player->GetPositionX(), player->GetPositionY());
+*/
+
+    Creature* creature = new Creature();
+
+    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), PHASEMASK_ANYWHERE, entry, 0, posX, posY, posZ, ori))
+    {
+        delete creature;
+        return;
+    }
+    creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), PHASEMASK_ANYWHERE);
+    uint32 db_guid = creature->GetSpawnId();
+
+    creature->CleanupsBeforeDelete();
+    delete creature;
+    creature = new Creature();
+    if (!creature->LoadCreatureFromDB(db_guid, player->GetMap()))
+    {
+        delete creature;
+        return;
+    }
+
+    sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
     
     handler->PSendSysMessage("Guild House Broker permanently spawned (GUID %u).", spawnGuid);
 
