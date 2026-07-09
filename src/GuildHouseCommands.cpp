@@ -96,7 +96,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 
     sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
     
-    handler->PSendSysMessage("Guild House Broker permanently spawned (GUID %u).", spawnGuid);
+    handler->PSendSysMessage("Guild House Broker permanently spawned (GUID {}).", db_guid);
 
     return true;
 }
