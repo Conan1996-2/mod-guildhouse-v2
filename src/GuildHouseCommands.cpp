@@ -29,8 +29,11 @@ public:
                 
         static ChatCommandTable assetTable =
         {
-            { "list",  HandleListAssets, SEC_PLAYER, Console::No },
-            { "place", HandlePlaceAsset, SEC_PLAYER, Console::No }
+            { "list",  HandleListAssets,  SEC_PLAYER, Console::No },
+            { "place", HandlePlaceAsset,  SEC_PLAYER, Console::No },
+            { "move",  HandleMoveAsset,   SEC_PLAYER, Console::No },
+            { "store", HandleStoreAsset,  SEC_PLAYER, Console::No },
+            { "sell",  HandleSellAsset,   SEC_PLAYER, Console::No }
         };
                 
         static ChatCommandTable guildHouseTable =
