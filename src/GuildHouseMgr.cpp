@@ -3,13 +3,16 @@
 #include "DatabaseEnv.h"
 #include "QueryResult.h"
 
+#include "Player.h"
+#include "Chat.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+
 #include "GuildHouseDefines.h"
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseSpawner.h"
 
-#include "Player.h"
-#include "Chat.h"
-#include "Log.h"
+#include <sstream>
 
 GuildHouseMgr&
 GuildHouseMgr::Instance()
@@ -343,6 +346,115 @@ void GuildHouseMgr::RecordSalesmanSpawn(
     << ")";
 
     CharacterDatabase.Execute(ss.str());
+}
+
+bool GuildHouseMgr::CreatePermanentSalesman(
+    Player* player,
+    uint32 entry)
+{
+    if (!player)
+        return false;
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    if (!guildId)
+        return false;
+
+
+    if (HasSalesman(guildId))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Your guild already has a Guild House salesman.");
+
+        return false;
+    }
+
+
+    if (!GuildHouseUtil::IsOnGMIsland(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "The Guild House salesman must be placed on GM Island.");
+
+        return false;
+    }
+
+
+    uint32 phase =
+        GetPhase(guildId);
+
+
+    //
+    // Create permanent creature spawn
+    //
+
+    std::ostringstream sql;
+
+    sql <<
+    "INSERT INTO creature "
+    "(id,map,phaseMask,position_x,position_y,position_z,"
+    "orientation,spawntimesecs) VALUES ("
+    << entry << ","
+    << player->GetMapId() << ","
+    << phase << ","
+    << player->GetPositionX() << ","
+    << player->GetPositionY() << ","
+    << player->GetPositionZ() << ","
+    << player->GetOrientation() << ","
+    << 300
+    << ")";
+
+
+    WorldDatabase.Execute(
+        sql.str());
+
+
+    //
+    // Get generated creature GUID
+    //
+
+    QueryResult result =
+        WorldDatabase.Query(
+            "SELECT MAX(guid) FROM creature");
+
+
+    if (!result)
+        return false;
+
+
+    uint32 spawnGuid =
+        result->Fetch()[0]
+        .Get<uint32>();
+
+
+    //
+    // Store guild ownership
+    //
+
+    RecordSalesmanSpawn(
+        guildId,
+        spawnGuid,
+        player->GetMapId(),
+        phase,
+        player->GetPositionX(),
+        player->GetPositionY(),
+        player->GetPositionZ(),
+        player->GetOrientation());
+
+
+    LOG_INFO(
+        "module",
+        "GuildHouse salesman spawned. Guild {}, Spawn {}, Entry {}",
+        guildId,
+        spawnGuid,
+        entry);
+
+
+    return true;
 }
 
 const GHGuildAsset* GuildHouseMgr::GetAsset(
