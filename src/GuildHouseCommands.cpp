@@ -69,67 +69,6 @@ private:
     }
 
     // =====================================================
-    // Permanent Creature Spawn
-    //
-    // Creates a real AzerothCore creature spawn.
-    //
-    // phaseMask:
-    //      0 = normal world
-    //      guild phase = guild house visibility
-    // =====================================================
-
-    static ObjectGuid::LowType SpawnPermanentCreature(Player* player, uint32 entry, uint32 phaseMask)
-    {
-        if (!player)
-            return 0;
-
-        Map* map = player->GetMap();
-
-        if (!map)
-            return 0;
-
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float o = player->GetOrientation();
-
-        ObjectGuid::LowType spawnId = sObjectMgr->GenerateCreatureSpawnId();
-
-        CreatureData& data = sObjectMgr->NewOrExistCreatureData(spawnId);
-
-        data.id          = entry;
-        data.mapid       = map->GetId();
-        data.phaseMask   = phaseMask;
-        data.posX        = x;
-        data.posY        = y;
-        data.posZ        = z;
-        data.orientation = o;
-
-        Creature* creature = new Creature();
-
-        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, phaseMask, entry, 0, x, y, z, o))
-        {
-            delete creature;
-            return 0;
-        }
-
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phaseMask);
-        ObjectGuid::LowType newSpawnId = creature->GetSpawnId();
-        creature->CleanupsBeforeDelete();
-        delete creature;
-        creature = new Creature();
-        if (!creature->LoadCreatureFromDB(newSpawnId, map, true, true))
-        {
-            delete creature;
-            return 0;
-        }
-
-        sObjectMgr->AddCreatureToGrid(newSpawnId, sObjectMgr->GetCreatureData(newSpawnId));
-
-        return newSpawnId;
-    }
-
-    // =====================================================
     // BROKER
     //
     // Global faction NPC.
@@ -163,58 +102,51 @@ private:
     //
     // Permanent guild phased NPC.
     // =====================================================
-
+    
     static bool HandleAddSalesman(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-
+        Player* player =
+            handler->GetSession()->GetPlayer();
+    
+    
         if (!GuildHouseUtil::IsOnGMIsland(player))
         {
-            handler->PSendSysMessage("The Guild House salesman can only be placed on GM Island.");
-        
+            handler->PSendSysMessage(
+                "The Guild House salesman can only be placed on GM Island.");
+    
             return false;
         }
-        
-        if (!IsGuildMaster(player))
+    
+    
+        if (!GuildHouseUtil::IsGuildMaster(player))
         {
-            handler->PSendSysMessage("Only the Guild Master may place a Guild House salesman.");
-
+            handler->PSendSysMessage(
+                "Only the Guild Master may place a Guild House salesman.");
+    
             return false;
         }
-
-        uint32 guildId = player->GetGuildId();
-
-        if (!guildId)
+    
+    
+        uint32 entry =
+            (player->GetTeamId() == TEAM_ALLIANCE)
+                ? 900002
+                : 900003;
+    
+    
+        if (!sGuildHouseMgr.CreatePermanentSalesman(
+                player,
+                entry))
         {
-            handler->PSendSysMessage("You are not in a guild.");
-
+            handler->PSendSysMessage(
+                "Failed to place Guild House salesman.");
+    
             return false;
         }
-
-        uint32 phase = sGuildHouseMgr.GetPhase(guildId);
-        
-        if (sGuildHouseMgr.HasSalesman(guildId))
-        {
-            handler->PSendSysMessage("This guild already has a Guild House salesman.");
-
-            return false;
-        }
-
-        uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900002 : 900003;
-
-        ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry, phase);
-
-        if (!spawnId)
-        {
-            handler->PSendSysMessage("Failed to spawn Guild House salesman.");
-
-            return false;
-        }
-
-        sGuildHouseMgr.RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phase, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-
-        handler->PSendSysMessage("Guild House salesman placed.");
-
+    
+    
+        handler->PSendSysMessage(
+            "Guild House salesman permanently placed.");
+    
         return true;
     }
 
