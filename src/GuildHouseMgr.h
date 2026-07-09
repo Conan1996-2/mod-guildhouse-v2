@@ -13,10 +13,14 @@ public:
     static GuildHouseMgr& Instance();
     void Load();
 
+    bool IsGuildInstance(uint32_t guildId, uint32_t instanceId) const;
+    uint32_t GetGuildInstance(uint32_t guildId) const;
+    void SetGuildInstance(uint32_t guildId, uint32_t instanceId);
+    void RemoveGuildInstance(uint32_t guildId);
+
     bool HasGuildHouse(uint32_t guildId) const;
-    uint32_t GetPhase(uint32_t guildId) const;
-    bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid);
     const GHGuildHouse*  GetGuildHouse(uint32_t guildId) const;
+    bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid);
 
     bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
 
@@ -27,6 +31,7 @@ public:
     std::vector<const GHGuildAsset*> GetPurchasedAssets(uint32 guildId) const;    
     const GHGuildAsset* GetAsset(uint32 guildId, uint32 assetId) const;
     GHGuildAsset* GetAsset(uint32_t guildId, uint32_t assetId);
+
     bool PlaceAsset(Player* player, uint32 assetId);    
     bool MoveAsset(Player* player, uint32 assetId);    
     bool StoreAsset(Player* player, uint32 assetId);    
@@ -36,6 +41,7 @@ private:
 
     GuildHouseMgr() = default;
     std::unordered_map<uint32_t, GHGuildHouse> _houses;
+    std::unordered_map<uint32_t, uint32_t> _guildInstances;
 };
 
 
