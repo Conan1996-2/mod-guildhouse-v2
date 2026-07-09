@@ -15,7 +15,7 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
 {
 }
 
-    ChatCommandTable GuildHouseCommandScript::GetCommands() const override
+    ChatCommandTable GuildHouseCommandScript::GetCommands() const
     {
         static ChatCommandTable npcTable =
         {
