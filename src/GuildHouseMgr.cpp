@@ -21,6 +21,21 @@ GuildHouseMgr& GuildHouseMgr::Instance()
     return instance;
 }
 
+bool GuildHouseMgr::IsGuildInstance(uint32 guildId, uint32 instanceId) const
+{
+    auto itr = _guildInstances.find(guildId);
+
+    if (itr == _guildInstances.end())
+        return false;
+
+    return itr->second == instanceId;
+}
+
+bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
+{
+    return sGuildHouseMgr.IsGuildInstance(guildId, instanceId);
+}
+
 void GuildHouseMgr::Load()
 {
     _houses.clear();
@@ -39,7 +54,7 @@ void GuildHouseMgr::Load()
             GHGuildHouse house;
             house.GuildId = guildId;
             house.OwnerGuid = ownerGuid;
-            house.Phase = GetPhase(guildId);
+            house.InstanceId = 0;
             _houses.emplace(guildId, house);
 
         } while(result->NextRow());
@@ -84,10 +99,6 @@ bool GuildHouseMgr::HasGuildHouse(uint32_t guildId) const
     return _houses.find(guildId) != _houses.end();
 }
 
-uint32_t GuildHouseMgr::GetPhase(uint32_t guildId) const
-{
-    return guildId + GH_PHASE_OFFSET;
-}
 
 const GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId) const
 {
@@ -107,7 +118,7 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid)
     GHGuildHouse house;
     house.GuildId = guildId;
     house.OwnerGuid = ownerGuid;
-    house.Phase = GetPhase(guildId);
+    house.InstanceId = 0;
 
     _houses.emplace(guildId, house);
 
@@ -153,7 +164,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
         return false;
     }
 
-    uint32 phase = GetPhase(guildId);
+    uint32 phase = 0;
 
     //
     // Purchased but NOT placed.
