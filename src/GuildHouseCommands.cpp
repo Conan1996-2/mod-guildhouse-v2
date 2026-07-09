@@ -6,6 +6,7 @@
 #include "ObjectMgr.h"
 #include "Map.h"
 #include "Guild.h"
+#include "CommandScript.h"
 
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
