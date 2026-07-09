@@ -28,8 +28,7 @@ CREATE TABLE `guildhouse_asset`
     KEY `idx_guild` (`guildId`),
     KEY `idx_layout` (`layoutId`),
     KEY `idx_catalog` (`catalogId`),
-    KEY `idx_status` (`status`),
-    KEY `idx_spawn` (`spawnGuid`)
+    KEY `idx_status` (`status`)
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
