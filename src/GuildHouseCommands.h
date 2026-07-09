@@ -3,13 +3,15 @@
 
 #include "ScriptMgr.h"
 
+using namespace Acore::ChatCommands;
+
 class GuildHouseCommandScript : public CommandScript
 {
 public:
 
     GuildHouseCommandScript();
 
-    Acore::ChatCommands::ChatCommandTable GetCommands() const override;
+    ChatCommandTable GetCommands() const override;
 
 private:
 
