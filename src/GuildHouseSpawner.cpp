@@ -34,9 +34,9 @@ void GuildHouseSpawner::LoadPlacedAssets()
     LOG_INFO("module", "GuildHouseSpawner permanent spawn mode enabled.");
 }
 
-bool GuildHouseSpawner::HasExistingSpawn(uint32 assetId)
+bool GuildHouseSpawner::HasExistingSpawn(uint32 instanceId, uint32 assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE assetId=%u AND enabled=1", assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE instanceId=%u AND assetId=%u AND enabled=1", instanceId, assetId);
 
     if (!result)
         return false;
@@ -50,24 +50,23 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32 assetId)
 
 bool GuildHouseSpawner::SpawnAsset(uint32 guildId, uint32 assetId)
 {
-    if (HasExistingSpawn(assetId))
-    {
-        LOG_INFO("module", "GuildHouse asset {} already spawned.", assetId);
-        return true;
-    }
-
     QueryResult result = CharacterDatabase.Query("SELECT catalogId, status, instanceId, positionX, positionY, positionZ, orientation FROM guildhouse_asset WHERE assetId=%u AND guildId=%u", assetId, guildId);
     if (!result)
         return false;
 
     Field* fields = result->Fetch();
+
+    uint32 instanceId = fields[2].Get<uint32>();
+    if (HasExistingSpawn(instanceId, assetId))
+    {
+        LOG_INFO("module", "GuildHouse asset {} already spawned.", assetId);
+        return true;
+    }
+
     uint32 catalogId = fields[0].Get<uint32>();
     uint8 status = fields[1].Get<uint8>();
-
     if (status != GH_ASSET_PLACED)
         return false;
-    
-    uint32 instanceId = fields[2].Get<uint32>();
     
     float baseX = fields[3].Get<float>();
     float baseY = fields[4].Get<float>();
@@ -138,7 +137,7 @@ bool GuildHouseSpawner::SpawnGameObject(uint32 guildId, uint32 instanceId, uint3
     WorldDatabase.Execute(objectSql.str());
 
     std::ostringstream trackingSql;
-    trackingSql << "INSERT INTO guildhouse_spawn (assetId,guildId,instanceId,spawnGuid,spawnType,mapId,phase,positionX,positionY,positionZ,orientation) VALUES ("
+    trackingSql << "INSERT INTO guildhouse_spawn (assetId,guildId,instanceId,spawnGuid,spawnType,mapId,positionX,positionY,positionZ,orientation) VALUES ("
         << assetId << "," << guildId << "," << instanceId << "," << spawnGuid << "," << 1 << "," << GH_MAP << "," << x << "," << y << "," << z << "," << o << ")";
     CharacterDatabase.Execute(trackingSql.str());
 
@@ -158,9 +157,9 @@ bool GuildHouseSpawner::SpawnGameObject(uint32 guildId, uint32 instanceId, uint3
 // Uses guildhouse_spawn tracking table.
 // =====================================================
 
-bool GuildHouseSpawner::RemoveAsset(uint32 guildId, uint32 assetId)
+bool GuildHouseSpawner::RemoveAsset(uint32 guildId, uint32 instanceId, uint32 assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid, spawnType FROM guildhouse_spawn WHERE guildId=%u AND assetId=%u AND enabled=1", guildId, assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid, spawnType FROM guildhouse_spawn WHERE guildId=%u AND instanceId=%u AND assetId=%u AND enabled=1", guildId, instanceId, assetId);
 
     if (!result)
         return false;
@@ -168,20 +167,18 @@ bool GuildHouseSpawner::RemoveAsset(uint32 guildId, uint32 assetId)
     do
     {
         Field* fields = result->Fetch();
+
         uint32 spawnGuid = fields[0].Get<uint32>();
         uint8 spawnType = fields[1].Get<uint8>();
 
         if (spawnType == 0)
-        {
             WorldDatabase.Execute("DELETE FROM creature WHERE guid=%u", spawnGuid);
-        }
         else
-        {
             WorldDatabase.Execute("DELETE FROM gameobject WHERE guid=%u", spawnGuid);
-        }
+
     } while (result->NextRow());
 
-    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET enabled=0 WHERE guildId=%u AND assetId=%u", guildId, assetId);
+    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET enabled=0 WHERE guildId=%u AND instanceId=%u AND assetId=%u", guildId, instanceId, assetId);
 
     return true;
 }
