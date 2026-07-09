@@ -77,7 +77,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 
     Creature* creature = new Creature();
 
-    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), PHASEMASK_ANYWHERE, entry, 0, posX, posY, posZ, ori))
+    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), PHASEMASK_ANYWHERE, entry, 0,  player->GetPositionX(),  player->GetPositionY(),  player->GetPositionZ(), player->GetOrientation()))
     {
         delete creature;
         return;
