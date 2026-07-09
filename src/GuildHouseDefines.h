@@ -9,8 +9,6 @@
 // Core Constants
 // =====================================================
 
-constexpr uint32_t GH_PHASE_OFFSET = 100000;
-
 // Default Guild House location
 constexpr uint32_t GH_MAP = 1;
 constexpr float GH_X = 16222.57f;
@@ -27,7 +25,6 @@ constexpr float GH_O = 0.0f;
 
 constexpr float GH_GM_ISLAND_MIN_X = 16000.0f;
 constexpr float GH_GM_ISLAND_MAX_X = 16500.0f;
-
 constexpr float GH_GM_ISLAND_MIN_Y = 16000.0f;
 constexpr float GH_GM_ISLAND_MAX_Y = 16500.0f;
 
@@ -48,7 +45,6 @@ enum GHSpawnFlags : uint32_t
     GH_SPAWN_PORTAL      = 1 << 2,
     GH_SPAWN_TRIGGER     = 1 << 3
 };
-
 
 // =====================================================
 // Behavior Flags
@@ -124,11 +120,8 @@ enum GHScriptType : uint32_t
 
 namespace GuildHouseUtil
 {
-    
-    inline uint32 GetGuildHousePhase(uint32 guildId)
-    {
-        return guildId + GH_PHASE_OFFSET;
-    }
+
+    bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId);
     
     inline bool HasFlag(uint32_t value, uint32_t flag)
     {
@@ -150,35 +143,30 @@ namespace GuildHouseUtil
         return HasFlag(flags, GH_FACTION_NEUTRAL);
     }
 
-    inline bool IsOnGMIsland(Player* player)
+    inline bool IsInGuildHouse(Player* player)
     {
         if (!player)
             return false;
-    
+
         if (player->GetMapId() != GH_MAP)
             return false;
-    
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-    
-        if (x < GH_GM_ISLAND_MIN_X || x > GH_GM_ISLAND_MAX_X || y < GH_GM_ISLAND_MIN_Y || y > GH_GM_ISLAND_MAX_Y)
-        {
-            return false;
-        }
-    
+
         Guild* guild = player->GetGuild();
-    
         if (!guild)
             return false;
-    
-        uint32_t expectedPhase = GetGuildHousePhase(guild->GetId());
-    
-        if ((player->GetPhaseMask() & expectedPhase) == 0)
+
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+        if (x < GH_GM_ISLAND_MIN_X || x > GH_GM_ISLAND_MAX_X || y < GH_GM_ISLAND_MIN_Y || y > GH_GM_ISLAND_MAX_Y)
             return false;
-        
-        return true;
+
+        uint32 instanceId = player->GetInstanceId();
+        if (!instanceId)
+            return false;
+
+        return IsGuildHouseInstance(guild->GetId(), instanceId);
     }
-    
+
     inline bool IsGuildMaster(Player* player)
     {
         if (!player)
@@ -194,7 +182,7 @@ namespace GuildHouseUtil
 
     inline bool CanManageGuildHouse(Player* player)
     {
-        return IsGuildMaster(player) && IsOnGMIsland(player);
+        return IsGuildMaster(player) && IsInGuildHouse(player);
     }
 }
 #endif
