@@ -11,7 +11,7 @@ public:
 
     void LoadPlacedAssets();
 
-    bool HasExistingSpawn(uint32 assetId);
+    bool HasExistingSpawn(uint32_t assetId);
 
     // Spawn one purchased catalog item
     bool SpawnAsset(uint32_t guildId, uint32_t assetId);
