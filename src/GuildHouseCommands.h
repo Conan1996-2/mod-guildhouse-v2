@@ -2,6 +2,7 @@
 #define MOD_GUILDHOUSE_COMMANDS_H
 
 #include "ScriptMgr.h"
+#include "CommandScript.h"
 
 class GuildHouseCommandScript : public CommandScript
 {
