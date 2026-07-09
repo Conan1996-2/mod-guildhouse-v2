@@ -192,5 +192,9 @@ namespace GuildHouseUtil
         return guild->GetLeaderGUID() == player->GetGUID();
     }
 
+    inline bool CanManageGuildHouse(Player* player)
+    {
+        return IsGuildMaster(player) && IsOnGMIsland(player);
+    }
 }
 #endif
