@@ -125,48 +125,6 @@ enum GHScriptType : uint32_t
 namespace GuildHouseUtil
 {
     
-    inline bool IsOnGMIsland(Player* player)
-    {
-        if (!player)
-            return false;
-    
-        if (player->GetMapId() != GH_MAP)
-            return false;
-    
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-    
-        if (x < GH_GM_ISLAND_MIN_X || x > GH_GM_ISLAND_MAX_X || y < GH_GM_ISLAND_MIN_Y || y > GH_GM_ISLAND_MAX_Y)
-        {
-            return false;
-        }
-    
-        Guild* guild = player->GetGuild();
-    
-        if (!guild)
-            return false;
-    
-        uint32_t expectedPhase = GuildHouseUtil::GetGuildHousePhase(guild->GetId());
-    
-        if ((player->GetPhaseMask() & expectedPhase) == 0)
-            return false;
-        
-        return true;
-    }
-    
-    inline bool IsGuildMaster(Player* player)
-    {
-        if (!player)
-            return false;
-    
-        Guild* guild = player->GetGuild();
-    
-        if (!guild)
-            return false;
-    
-        return guild->GetLeaderGUID() == player->GetGUID();
-    }
-    
     inline uint32 GetGuildHousePhase(uint32 guildId)
     {
         return guildId + GH_PHASE_OFFSET;
@@ -190,6 +148,48 @@ namespace GuildHouseUtil
     inline bool IsNeutral(uint32_t flags)
     {
         return HasFlag(flags, GH_FACTION_NEUTRAL);
+    }
+
+    inline bool IsOnGMIsland(Player* player)
+    {
+        if (!player)
+            return false;
+    
+        if (player->GetMapId() != GH_MAP)
+            return false;
+    
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+    
+        if (x < GH_GM_ISLAND_MIN_X || x > GH_GM_ISLAND_MAX_X || y < GH_GM_ISLAND_MIN_Y || y > GH_GM_ISLAND_MAX_Y)
+        {
+            return false;
+        }
+    
+        Guild* guild = player->GetGuild();
+    
+        if (!guild)
+            return false;
+    
+        uint32_t expectedPhase = GetGuildHousePhase(guild->GetId());
+    
+        if ((player->GetPhaseMask() & expectedPhase) == 0)
+            return false;
+        
+        return true;
+    }
+    
+    inline bool IsGuildMaster(Player* player)
+    {
+        if (!player)
+            return false;
+    
+        Guild* guild = player->GetGuild();
+    
+        if (!guild)
+            return false;
+    
+        return guild->GetLeaderGUID() == player->GetGUID();
     }
 
 }
