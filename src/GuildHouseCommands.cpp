@@ -252,6 +252,165 @@ private:
         return true;
     }
 
+    static bool HandleMoveAsset(
+        ChatHandler* handler,
+        char const* args)
+    {
+        Player* player =
+            handler->GetSession()->GetPlayer();
+    
+    
+        if (!player)
+            return false;
+    
+    
+        if (!args || !*args)
+        {
+            handler->PSendSysMessage(
+                "Usage: .gh asset move <assetId>");
+    
+            return false;
+        }
+    
+    
+        uint32 assetId =
+            atoi(args);
+    
+    
+        if (!assetId)
+        {
+            handler->PSendSysMessage(
+                "Invalid asset id.");
+    
+            return false;
+        }
+    
+    
+        if (!sGuildHouseMgr.MoveAsset(
+                player,
+                assetId))
+        {
+            handler->PSendSysMessage(
+                "Failed to move Guild House asset.");
+    
+            return false;
+        }
+    
+    
+        handler->PSendSysMessage(
+            "Guild House asset %u moved.",
+            assetId);
+    
+    
+        return true;
+    }
+    
+    static bool HandleStoreAsset(
+        ChatHandler* handler,
+        char const* args)
+    {
+        Player* player =
+            handler->GetSession()->GetPlayer();
+    
+    
+        if (!player)
+            return false;
+    
+    
+        if (!args || !*args)
+        {
+            handler->PSendSysMessage(
+                "Usage: .gh asset store <assetId>");
+    
+            return false;
+        }
+    
+    
+        uint32 assetId =
+            atoi(args);
+    
+    
+        if (!assetId)
+        {
+            handler->PSendSysMessage(
+                "Invalid asset id.");
+    
+            return false;
+        }
+    
+    
+        if (!sGuildHouseMgr.StoreAsset(
+                player,
+                assetId))
+        {
+            handler->PSendSysMessage(
+                "Failed to store Guild House asset.");
+    
+            return false;
+        }
+    
+    
+        handler->PSendSysMessage(
+            "Guild House asset %u stored.",
+            assetId);
+    
+    
+        return true;
+    }
+    
+    static bool HandleSellAsset(
+        ChatHandler* handler,
+        char const* args)
+    {
+        Player* player =
+            handler->GetSession()->GetPlayer();
+    
+    
+        if (!player)
+            return false;
+    
+    
+        if (!args || !*args)
+        {
+            handler->PSendSysMessage(
+                "Usage: .gh asset sell <assetId>");
+    
+            return false;
+        }
+    
+    
+        uint32 assetId =
+            atoi(args);
+    
+    
+        if (!assetId)
+        {
+            handler->PSendSysMessage(
+                "Invalid asset id.");
+    
+            return false;
+        }
+    
+    
+        if (!sGuildHouseMgr.SellAsset(
+                player,
+                assetId))
+        {
+            handler->PSendSysMessage(
+                "Failed to sell Guild House asset.");
+    
+            return false;
+        }
+    
+    
+        handler->PSendSysMessage(
+            "Guild House asset %u sold.",
+            assetId);
+    
+    
+        return true;
+    }
+
 };
 
 void AddSC_GuildHouseCommands()
