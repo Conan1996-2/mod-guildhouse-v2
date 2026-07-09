@@ -91,7 +91,7 @@ bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 
     if (!GuildHouseUtil::CanManageGuildHouse(player))
     {
-        handler->PSendSysMessage("Failed to place Guild House salesman: Incorrect location or no rights.");
+        handler->PSendSysMessage("Only the Guild Master may place Guild House Salesman on GM Island.");
         return false;
     }
 
@@ -181,7 +181,7 @@ bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const*
         return false;
     }
 
-    if (!CanManageGuildHouse(player))
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
     {
         handler->PSendSysMessage("Only the Guild Master may place Guild House assets on GM Island.");
             return false;
