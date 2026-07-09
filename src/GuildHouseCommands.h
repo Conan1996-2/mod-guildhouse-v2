@@ -11,10 +11,15 @@ public:
 
     GuildHouseCommandScript();
 
-    ChatCommandTable GetCommands() const override;
-
+    ChatCommandTable GetCommands() const;
 
 private:
+
+    static bool CanManageGuildHouse(Player* player);
+
+    static bool HandleAddBroker(ChatHandler* handler);
+
+    static bool HandleAddSalesman(ChatHandler* handler);
 
     static bool HandleList(ChatHandler* handler, char const* args);
 
