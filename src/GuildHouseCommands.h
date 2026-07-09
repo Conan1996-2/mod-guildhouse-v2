@@ -15,39 +15,19 @@ public:
 
 private:
 
-    static bool HandleList(
-        ChatHandler* handler,
-        char const* args);
+    static bool HandleList(ChatHandler* handler, char const* args);
 
+    static bool HandlePlace(ChatHandler* handler, char const* args);
 
-    static bool HandlePlace(
-        ChatHandler* handler,
-        char const* args);
+    static bool HandleListAssets(ChatHandler* handler, char const* args);
 
+    static bool HandlePlaceAsset(ChatHandler* handler, char const* args);
 
-    static bool HandleListAssets(
-        ChatHandler* handler,
-        char const* args);
+    static bool HandleMoveAsset(ChatHandler* handler, char const* args);
 
+    static bool HandleStoreAsset(ChatHandler* handler, char const* args);
 
-    static bool HandlePlaceAsset(
-        ChatHandler* handler,
-        char const* args);
-
-
-    static bool HandleMoveAsset(
-        ChatHandler* handler,
-        char const* args);
-
-
-    static bool HandleStoreAsset(
-        ChatHandler* handler,
-        char const* args);
-
-
-    static bool HandleSellAsset(
-        ChatHandler* handler,
-        char const* args);
+    static bool HandleSellAsset(ChatHandler* handler, char const* args);
 
 };
     
