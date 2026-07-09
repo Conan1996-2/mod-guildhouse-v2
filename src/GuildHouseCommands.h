@@ -31,6 +31,8 @@ private:
 
     static bool HandleSellAsset(ChatHandler* handler, char const* args);
 
+    void AddSC_GuildHouseCommands();
+
 };
     
 #endif
