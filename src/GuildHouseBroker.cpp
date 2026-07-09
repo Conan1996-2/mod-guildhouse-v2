@@ -12,12 +12,12 @@
 namespace
 {
 
-enum GuildHouseActions
-{
-    ACTION_NONE = 0,
-    ACTION_BUY = 1,
-    ACTION_TELEPORT = 2
-};
+    enum GuildHouseActions
+    {
+        ACTION_NONE = 0,
+        ACTION_BUY = 1,
+        ACTION_TELEPORT = 2
+    };
 
 }
 
