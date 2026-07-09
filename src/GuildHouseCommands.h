@@ -11,37 +11,8 @@ public:
 
     GuildHouseCommandScript();
 
-    ChatCommandTable GetCommands() const override
-    {
-        static ChatCommandTable npcTable =
-        {
-            { "broker",   GuildHouseCommandScript::HandleAddBroker,   SEC_GAMEMASTER, Console::No },
-            { "salesman", GuildHouseCommandScript::HandleAddSalesman, SEC_PLAYER, Console::No }
-        };
-                
-        static ChatCommandTable assetTable =
-        {
-            { "list",  GuildHouseCommandScript::HandleListAssets,  SEC_PLAYER, Console::No },
-            { "place", GuildHouseCommandScript::HandlePlaceAsset,  SEC_PLAYER, Console::No },
-            { "move",  GuildHouseCommandScript::HandleMoveAsset,   SEC_PLAYER, Console::No },
-            { "store", GuildHouseCommandScript::HandleStoreAsset,  SEC_PLAYER, Console::No },
-            { "sell",  GuildHouseCommandScript::HandleSellAsset,   SEC_PLAYER, Console::No }
-        };
-                
-        static ChatCommandTable guildHouseTable =
-        {
-            { "npc",   npcTable },
-            { "asset", assetTable }
-        };
-                
-        static ChatCommandTable root =
-        {
-            { "gh",          guildHouseTable },
-            { "guildhouse",  guildHouseTable }
-        };
+    ChatCommandTable GetCommands() const override;
 
-        return root;
-    }
 
 private:
 
