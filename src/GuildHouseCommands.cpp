@@ -11,6 +11,10 @@
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseCommands.h"
 
+GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCommandScript")
+{
+}
+
     ChatCommandTable GuildHouseCommandScript::GetCommands() const override
     {
         static ChatCommandTable npcTable =
@@ -47,7 +51,7 @@
 // Permission Check
 // =====================================================
 
-static bool GuildHouseCommandScript::CanManageGuildHouse(Player* player)
+bool GuildHouseCommandScript::CanManageGuildHouse(Player* player)
 {
     if (!player)
         return false;
@@ -69,7 +73,7 @@ static bool GuildHouseCommandScript::CanManageGuildHouse(Player* player)
 // Multiple brokers allowed.
 // =====================================================
 
-static bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
+bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 {
     Player* player = handler->GetSession()->GetPlayer();
 
@@ -96,7 +100,7 @@ static bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 // Permanent guild phased NPC.
 // =====================================================
 
-static bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
+bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 {
     Player* player =
         handler->GetSession()->GetPlayer();
@@ -143,7 +147,7 @@ static bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
     return true;
 }
 
-static bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*)
+bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*)
 {
     Player* player = handler->GetSession()->GetPlayer();
    
@@ -200,7 +204,7 @@ static bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char
     return true;
 }
 
-static bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const* args)
+bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const* args)
 {
     Player* player = handler->GetSession()->GetPlayer();
     
@@ -242,7 +246,7 @@ static bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char
     return true;
 }
 
-static bool GuildHouseCommandScript::HandleMoveAsset(
+bool GuildHouseCommandScript::HandleMoveAsset(
     ChatHandler* handler,
     char const* args)
 {
@@ -295,7 +299,7 @@ static bool GuildHouseCommandScript::HandleMoveAsset(
     return true;
 }
 
-static bool GuildHouseCommandScript::HandleStoreAsset(
+bool GuildHouseCommandScript::HandleStoreAsset(
     ChatHandler* handler,
     char const* args)
 {
@@ -348,7 +352,7 @@ static bool GuildHouseCommandScript::HandleStoreAsset(
     return true;
 }
 
-static bool GuildHouseCommandScript::HandleSellAsset(
+bool GuildHouseCommandScript::HandleSellAsset(
     ChatHandler* handler,
     char const* args)
 {
