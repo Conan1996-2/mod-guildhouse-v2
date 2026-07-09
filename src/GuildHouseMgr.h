@@ -19,7 +19,9 @@ public:
     const GHGuildHouse*  GetGuildHouse(uint32_t guildId) const;
 
     bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
+
     bool HasSalesman(uint32_t guildId) const;
+    bool CreatePermanentSalesman(Player* player, uint32 entry);
     void RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t phase, float x, float y, float z, float o);
 
     std::vector<const GHGuildAsset*> GetPurchasedAssets(uint32 guildId) const;    
