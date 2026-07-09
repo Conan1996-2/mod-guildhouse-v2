@@ -145,10 +145,9 @@ bool GuildHouseBroker::OnGossipSelect(
                 break;
             }
   
-            uint64 cost =
-                sGuildHouseConfig.GetHouseCost();
+            uint64 cost = sGuildHouseConfig.GetHouseCost();
         
-            if (!player->HasEnoughMoney(cost))
+            if (!player->HasEnoughMoney(uint32(cost)))
             {
                 ChatHandler(player->GetSession())
                     .PSendSysMessage(
