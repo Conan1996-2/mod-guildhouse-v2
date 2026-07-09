@@ -13,7 +13,7 @@ public:
 
     ChatCommandTable GetCommands() const;
 
-    static bool CanManageGuildHouse(Player* player);
+    static bool CanManageGuildHouse(ChatHandler* handler, Player* player);
 
     static bool HandleAddBroker(ChatHandler* handler);
 
