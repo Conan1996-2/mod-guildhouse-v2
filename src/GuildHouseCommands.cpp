@@ -51,7 +51,7 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
 // Permission Check
 // =====================================================
 
-bool GuildHouseCommandScript::CanManageGuildHouse(Player* player)
+bool GuildHouseCommandScript::CanManageGuildHouse(ChatHandler* handler, Player* player)
 {
     if (!player)
         return false;
@@ -113,7 +113,7 @@ bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 {
     Player* player = handler->GetSession()->GetPlayer();
 
-    if (!GuildHouseUtil::CanManageGuildHouse(player))
+    if (!GuildHouseUtil::CanManageGuildHouse(handler, player))
         return false;
 
     uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900002 : 900003;
