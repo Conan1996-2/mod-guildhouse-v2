@@ -581,7 +581,256 @@ bool GuildHouseMgr::PlaceAsset(
     return true;
 }
 
-// Placeholders until finished
-bool  GuildHouseMgr::MoveAsset(Player* player, uint32 assetId) {};    
-bool  GuildHouseMgr::StoreAsset(Player* player, uint32 assetId) {};    
-bool  GuildHouseMgr::SellAsset(Player* player, uint32 assetId) {};
+bool GuildHouseMgr::MoveAsset(
+    Player* player,
+    uint32 assetId)
+{
+    if (!player)
+        return false;
+
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may move Guild House items.");
+
+        return false;
+    }
+
+
+    if (!GuildHouseUtil::IsOnGMIsland(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "You must be inside your Guild House to move items.");
+
+        return false;
+    }
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    if (!guildId)
+        return false;
+
+
+    GHGuildAsset* asset =
+        GetAsset(
+            guildId,
+            assetId);
+
+
+    if (!asset)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Unknown asset.");
+
+        return false;
+    }
+
+
+    if (asset->Status != GH_ASSET_PLACED)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only placed assets can be moved.");
+
+        return false;
+    }
+
+
+    asset->X =
+        player->GetPositionX();
+
+    asset->Y =
+        player->GetPositionY();
+
+    asset->Z =
+        player->GetPositionZ();
+
+    asset->O =
+        player->GetOrientation();
+
+
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset SET "
+        "positionX=%f,"
+        "positionY=%f,"
+        "positionZ=%f,"
+        "orientation=%f "
+        "WHERE assetId=%u "
+        "AND guildId=%u",
+        asset->X,
+        asset->Y,
+        asset->Z,
+        asset->O,
+        assetId,
+        guildId);
+
+
+
+    //
+    // Future:
+    // despawn old component GUIDs
+    // respawn at new location
+    //
+
+    return true;
+}
+
+bool GuildHouseMgr::StoreAsset(
+    Player* player,
+    uint32 assetId)
+{
+    if (!player)
+        return false;
+
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may store Guild House items.");
+
+        return false;
+    }
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    GHGuildAsset* asset =
+        GetAsset(
+            guildId,
+            assetId);
+
+
+    if (!asset)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Unknown asset.");
+
+        return false;
+    }
+
+
+    if (asset->Status != GH_ASSET_PLACED)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only placed items can be stored.");
+
+        return false;
+    }
+
+
+    asset->Status =
+        GH_ASSET_STORED;
+
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset SET "
+        "status=%u "
+        "WHERE assetId=%u "
+        "AND guildId=%u",
+        GH_ASSET_STORED,
+        assetId,
+        guildId);
+
+
+
+    //
+    // Future:
+    // remove spawned creatures/gameobjects
+    //
+
+    return true;
+}
+
+bool GuildHouseMgr::SellAsset(
+    Player* player,
+    uint32 assetId)
+{
+    if (!player)
+        return false;
+
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Only the Guild Master may sell Guild House items.");
+
+        return false;
+    }
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    GHGuildAsset* asset =
+        GetAsset(
+            guildId,
+            assetId);
+
+
+    if (!asset)
+    {
+        ChatHandler(player->GetSession())
+            .PSendSysMessage(
+                "Unknown asset.");
+
+        return false;
+    }
+
+
+    //
+    // Remove from database
+    //
+
+    CharacterDatabase.Execute(
+        "DELETE FROM guildhouse_asset "
+        "WHERE assetId=%u "
+        "AND guildId=%u",
+        assetId,
+        guildId);
+
+
+
+    //
+    // Remove from memory
+    //
+
+    auto houseItr =
+        _houses.find(guildId);
+
+
+    if (houseItr != _houses.end())
+    {
+        auto& assets =
+            houseItr->second.Assets;
+
+
+        assets.erase(
+            std::remove_if(
+                assets.begin(),
+                assets.end(),
+                [assetId](const GHGuildAsset& a)
+                {
+                    return a.AssetId == assetId;
+                }),
+            assets.end());
+    }
+
+
+
+    return true;
+}
