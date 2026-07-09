@@ -77,17 +77,34 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 {
     Player* player = handler->GetSession()->GetPlayer();
 
+    if (!player)
+        return false;
+
     uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900000 : 900001;
 
-    ObjectGuid::LowType spawnId = SpawnPermanentCreature(player, entry, player->GetPhaseMaskForSpawn()); 
-    if (!spawnId)
-    {
-        handler->PSendSysMessage("Failed to spawn Guild House Broker.");
+    ObjectGuid::LowType spawnGuid = sObjectMgr->GenerateCreatureSpawnId();
 
-        return false;
-    }
+    std::ostringstream sql;
 
-    handler->PSendSysMessage("Guild House Broker spawned.");
+    sql <<
+        "INSERT INTO creature "
+        "(guid,id,map,phaseMask,"
+        "position_x,position_y,position_z,"
+        "orientation,spawntimesecs) VALUES ("
+        << spawnGuid << ","
+        << entry << ","
+        << player->GetMapId() << ","
+        << player->GetPhaseMaskForSpawn() << ","
+        << player->GetPositionX() << ","
+        << player->GetPositionY() << ","
+        << player->GetPositionZ() << ","
+        << player->GetOrientation() << ","
+        << 300
+        << ")";
+
+    WorldDatabase.Execute(sql.str());
+
+    handler->PSendSysMessage("Guild House Broker permanently spawned (GUID %u).", spawnGuid);
 
     return true;
 }
