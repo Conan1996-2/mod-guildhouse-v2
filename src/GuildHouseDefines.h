@@ -156,7 +156,7 @@ inline bool IsOnGMIsland(Player* player)
         return false;
 
     uint32_t expectedPhase =
-        GetGuildHousePhase(guild->GetId());
+        GuildHouseUtil::GetGuildHousePhase(guild->GetId());
 
     if ((player->GetPhaseMask() & expectedPhase) == 0)
         return false;
