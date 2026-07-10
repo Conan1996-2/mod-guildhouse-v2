@@ -14,7 +14,7 @@ public:
     bool HasExistingSpawn(uint32_t instanceId, uint32_t assetId);
 
     // Spawn one purchased catalog item
-    bool SpawnAsset(uint32_t guildId, uint32_t instanceId, uint32_t assetId);
+    bool SpawnAsset(uint32_t guildId, uint32_t assetId);
 
     bool RemoveAsset(uint32_t guildId, uint32_t instanceId, uint32_t assetId);
 
