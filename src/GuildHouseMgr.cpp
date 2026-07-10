@@ -361,7 +361,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32 assetId)
     ss << "UPDATE guildhouse_asset SET status=" << GH_ASSET_PLACED << ",positionX=" << asset->X << ",positionY=" << asset->Y << ",positionZ=" << asset->Z << ",orientation=" << asset->O << " WHERE assetId=" << assetId;
     CharacterDatabase.Execute(ss.str());
 
-    sGuildHouseSpawner.SpawnAsset(guildId, player->GetInstanceId(), assetId);
+    sGuildHouseSpawner.SpawnAsset(guildId, assetId);
 
     return true;
 }
