@@ -63,26 +63,14 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 
     uint32 entry = (player->GetTeamId() == TEAM_ALLIANCE) ? 900000 : 900001;
 
-/* OLD Code    
-    ObjectGuid::LowType spawnGuid = sObjectMgr->GenerateCreatureSpawnId();
-
-    std::ostringstream sql;
-    sql << "INSERT INTO creature (guid,id,map,phaseMask,position_x,position_y,position_z,orientation,spawntimesecs) VALUES (" 
-        << spawnGuid << "," << entry << "," << player->GetMapId() << "," << player->GetPhaseMaskForSpawn() << "," << player->GetPositionX() << "," << player->GetPositionY() << "," << player->GetPositionZ() << "," << player->GetOrientation() << "," << 300 << ")";
-    WorldDatabase.Execute(sql.str());
-
-    if (Map* map = player->GetMap())
-        map->LoadGrid(player->GetPositionX(), player->GetPositionY());
-*/
-
     Creature* creature = new Creature();
 
-    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), PHASEMASK_ANYWHERE, entry, 0,  player->GetPositionX(),  player->GetPositionY(),  player->GetPositionZ(), player->GetOrientation()))
+    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(),  player->GetPhaseMaskForSpawn(), entry, 0,  player->GetPositionX(),  player->GetPositionY(),  player->GetPositionZ(), player->GetOrientation()))
     {
         delete creature;
         return false;
     }
-    creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), PHASEMASK_ANYWHERE);
+    creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()),  player->GetPhaseMaskForSpawn());
     uint32 db_guid = creature->GetSpawnId();
 
     creature->CleanupsBeforeDelete();
