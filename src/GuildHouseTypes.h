@@ -34,19 +34,24 @@ struct GHCatalogAsset
     uint32_t Entry;
     uint32_t DisplayId;
     float Scale;
+
     GHSpawnFlags SpawnFlags;
     GHBehaviorFlags BehaviorFlags;
     GHScriptType ScriptType;
+
     std::string ScriptData;
+
     float XOffset;
     float YOffset;
     float ZOffset;
     float OOffset;
+
     uint32_t TargetMap;
     float TargetX;
     float TargetY;
     float TargetZ;
     float TargetO;
+
     uint32_t ChildCatalogId;
     uint16_t SortOrder;
 };
@@ -61,10 +66,14 @@ struct GHCatalog
 {
     uint32_t CatalogId;
     uint32_t CategoryId;
+
     std::string Name;
+
     GHSpawnFlags SpawnFlags;
     GHBehaviorFlags BehaviorFlags;
+
     bool Enabled;
+
     std::vector<GHCatalogAsset> Components;
 };
 
@@ -72,16 +81,23 @@ struct GHCatalog
 // Purchased Guild Asset
 //
 // Stored in guildhouse_asset
+//
+// Represents a purchased object before and after placement.
+// InstanceId replaces phase ownership.
 // =====================================================
 
 struct GHGuildAsset
 {
     uint32_t AssetId;
     uint32_t GuildId;
+
     uint32_t CatalogId;
     uint16_t LayoutId;
+
     GHAssetStatus Status;
+
     uint32_t InstanceId;
+
     float X;
     float Y;
     float Z;
@@ -92,20 +108,31 @@ struct GHGuildAsset
 // Permanent Spawn Registry
 //
 // Stored in guildhouse_instance
+//
+// Tracks spawned objects inside a guild instance.
+// This replaces phase-based tracking.
 // =====================================================
 
 struct GHInstance
 {
+    uint32_t SpawnId;
+
     uint32_t InstanceId;
     uint32_t GuildId;
+
     uint32_t AssetId;
     uint32_t CatalogId;
+
     uint32_t Guid;
+
     uint8_t Type;
     // 0 = creature
     // 1 = gameobject
+    // 2 = portal
+    // 3 = trigger
+
     uint32_t MapId;
-    uint32_t InstanceId;
+
     float X;
     float Y;
     float Z;
@@ -115,14 +142,21 @@ struct GHInstance
 // =====================================================
 // Guild House
 //
-// One per guild.
+// One active instance per guild.
+// Ownership is dynamic and resolved from the guild system.
 // =====================================================
 
 struct GHGuildHouse
 {
     uint32_t GuildId;
+
+    // Historical creator/owner record.
+    // Actual permissions come from Guild::GetLeaderGUID()
+    // and are not stored permanently here.
     uint32_t OwnerGuid;
+
     uint32_t InstanceId;
+
     std::vector<GHGuildAsset> Assets;
 };
 
