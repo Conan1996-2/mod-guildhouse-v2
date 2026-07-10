@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS `guildhouse_locations`;
+CREATE TABLE `guildhouse_locations`
+(
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(100) NOT NULL,
+
+    `mapId` SMALLINT UNSIGNED NOT NULL,
+    `positionX` FLOAT NOT NULL,
+    `positionY` FLOAT NOT NULL,
+    `positionZ` FLOAT NOT NULL,
+    `orientation` FLOAT NOT NULL,
+
+    `minX` FLOAT NOT NULL,
+    `maxX` FLOAT NOT NULL,
+    `minY` FLOAT NOT NULL,
+    `maxY` FLOAT NOT NULL,
+
+    `price` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `enabled` TINYINT(1) NOT NULL DEFAULT 1,
+
+    PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `guildhouse_locations` (`name`,`mapId`,`positionX`,`positionY`,`positionZ`,`orientation`,`minX`,`maxX`,`minY`,`maxY`,`price`,`enabled`)
+VALUES ('GM Island', 1, 16222.57f, 16265.91f, 13.21f, 0, 16000, 16500, 16000, 16500, 100000000, 1);
