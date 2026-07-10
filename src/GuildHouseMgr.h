@@ -23,6 +23,7 @@ public:
     bool HasGuildHouse(uint32_t guildId) const;
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
     bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid);
+    uint32_t GetOrCreateGuildInstance(uint32_t guildId);
 
     bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
 
