@@ -8,6 +8,7 @@
 #include "GossipDef.h"
 #include "ScriptedGossip.h"
 #include "Chat.h"
+#include "MapMgr.h"
 
 namespace
 {
@@ -117,14 +118,14 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
                 break;
         
-            uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
+            uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
             if (!instanceId)
             {
-                ChatHandler(player->GetSession()).PSendSysMessage("Unable to create Guild House instance.");
-                break;
+                instanceId = sMapMgr->GenerateInstanceId();
+                sGuildHouseMgr.SetGuildInstance(guildId, instanceId);
             }
         
-            player->TeleportTo(GH_MAP, instanceId, GH_X, GH_Y, GH_Z, GH_O);        
+            player->TeleportTo(GH_MAP, GH_X, GH_Y, GH_Z, GH_O, instanceId);
             break;
         }
 
