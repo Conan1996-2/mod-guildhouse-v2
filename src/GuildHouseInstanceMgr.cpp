@@ -1,6 +1,7 @@
 #include "GuildHouseInstanceMgr.h"
 
 #include "DatabaseEnv.h"
+#include "QueryResult.h"
 #include "Log.h"
 
 GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
