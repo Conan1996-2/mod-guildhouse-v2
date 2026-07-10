@@ -160,4 +160,27 @@ struct GHGuildHouse
     std::vector<GHGuildAsset> Assets;
 };
 
+// =====================================================
+// Guild House locations
+//
+// Used to populate the Broker purchasing
+// =====================================================
+
+struct GHLocation
+{
+    uint32 Id;
+    std::string Name;
+    uint32 MapId;
+    float X;
+    float Y;
+    float Z;
+    float O;
+    float MinX;
+    float MaxX;
+    float MinY;
+    float MaxY;
+    uint64 Price;
+    bool Enabled;
+};
+
 #endif
