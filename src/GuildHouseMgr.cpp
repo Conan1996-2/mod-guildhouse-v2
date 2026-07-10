@@ -24,11 +24,29 @@ GuildHouseMgr& GuildHouseMgr::Instance()
 bool GuildHouseMgr::IsGuildInstance(uint32 guildId, uint32 instanceId) const
 {
     auto itr = _guildInstances.find(guildId);
-
     if (itr == _guildInstances.end())
         return false;
 
     return itr->second == instanceId;
+}
+
+uint32 GuildHouseMgr::GetGuildInstance(uint32 guildId) const
+{
+    auto itr = _guildInstances.find(guildId);
+    if (itr == _guildInstances.end())
+        return 0;
+
+    return itr->second;
+}
+
+void GuildHouseMgr::SetGuildInstance(uint32 guildId, uint32 instanceId)
+{
+    _guildInstances[guildId] = instanceId;
+}
+
+void GuildHouseMgr::RemoveGuildInstance(uint32 guildId)
+{
+    _guildInstances.erase(guildId);
 }
 
 bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
@@ -39,7 +57,23 @@ bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
 void GuildHouseMgr::Load()
 {
     _houses.clear();
+    _guildInstances.clear();
 
+    //
+    // Load guild instance ownership
+    //
+    if (QueryResult result = CharacterDatabase.Query("SELECT guildId, instanceId FROM guildhouse_instance"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+    
+            uint32 guildId = fields[0].Get<uint32>();
+            uint32 instanceId = fields[1].Get<uint32>();
+            _guildInstances[guildId] = instanceId;    
+        } while (result->NextRow());
+    }
+    
     //
     // Load guild ownership
     //
@@ -249,7 +283,7 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
     // Store guild ownership
     //
 
-    RecordSalesmanSpawn(guildId, spawnGuid, player->GetMapId(), phase, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+    RecordSalesmanSpawn(guildId, spawnGuid, player->GetMapId(), instanceId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
     LOG_INFO("module", "GuildHouse salesman spawned. Guild {}, Spawn {}, Entry {}", guildId, spawnGuid, entry);
 
@@ -377,7 +411,6 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     //
     // Update asset anchor
     //
-
     asset->X = newX;
     asset->Y = newY;
     asset->Z = newZ;
@@ -388,9 +421,8 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     //
     // Move permanent spawn records
     //
-
+    uint32 instanceId = player->GetInstanceId();
     QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId=%u AND assetId=%u AND instanceId=%u AND enabled=1", guildId, assetId, instanceId);
-
     if (result)
     {
         do
@@ -456,7 +488,7 @@ bool GuildHouseMgr::SellAsset(Player* player, uint32 assetId)
         return false;
 
     if (asset->Status == GH_ASSET_PLACED)
-        sGuildHouseSpawner.RemoveAsset(guildId, assetId);
+        sGuildHouseSpawner.RemoveAsset(guildId, player->GetInstanceId(), assetId);
 
     CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE assetId=%u AND guildId=%u", assetId, guildId);
 
