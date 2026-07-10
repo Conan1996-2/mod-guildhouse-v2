@@ -30,7 +30,6 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(Player* player, Creature* creatu
         return false;
 
     Guild* guild = player->GetGuild();
-
     if (!guild)
     {
         ChatHandler(player->GetSession()).PSendSysMessage("You must belong to a guild.");
@@ -50,11 +49,10 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(Player* player, Creature* creatu
         return false;
     }
 
-    uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
-
     //
     // Player must be inside guild instance
     //
+    uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
     if (player->GetInstanceId() != instanceId)
     {
         ChatHandler(player->GetSession()).PSendSysMessage("You must be inside your Guild House instance.");
@@ -64,7 +62,7 @@ bool GuildHouseSalesman::ValidateSalesmanAccess(Player* player, Creature* creatu
     //
     // Player must be on GM Island
     //
-    if (!GuildHouseUtil::IsOnGMIsland(player))
+    if (!GuildHouseUtil::IsInGuildHouse(player))
     {
         ChatHandler(player->GetSession()).PSendSysMessage("Guild House items may only be purchased on GM Island.");
         return false;
