@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS
 CREATE TABLE guildhouse_locations
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -18,5 +19,5 @@ CREATE TABLE guildhouse_locations
     enabled TINYINT(1) NOT NULL DEFAULT 1,
 
     PRIMARY KEY(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
