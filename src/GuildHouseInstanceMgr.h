@@ -5,20 +5,15 @@
 
 /*
     DEPRECATED
-
     GuildHouse no longer uses runtime instances.
-
     Permanent objects are stored in:
-
         guildhouse_asset
 
     and loaded by:
-
         GuildHouseSpawner
 
     This class remains temporarily so older code does not break.
 */
-
 
 struct GHInstanceRecord
 {
@@ -39,8 +34,6 @@ struct GHInstanceRecord
     float O = 0;
 };
 
-
-
 class GuildHouseInstanceMgr
 {
 
@@ -48,28 +41,14 @@ public:
 
     static GuildHouseInstanceMgr& Instance();
 
-
     /*
         Deprecated compatibility functions
     */
-
     void Load();
-
     void LoadInstances();
-
-
-    void Save(
-        const GHInstanceRecord& record);
-
-
-    void AddInstance(
-        const GHInstanceRecord& record);
-
-
-    void RemoveGuild(
-        uint32_t guildId);
-
-
+    void Save(const GHInstanceRecord& record);
+    void AddInstance(const GHInstanceRecord& record);
+    void RemoveGuild(uint32_t guildId);
 
 private:
 
@@ -77,9 +56,6 @@ private:
 
 };
 
-
-
 #define sGuildHouseInstanceMgr GuildHouseInstanceMgr::Instance()
-
 
 #endif
