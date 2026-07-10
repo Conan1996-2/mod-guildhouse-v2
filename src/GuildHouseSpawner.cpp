@@ -48,7 +48,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32 instanceId, uint32 assetId)
 // Spawn one placed asset
 // =====================================================
 
-bool GuildHouseSpawner::SpawnAsset(uint32 guildId, uint32 assetId)
+bool GuildHouseSpawner::SpawnAsset(uint32 guildId, uint32_t instanceId, uint32 assetId)
 {
     QueryResult result = CharacterDatabase.Query("SELECT catalogId, status, instanceId, positionX, positionY, positionZ, orientation FROM guildhouse_asset WHERE assetId=%u AND guildId=%u", assetId, guildId);
     if (!result)
