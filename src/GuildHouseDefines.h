@@ -16,6 +16,11 @@ constexpr float GH_Y = 16265.91f;
 constexpr float GH_Z = 13.21f;
 constexpr float GH_O = 0.0f;
 
+// Other areas: Azshara Crater x=128, y=135, z=236.1, map=37
+// horde  Valormok 88.38 915.82 338.12 37
+// either Talrendis Outpost 1144.43 240 353 37
+
+
 // =====================================================
 // GM Island Placement Boundary
 //
