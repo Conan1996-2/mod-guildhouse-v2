@@ -1,0 +1,22 @@
+CREATE TABLE guildhouse_locations
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    mapId SMALLINT UNSIGNED NOT NULL,
+
+    positionX FLOAT NOT NULL,
+    positionY FLOAT NOT NULL,
+    positionZ FLOAT NOT NULL,
+    orientation FLOAT NOT NULL,
+
+    minX FLOAT NOT NULL,
+    maxX FLOAT NOT NULL,
+    minY FLOAT NOT NULL,
+    maxY FLOAT NOT NULL,
+
+    price BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    enabled TINYINT(1) NOT NULL DEFAULT 1,
+
+    PRIMARY KEY(id)
+);
+
