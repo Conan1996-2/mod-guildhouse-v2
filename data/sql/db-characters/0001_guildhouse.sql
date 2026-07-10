@@ -3,6 +3,7 @@ CREATE TABLE `guildhouse`
 (
     `guildId` INT UNSIGNED NOT NULL,
     `ownerGuid` INT UNSIGNED NOT NULL,
+    `locationId` INT UNSIGNED NOT NULL DEFAULT 0,
     `purchaseDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`guildId`),
     KEY `idx_owner` (`ownerGuid`)
