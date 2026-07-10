@@ -1,88 +1,144 @@
 #include "GuildHouseInstanceMgr.h"
 
+#include "DatabaseEnv.h"
 #include "Log.h"
 
-
-GuildHouseInstanceMgr&
-GuildHouseInstanceMgr::Instance()
+GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
 {
     static GuildHouseInstanceMgr instance;
-
     return instance;
 }
 
-
-
+// =====================================================
+// Load existing guild instances
+//
+// One instance belongs to one guild.
+// =====================================================
 
 void GuildHouseInstanceMgr::Load()
 {
-    /*
-        Deprecated.
+    _instances.clear();
+    _guildInstances.clear();
 
-        Permanent GuildHouse objects are loaded
-        from guildhouse_asset.
-    */
+    if (QueryResult result = CharacterDatabase.Query("SELECT instanceId, guildId, mapId, x, y, z, o FROM guildhouse_instance"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
 
-    LOG_INFO(
-        "module",
-        "GuildHouseInstanceMgr disabled (permanent spawn mode)");
+            GHInstanceRecord record;
+
+            record.InstanceId = fields[0].Get<uint32>();
+            record.GuildId = fields[1].Get<uint32>();
+            record.MapId = fields[2].Get<uint32>();
+            record.X = fields[3].Get<float>();
+            record.Y = fields[4].Get<float>();
+            record.Z = fields[5].Get<float>();
+            record.O = fields[6].Get<float>();
+
+            _instances.emplace(record.InstanceId, record);
+            _guildInstances.emplace(record.GuildId, record.InstanceId);
+        } while(result->NextRow());
+    }
+
+    LOG_INFO("module", "GuildHouseInstanceMgr loaded {} instances", _instances.size());
 }
 
+// =====================================================
+// Create Guild Instance
+//
+// One instance per guild.
+// =====================================================
 
-
-
-void GuildHouseInstanceMgr::LoadInstances()
+uint32_t GuildHouseInstanceMgr::CreateInstance(uint32_t guildId)
 {
-    /*
-        Deprecated.
+    if (HasInstance(guildId))
+        return GetInstanceId(guildId);
 
-        No runtime instances exist.
-    */
+    uint32_t instanceId = GenerateInstanceId();
+
+    GHInstanceRecord record;
+
+    record.InstanceId = instanceId;
+    record.GuildId = guildId;
+    record.MapId = 1;
+
+    _instances.emplace(instanceId, record);
+    _guildInstances.emplace(guildId, instanceId);
+
+    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (instanceId,guildId,mapId,x,y,z,o) VALUES (%u,%u,%u,%f,%f,%f,%f)",
+        instanceId, guildId, record.MapId, record.X, record.Y, record.Z, record.O);
+
+    return instanceId;
 }
 
+// =====================================================
+// Remove Guild Instance
+//
+// Does not remove purchased assets.
+// =====================================================
 
-
-
-void GuildHouseInstanceMgr::Save(
-    const GHInstanceRecord& record)
+bool GuildHouseInstanceMgr::RemoveInstance(uint32_t guildId)
 {
-    /*
-        Deprecated.
+    auto itr = _guildInstances.find(guildId);
+    if (itr == _guildInstances.end())
+        return false;
 
-        Do not save runtime GUIDs.
+    uint32_t instanceId = itr->second;
 
-        Permanent records belong in:
-            guildhouse_asset
-    */
+    _instances.erase(instanceId);
+    _guildInstances.erase(itr);
+
+    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
+
+    return true;
 }
 
+// =====================================================
+// Lookup
+// =====================================================
 
-
-
-void GuildHouseInstanceMgr::AddInstance(
-    const GHInstanceRecord& record)
+uint32_t GuildHouseInstanceMgr::GetInstanceId(uint32_t guildId) const
 {
-    /*
-        Deprecated.
+    auto itr = _guildInstances.find(guildId);
+    if (itr == _guildInstances.end())
+        return 0;
 
-        Previously stored spawned objects.
-
-        No longer used.
-    */
+    return itr->second;
 }
 
-
-
-
-void GuildHouseInstanceMgr::RemoveGuild(
-    uint32_t guildId)
+bool GuildHouseInstanceMgr::HasInstance(uint32_t guildId) const
 {
-    /*
-        Deprecated.
+    return _guildInstances.find(guildId) != _guildInstances.end();
+}
 
-        Do NOT remove permanent assets.
+bool GuildHouseInstanceMgr::IsGuildInstance(uint32_t guildId, uint32_t instanceId) const
+{
+    auto itr = _guildInstances.find(guildId);
+    if (itr == _guildInstances.end())
+        return false;
 
-        Permanent removal will be handled
-        by future GM commands.
-    */
+    return itr->second == instanceId;
+}
+
+const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(uint32_t instanceId) const
+{
+    auto itr = _instances.find(instanceId);
+    if (itr == _instances.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
+// =====================================================
+// Instance ID generation
+//
+// Replace later with core instance manager integration.
+// =====================================================
+
+uint32_t GuildHouseInstanceMgr::GenerateInstanceId()
+{
+    static uint32_t nextId = 10000;
+
+    return nextId++;
 }
