@@ -66,11 +66,9 @@ void GuildHouseMgr::Load()
     {
         do
         {
-            Field* fields = result->Fetch();
-    
+            Field* fields = result->Fetch();    
             uint32 guildId = fields[0].Get<uint32>();
-            uint32 instanceId = fields[1].Get<uint32>();
-            _guildInstances[guildId] = instanceId;    
+            _guildInstances[guildId] = fields[1].Get<uint32>();
         } while (result->NextRow());
     }
     
@@ -88,7 +86,7 @@ void GuildHouseMgr::Load()
             GHGuildHouse house;
             house.GuildId = guildId;
             house.OwnerGuid = ownerGuid;
-            house.InstanceId = 0;
+            house.InstanceId = GetGuildInstance(guildId);
             _houses.emplace(guildId, house);
 
         } while(result->NextRow());
@@ -337,7 +335,6 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32 assetId)
     }
 
     uint32 guildId = player->GetGuildId();
-
     if (!HasGuildHouse(guildId))
         return false;
 
@@ -364,7 +361,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32 assetId)
     ss << "UPDATE guildhouse_asset SET status=" << GH_ASSET_PLACED << ",positionX=" << asset->X << ",positionY=" << asset->Y << ",positionZ=" << asset->Z << ",orientation=" << asset->O << " WHERE assetId=" << assetId;
     CharacterDatabase.Execute(ss.str());
 
-    sGuildHouseSpawner.SpawnAsset(guildId, assetId);
+    sGuildHouseSpawner.SpawnAsset(guildId, player->GetInstanceId(), assetId);
 
     return true;
 }
