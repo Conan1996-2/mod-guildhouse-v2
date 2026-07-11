@@ -58,7 +58,7 @@ bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
 
 void GuildHouseMgr::Load()
 {
-    LOG_INFO("server.loading", "*** GuildHouseMgr loading guild houses and locations");
+    LOG_INFO("server.loading", "GuildHouseMgr loading guild houses and locations");
 
     _houses.clear();
     _guildInstances.clear();
@@ -150,7 +150,7 @@ void GuildHouseMgr::Load()
         } while(result->NextRow());
     }
 
-    LOG_INFO("server.loading", "GuildHouseMgr loaded {} guild houses and {} locations", _houses.size(), _locations.size());
+    LOG_INFO("server.loading", ">> GuildHouseMgr loaded {} guild houses and {} locations", _houses.size(), _locations.size());
 }
 
 bool GuildHouseMgr::HasGuildHouse(uint32_t guildId) const
