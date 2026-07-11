@@ -9,6 +9,7 @@
 #include "Chat.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "MapMgr.h"
 
 #include "GuildHouseDefines.h"
 #include "GuildHouseCatalogMgr.h"
@@ -65,6 +66,20 @@ uint32_t GuildHouseMgr::GetGuildByInstance(uint32_t instanceId) const
         return 0;
 
     return itr->second;
+}
+
+uint32 GuildHouseMgr::GetOrCreateGuildInstance(uint32 guildId)
+{
+    uint32 instanceId = GetGuildInstance(guildId);
+
+    if (instanceId)
+        return instanceId;
+
+    instanceId = sMapMgr->GenerateInstanceId();
+
+    SetGuildInstance(guildId, instanceId);
+
+    return instanceId;
 }
 
 bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
