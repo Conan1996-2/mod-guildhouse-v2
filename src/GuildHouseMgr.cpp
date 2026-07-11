@@ -58,6 +58,23 @@ void GuildHouseMgr::RemoveGuildInstance(uint32_t guildId)
     _guildInstances.erase(itr);
 }
 
+bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
+{
+    auto itr = _houses.find(guildId);
+    if (itr == _houses.end())
+        return false;
+
+    _houses.erase(itr);
+
+    CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId=%u", guildId);
+
+    RemoveGuildInstance(guildId);
+
+    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
+
+    return true;
+}
+
 uint32_t GuildHouseMgr::GetGuildByInstance(uint32_t instanceId) const
 {
     auto itr = _instanceGuilds.find(instanceId);
