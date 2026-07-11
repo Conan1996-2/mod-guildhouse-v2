@@ -38,6 +38,15 @@ GuildHouse.Free = 0
 
 GuildHouse.LoadAll = 0
 
+#    GuildHouse.Refund
+#        Description: Refund percentage of cost when returning an item or selling the House.
+#            Min 0, Max 100.
+#
+#        Default:    80 - 80 percent
+#
+
+GuildHouse.Refund = 80
+
 #    GuildHouse.Cost.House
 #        Description: The cost of purchasing the Guild House in copper.
 #
