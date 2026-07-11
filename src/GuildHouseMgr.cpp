@@ -164,7 +164,7 @@ const GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId) const
     return &itr->second;
 }
 
-bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid)
+bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint32_t locationId)
 {
     if (HasGuildHouse(guildId))
         return false;
