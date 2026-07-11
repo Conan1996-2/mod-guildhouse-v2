@@ -16,9 +16,11 @@ namespace
     enum GuildHouseActions
     {
         ACTION_NONE = 0,
+        ACTION_TELEPORT = 1,
+        ACTION_SELL = 2,
         ACTION_BUY_START = 1000,
-        ACTION_TELEPORT = 2000,
-        ACTION_SELL = 2001
+        ACTION_CATEGORY_START = 2000,
+        ACTION_CATALOG_START = 3000
     };
 
 }
@@ -96,7 +98,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
 
     uint32 guildId = guild->GetId();
 
-    if (action >= ACTION_BUY_START && action < ACTION_TELEPORT)
+    if (action >= ACTION_BUY_START && action < ACTION_CATEGORY_START)
     {
         uint32 locationId = action - ACTION_BUY_START;
     
