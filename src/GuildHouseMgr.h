@@ -26,6 +26,7 @@ public:
 
     const GHLocation* GetLocation(uint32_t locationId) const;
     std::vector<const GHLocation*> GetLocations() const;
+    const GHLocation* GetGuildLocation(uint32_t guildId) const;
 
     bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint32_t locationId);
 
