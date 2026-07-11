@@ -19,6 +19,7 @@ void GuildHouseConfig::Load()
     _npcCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.NPC", 1000000ULL);
     _portalCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Portal", 10000000ULL);
     _objectCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Object", 500000ULL);
+    _refundPercent = sConfigMgr->GetOption<uint64_t>("GuildHouse.Refund", 80ULL);
 
     LOG_INFO("server.loading", "GuildHouse: Configuration loaded.");
 }
