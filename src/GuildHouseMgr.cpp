@@ -540,3 +540,8 @@ std::vector<const GHLocation*> GuildHouseMgr::GetLocations() const
 
     return locations;
 }
+
+void AddSC_GuildHouseMgr()
+{
+    new GuildHouseMgr();
+}
