@@ -22,8 +22,12 @@ public:
 
     bool HasGuildHouse(uint32_t guildId) const;
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
-    bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid);
     uint32_t GetOrCreateGuildInstance(uint32_t guildId);
+
+    const GHLocation* GetLocation(uint32_t locationId) const;
+    std::vector<const GHLocation*> GetLocations() const;
+
+    bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint32_t locationId);
 
     bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
 
@@ -46,6 +50,7 @@ private:
 
     std::unordered_map<uint32_t, GHGuildHouse> _houses;
     std::unordered_map<uint32_t, uint32_t> _guildInstances;
+    std::unordered_map<uint32, GHLocation> _locations;
 };
 
 #define sGuildHouseMgr GuildHouseMgr::Instance()
