@@ -44,11 +44,27 @@ uint32 GuildHouseMgr::GetGuildInstance(uint32 guildId) const
 void GuildHouseMgr::SetGuildInstance(uint32 guildId, uint32 instanceId)
 {
     _guildInstances[guildId] = instanceId;
+    _instanceGuilds[instanceId] = guildId;
 }
 
-void GuildHouseMgr::RemoveGuildInstance(uint32 guildId)
+void GuildHouseMgr::RemoveGuildInstance(uint32_t guildId)
 {
-    _guildInstances.erase(guildId);
+    auto itr = _guildInstances.find(guildId);
+    if (itr == _guildInstances.end())
+        return;
+
+    _instanceGuilds.erase(itr->second);
+    _guildInstances.erase(itr);
+}
+
+uint32_t GuildHouseMgr::GetGuildByInstance(uint32_t instanceId) const
+{
+    auto itr = _instanceGuilds.find(instanceId);
+
+    if (itr == _instanceGuilds.end())
+        return 0;
+
+    return itr->second;
 }
 
 bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
