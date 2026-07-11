@@ -31,7 +31,7 @@ GuildHouseSpawner::Instance()
 
 void GuildHouseSpawner::LoadPlacedAssets()
 {
-    LOG_INFO("module", "GuildHouseSpawner permanent spawn mode enabled.");
+    LOG_INFO("server.loading", "GuildHouseSpawner permanent spawn mode enabled.");
 }
 
 bool GuildHouseSpawner::HasExistingSpawn(uint32 instanceId, uint32 assetId)
@@ -59,7 +59,7 @@ bool GuildHouseSpawner::SpawnAsset(uint32 guildId, uint32 assetId)
     uint32 instanceId = fields[2].Get<uint32>();
     if (HasExistingSpawn(instanceId, assetId))
     {
-        LOG_INFO("module", "GuildHouse asset {} already spawned.", assetId);
+        LOG_INFO("server.loading", "GuildHouse asset {} already spawned.", assetId);
         return true;
     }
 
@@ -115,7 +115,7 @@ bool GuildHouseSpawner::SpawnCreature(uint32 guildId, uint32 instanceId, uint32 
         << assetId << "," << guildId << "," << instanceId << "," << spawnGuid << "," << 0 << "," << GH_MAP << "," << x << "," << y << "," << z << "," << o << ")";
     CharacterDatabase.Execute(trackingSql.str());
 
-    LOG_INFO("module", "GuildHouse creature {} spawned (asset {})", entry, assetId);
+    LOG_INFO("server.loading", "GuildHouse creature {} spawned (asset {})", entry, assetId);
 
     return true;
 }
@@ -141,7 +141,7 @@ bool GuildHouseSpawner::SpawnGameObject(uint32 guildId, uint32 instanceId, uint3
         << assetId << "," << guildId << "," << instanceId << "," << spawnGuid << "," << 1 << "," << GH_MAP << "," << x << "," << y << "," << z << "," << o << ")";
     CharacterDatabase.Execute(trackingSql.str());
 
-    LOG_INFO("module", "GuildHouse gameobject {} spawned (asset {})", entry, assetId);
+    LOG_INFO("server.loading", "GuildHouse gameobject {} spawned (asset {})", entry, assetId);
 
     return true;
 }
