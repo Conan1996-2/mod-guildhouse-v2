@@ -141,8 +141,8 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             player->ModifyMoney(-int64(cost));        
             ChatHandler(player->GetSession()).PSendSysMessage("Guild House purchased. The Guild Master may now place the salesman.");
             break;
-*/        }
-
+        }
+*/
         case ACTION_TELEPORT:
         {
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
