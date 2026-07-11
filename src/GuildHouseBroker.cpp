@@ -159,15 +159,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
         
-            uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
-        
-            if (!instanceId)
-            {
-                instanceId = sMapMgr->GenerateInstanceId();
-                sGuildHouseMgr.SetGuildInstance(guildId, instanceId);
-        
-                LOG_INFO("module", "Created GuildHouse instance {} for guild {}", instanceId, guildId);
-            }
+            uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
             
             player->TeleportTo(location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
             break;
