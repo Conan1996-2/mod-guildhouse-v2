@@ -58,7 +58,31 @@ void GuildHouseMgr::Load()
 {
     _houses.clear();
     _guildInstances.clear();
+    _locations.clear();
 
+    if (QueryResult result = WorldDatabase.Query("SELECT id,name,mapId,positionX,positionY,positionZ,orientation,minX,maxX,minY,maxY,price,enabled FROM guildhouse_locations"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();    
+            GHLocation location;    
+            location.Id = fields[0].Get<uint32>();
+            location.Name = fields[1].Get<std::string>();    
+            location.MapId = fields[2].Get<uint32>();    
+            location.X = fields[3].Get<float>();
+            location.Y = fields[4].Get<float>();
+            location.Z = fields[5].Get<float>();
+            location.O = fields[6].Get<float>();    
+            location.MinX = fields[7].Get<float>();
+            location.MaxX = fields[8].Get<float>();
+            location.MinY = fields[9].Get<float>();
+            location.MaxY = fields[10].Get<float>();    
+            location.Price = fields[11].Get<uint64>();    
+            location.Enabled = fields[12].Get<bool>();    
+            _locations.emplace(location.Id, location);    
+        } while (result->NextRow());
+    }
+    
     //
     // Load guild instance ownership
     //
@@ -122,7 +146,7 @@ void GuildHouseMgr::Load()
         } while(result->NextRow());
     }
 
-    LOG_INFO("module", "GuildHouseMgr loaded {} guild houses", _houses.size());
+    LOG_INFO("module", "GuildHouseMgr loaded {} guild houses and {} locations", _houses.size(), _locations.size());
 }
 
 bool GuildHouseMgr::HasGuildHouse(uint32_t guildId) const
