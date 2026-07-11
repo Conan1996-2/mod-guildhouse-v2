@@ -77,8 +77,11 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     else
     {
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Teleport to Guild House", GOSSIP_SENDER_MAIN, ACTION_TELEPORT);
+    
         if (IsGuildMaster(player))
+        {
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Sell Guild House", GOSSIP_SENDER_MAIN, ACTION_SELL);
+        }
     }
 
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -162,6 +165,31 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
             
             player->TeleportTo(location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
+            break;
+        }
+
+        case ACTION_SELL:
+        {
+            if (!IsGuildMaster(player))
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Only the Guild Master may sell the Guild House.");
+                break;
+            }
+        
+            if (!sGuildHouseMgr.HasGuildHouse(guildId))
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not own a Guild House.");
+                break;
+            }
+        
+            if (!sGuildHouseMgr.SellGuildHouse(guildId))
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Failed to sell Guild House.");
+                break;
+            }
+        
+            ChatHandler(player->GetSession()).PSendSysMessage("Guild House sold.");
+        
             break;
         }
 
