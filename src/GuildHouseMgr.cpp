@@ -56,6 +56,8 @@ bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
 
 void GuildHouseMgr::Load()
 {
+    LOG_INFO("module", "*** GuildHouseMgr loading guild houses and locations");
+
     _houses.clear();
     _guildInstances.clear();
     _locations.clear();
