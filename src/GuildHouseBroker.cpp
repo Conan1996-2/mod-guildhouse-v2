@@ -132,7 +132,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
         
-            if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter()))
+            if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter(), 0))
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House.");
                 break;
