@@ -491,3 +491,26 @@ bool GuildHouseMgr::SellAsset(Player* player, uint32 assetId)
 
     return true;
 }
+
+const GHLocation* GuildHouseMgr::GetLocation(uint32_t locationId) const
+{
+    auto itr = _locations.find(locationId);
+
+    if (itr == _locations.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
+std::vector<const GHLocation*> GuildHouseMgr::GetLocations() const
+{
+    std::vector<const GHLocation*> locations;
+
+    for (auto const& itr : _locations)
+    {
+        if (itr.second.Enabled)
+            locations.push_back(&itr.second);
+    }
+
+    return locations;
+}
