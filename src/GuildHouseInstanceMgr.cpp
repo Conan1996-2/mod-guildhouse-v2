@@ -42,7 +42,7 @@ void GuildHouseInstanceMgr::Load()
         } while(result->NextRow());
     }
 
-    LOG_INFO("module", "GuildHouseInstanceMgr loaded {} instances", _instances.size());
+    LOG_INFO("server.loading", "GuildHouseInstanceMgr loaded {} instances", _instances.size());
 }
 
 // =====================================================
