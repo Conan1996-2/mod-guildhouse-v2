@@ -163,6 +163,9 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             break;
         }
 
+        case ACTION_NONE:
+            return false;
+
         default:
             break;
     }
