@@ -188,7 +188,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
 
-            uint64 refund = location->Price * sGuildHouseConfig.GetHouseRefundPercent() / 100;
+            uint64 refund = location->Price * sGuildHouseConfig.GetRefundPercent() / 100;
             player->ModifyMoney(refund);
             
             ChatHandler(player->GetSession()).PSendSysMessage("Guild House sold for {}.", refund);
