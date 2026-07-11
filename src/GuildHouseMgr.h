@@ -17,6 +17,7 @@ public:
 
     bool IsGuildInstance(uint32_t guildId, uint32_t instanceId) const;
     uint32_t GetGuildInstance(uint32_t guildId) const;
+    uint32_t GetGuildByInstance(uint32_t instanceId) const;
     void SetGuildInstance(uint32_t guildId, uint32_t instanceId);
     void RemoveGuildInstance(uint32_t guildId);
 
@@ -51,6 +52,7 @@ private:
 
     std::unordered_map<uint32_t, GHGuildHouse> _houses;
     std::unordered_map<uint32_t, uint32_t> _guildInstances;
+    std::unordered_map<uint32_t, uint32_t> _instanceGuilds;
     std::unordered_map<uint32, GHLocation> _locations;
 };
 
