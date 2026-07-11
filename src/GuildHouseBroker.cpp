@@ -187,8 +187,11 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 ChatHandler(player->GetSession()).PSendSysMessage("Failed to sell Guild House.");
                 break;
             }
-        
-            ChatHandler(player->GetSession()).PSendSysMessage("Guild House sold.");
+
+            uint64 refund = location->Price * sGuildHouseConfig.GetHouseRefundPercent() / 100;
+            player->ModifyMoney(refund);
+            
+            ChatHandler(player->GetSession()).PSendSysMessage("Guild House sold for {}.", refund);
         
             break;
         }
