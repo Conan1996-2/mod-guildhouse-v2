@@ -154,7 +154,7 @@ struct GHGuildHouse
     // Actual permissions come from Guild::GetLeaderGUID()
     // and are not stored permanently here.
     uint32_t OwnerGuid;
-    uint32_t LocationId
+    uint32_t LocationId;
     uint32_t InstanceId;
 
     std::vector<GHGuildAsset> Assets;
