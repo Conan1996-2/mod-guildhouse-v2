@@ -20,7 +20,7 @@ void GuildHouseConfig::Load()
     _portalCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Portal", 10000000ULL);
     _objectCost = sConfigMgr->GetOption<uint64_t>("GuildHouse.Cost.Object", 500000ULL);
 
-    LOG_INFO("module", "GuildHouse: Configuration loaded.");
+    LOG_INFO("server.loading", "GuildHouse: Configuration loaded.");
 }
 
 bool GuildHouseConfig::IsEnabled() const
