@@ -22,5 +22,11 @@ CREATE TABLE `guildhouse_locations`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `guildhouse_locations` (`name`,`mapId`,`positionX`,`positionY`,`positionZ`,`orientation`,`minX`,`maxX`,`minY`,`maxY`,`price`,`enabled`)
-VALUES ('GM Island', 1, 16222.57f, 16265.91f, 13.21f, 0, 16000, 16500, 16000, 16500, 100000000, 1);
+VALUES ('GM Island', 1, 16222.57, 16265.91, 13.21, 0, 16000, 16500, 16000, 16500, 1000000, 1);
+
+INSERT INTO `guildhouse_locations` (`name`,`mapId`,`positionX`,`positionY`,`positionZ`,`orientation`,`minX`,`maxX`,`minY`,`maxY`,`price`,`enabled`)
+VALUES ('Valormok', 37, 88.38, 915.82, 338.12, 0, 16000, 16500, 16000, 16500, 10000000, 1);
+
+INSERT INTO `guildhouse_locations` (`name`,`mapId`,`positionX`,`positionY`,`positionZ`,`orientation`,`minX`,`maxX`,`minY`,`maxY`,`price`,`enabled`)
+VALUES ('Talrendis Outpost', 37, 1144.43, 240, 353, 0, 16000, 16500, 16000, 16500, 10000000, 1);
 
