@@ -16,8 +16,8 @@ namespace
     enum GuildHouseActions
     {
         ACTION_NONE = 0,
-        ACTION_BUY = 1,
-        ACTION_TELEPORT = 2
+        ACTION_BUY_START = 1000,
+        ACTION_TELEPORT = 2000
     };
 
 }
@@ -51,7 +51,19 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     {
         if (IsGuildMaster(player))
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Purchase Guild House", GOSSIP_SENDER_MAIN, ACTION_BUY);
+            auto locations = sGuildHouseMgr.GetLocations();
+    
+            if (locations.empty())
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "No Guild House locations are available.", GOSSIP_SENDER_MAIN, ACTION_NONE);
+            }
+            else
+            {
+                for (const GHLocation* location : locations)
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, location->Name, GOSSIP_SENDER_MAIN, ACTION_BUY_START + location->Id);
+                }
+            }
         }
         else
         {
@@ -81,7 +93,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     uint32 guildId = guild->GetId();
     switch(action)
     {
-        case ACTION_BUY:
+/*        case ACTION_BUY:
         {
             if (!IsGuildMaster(player))
             {
@@ -112,7 +124,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             ChatHandler(player->GetSession()).PSendSysMessage("Guild House purchased. The Guild Master may now place the salesman.");
             break;
         }
-
+*/
         case ACTION_TELEPORT:
         {
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
@@ -132,6 +144,27 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
         default:
             break;
     }
+
+    if (action >= ACTION_BUY_START &&
+        action < ACTION_TELEPORT)
+    {
+        uint32 locationId = action - ACTION_BUY_START;
+    
+        const GHLocation* location =
+            sGuildHouseMgr.GetLocation(locationId);
+    
+        if (!location)
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("Invalid Guild House location.");
+            break;
+        }
+    
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Selected Guild House location: {}",
+            location->Name);
+    
+        break;
+    }    
 
     CloseGossipMenuFor(player);
 
