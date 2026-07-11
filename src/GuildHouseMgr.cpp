@@ -103,17 +103,19 @@ void GuildHouseMgr::Load()
     //
     // Load guild ownership
     //
-    if (QueryResult result = CharacterDatabase.Query("SELECT guildId, ownerGuid FROM guildhouse"))
+    if (QueryResult result = CharacterDatabase.Query("SELECT guildId, ownerGuid, locationId FROM guildhouse"))
     {
         do
         {
             Field* fields = result->Fetch();
             uint32_t guildId = fields[0].Get<uint32_t>();
             uint32_t ownerGuid = fields[1].Get<uint32_t>();
-
+            uint32_t locationId = fields[2].Get<uint32_t>();
+            
             GHGuildHouse house;
             house.GuildId = guildId;
             house.OwnerGuid = ownerGuid;
+            house.LocationId = locationId;
             house.InstanceId = GetGuildInstance(guildId);
             _houses.emplace(guildId, house);
 
@@ -177,11 +179,12 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
     house.GuildId = guildId;
     house.OwnerGuid = ownerGuid;
     house.InstanceId = 0;
+    house.LocationId = locationId;
 
     _houses.emplace(guildId, house);
 
     std::ostringstream sql;
-    sql << "INSERT INTO guildhouse (guildId, ownerGuid) VALUES (" << guildId << "," << ownerGuid << ")";
+    sql << "INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES (" << guildId << "," << ownerGuid << "," << locationId << ")";
     CharacterDatabase.Execute(sql.str());
 
     return true;
