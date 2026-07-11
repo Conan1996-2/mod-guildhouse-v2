@@ -541,7 +541,18 @@ std::vector<const GHLocation*> GuildHouseMgr::GetLocations() const
     return locations;
 }
 
+class GuildHouseWorldScript : public WorldScript
+{
+public:
+    GuildHouseWorldScript() : WorldScript("GuildHouseWorldScript") {}
+
+    void OnStartup() override
+    {
+        sGuildHouseMgr.Load();
+    }
+};
+
 void AddSC_GuildHouseMgr()
 {
-    new GuildHouseMgr();
+    new GuildHouseWorldScript();
 }
