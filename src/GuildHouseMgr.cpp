@@ -56,7 +56,7 @@ bool GuildHouseUtil::IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
 
 void GuildHouseMgr::Load()
 {
-    LOG_INFO("module", "*** GuildHouseMgr loading guild houses and locations");
+    LOG_INFO("server.loading", "*** GuildHouseMgr loading guild houses and locations");
 
     _houses.clear();
     _guildInstances.clear();
@@ -148,7 +148,7 @@ void GuildHouseMgr::Load()
         } while(result->NextRow());
     }
 
-    LOG_INFO("module", "GuildHouseMgr loaded {} guild houses and {} locations", _houses.size(), _locations.size());
+    LOG_INFO("server.loading", "GuildHouseMgr loaded {} guild houses and {} locations", _houses.size(), _locations.size());
 }
 
 bool GuildHouseMgr::HasGuildHouse(uint32_t guildId) const
@@ -309,7 +309,7 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
 
     RecordSalesmanSpawn(guildId, spawnGuid, player->GetMapId(), instanceId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
-    LOG_INFO("module", "GuildHouse salesman spawned. Guild {}, Spawn {}, Entry {}", guildId, spawnGuid, entry);
+    LOG_INFO("server.loading", "GuildHouse salesman spawned. Guild {}, Spawn {}, Entry {}", guildId, spawnGuid, entry);
 
     return true;
 }
