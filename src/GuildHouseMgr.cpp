@@ -64,13 +64,37 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
     if (itr == _houses.end())
         return false;
 
-    _houses.erase(itr);
+    uint32 instanceId = GetGuildInstance(guildId);
 
+    QueryResult assets = CharacterDatabase.Query("SELECT assetId FROM guildhouse_asset WHERE guildId=%u", guildId);
+    if (assets)
+    {
+        do
+        {
+            uint32 assetId = assets->Fetch()[0].Get<uint32>();
+            sGuildHouseSpawner.RemoveAsset(guildId, instanceId, assetId);
+        } while (assets->NextRow());
+    }
+
+    QueryResult salesman = CharacterDatabase.Query("SELECT guid FROM guildhouse_salesman WHERE guildId=%u", guildId);
+    if (salesman)
+    {
+        do
+        {
+            uint32 guid = salesman->Fetch()[0].Get<uint32>();
+            WorldDatabase.Execute("DELETE FROM creature WHERE guid=%u", guid);
+        } while (salesman->NextRow());
+    }
+
+    CharacterDatabase.Execute("DELETE FROM guildhouse_salesman WHERE guildId=%u", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId=%u", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId=%u", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId=%u", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
 
     RemoveGuildInstance(guildId);
 
-    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
+    _houses.erase(itr);
 
     return true;
 }
