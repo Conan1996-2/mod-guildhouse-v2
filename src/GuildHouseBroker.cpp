@@ -136,7 +136,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
         
-            if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter(), 0))
+            if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter(), locationId))
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House.");
                 break;
@@ -152,14 +152,24 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
                 break;
         
+            const GHLocation* location = sGuildHouseMgr.GetGuildLocation(guildId);
+            if (!location)
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Your guild house location is invalid.");
+                break;
+            }
+        
             uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
+        
             if (!instanceId)
             {
                 instanceId = sMapMgr->GenerateInstanceId();
                 sGuildHouseMgr.SetGuildInstance(guildId, instanceId);
-            }
         
-            player->TeleportTo(GH_MAP, GH_X, GH_Y, GH_Z, GH_O, instanceId);
+                LOG_INFO("module", "Created GuildHouse instance {} for guild {}", instanceId, guildId);
+            }
+            
+            player->TeleportTo(location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
             break;
         }
 
