@@ -1,3 +1,5 @@
+#include "ScriptMgr.h"
+
 #include "GuildHouseMgr.h"
 
 #include "DatabaseEnv.h"
