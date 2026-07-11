@@ -190,6 +190,16 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
     return true;
 }
 
+const GHLocation* GuildHouseMgr::GetGuildLocation(uint32_t guildId) const
+{
+    auto houseItr = _houses.find(guildId);
+
+    if (houseItr == _houses.end())
+        return nullptr;
+
+    return GetLocation(houseItr->second.LocationId);
+}
+
 bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 {
     if (!player)
