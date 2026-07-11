@@ -20,6 +20,7 @@ public:
     uint32_t GetGuildByInstance(uint32_t instanceId) const;
     void SetGuildInstance(uint32_t guildId, uint32_t instanceId);
     void RemoveGuildInstance(uint32_t guildId);
+    bool SellGuildHouse(uint32_t guildId);
 
     bool HasGuildHouse(uint32_t guildId) const;
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
