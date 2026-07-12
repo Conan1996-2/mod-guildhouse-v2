@@ -182,15 +182,14 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
 
-            GHGuildHouse* guild GetGuildHouse (guildId);
-            const GHLocation* location = sGuildHouseMgr.GetLocation(guild.InstanceId);
-            
             if (!sGuildHouseMgr.SellGuildHouse(guildId))
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Failed to sell Guild House.");
                 break;
             }
 
+            const GHGuildHouse* guild GetGuildHouse (guildId);
+            const GHLocation* location = sGuildHouseMgr.GetLocation(guild.InstanceId);
             uint64 refund = location->Price * sGuildHouseConfig.GetRefundPercent() / 100;
             player->ModifyMoney(refund);
             
