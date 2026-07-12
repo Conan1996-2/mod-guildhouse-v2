@@ -176,6 +176,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
         
+            const GHGuildHouse* guild = sGuildHouseMgr.GetGuildHouse (guildId);
             if (!sGuildHouseMgr.HasGuildHouse(guildId))
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not own a Guild House.");
@@ -188,8 +189,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
 
-            const GHGuildHouse* guild = sGuildHouseMgr.GetGuildHouse (guildId);
-            const GHLocation* location = sGuildHouseMgr.GetLocation(guild.InstanceId);
+            const GHLocation* location = sGuildHouseMgr.GetLocation(guild->InstanceId);
             uint64 refund = location->Price * sGuildHouseConfig.GetRefundPercent() / 100;
             player->ModifyMoney(refund);
             
