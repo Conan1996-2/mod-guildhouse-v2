@@ -18,7 +18,7 @@ public:
     uint64_t GetNpcCost() const;
     uint64_t GetPortalCost() const;
     uint64_t GetObjectCost() const;
-    uint64_t RefundPercent() const;
+    uint64_t GetRefundPercent() const;
 
 private:
     GuildHouseConfig() = default;
