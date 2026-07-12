@@ -62,7 +62,7 @@ uint64_t GuildHouseConfig::GetObjectCost() const
     return _objectCost;
 }
 
-uint64_t GuildHouseConfig::GetrefundPercent() const
+uint64_t GuildHouseConfig::GetRefundPercent() const
 {
     return _refundPercent;
 }
