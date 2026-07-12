@@ -16,7 +16,7 @@ public:
     bool SpawnAsset(uint32_t guildId, uint32_t assetId);
 
     bool RemoveAsset(uint32_t guildId, uint32_t instanceId, uint32_t assetId);
-    bool RemoveAllAssets(uint32 guildId, uint32 instanceId);
+    bool RemoveAllAssets(uint32_t guildId, uint32_t instanceId);
 
 private:
 
