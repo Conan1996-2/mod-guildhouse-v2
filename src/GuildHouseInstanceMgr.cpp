@@ -67,7 +67,7 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(uint32_t guildId)
     _instances.emplace(instanceId, record);
     _guildInstances.emplace(guildId, instanceId);
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (instanceId,guildId,mapId,x,y,z,o) VALUES (%u,%u,%u,%f,%f,%f,%f)",
+    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (instanceId,guildId,mapId,x,y,z,o) VALUES ({},{},{},%f,%f,%f,%f)",
         instanceId, guildId, record.MapId, record.X, record.Y, record.Z, record.O);
 
     return instanceId;
@@ -90,7 +90,7 @@ bool GuildHouseInstanceMgr::RemoveInstance(uint32_t guildId)
     _instances.erase(instanceId);
     _guildInstances.erase(itr);
 
-    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId={}", guildId);
 
     return true;
 }
