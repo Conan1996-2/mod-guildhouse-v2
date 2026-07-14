@@ -27,6 +27,8 @@ public:
 
     static bool HandleSellAsset(ChatHandler* handler, char const* args);
 
+    static bool GuildHouseCommandScript::HandleTeleportAsset(ChatHandler* handler, char const* args);
+
     void AddSC_GuildHouseCommands();
 
 };
