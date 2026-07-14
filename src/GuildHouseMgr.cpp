@@ -289,6 +289,37 @@ const GHLocation* GuildHouseMgr::GetGuildLocation(uint32_t guildId) const
     return GetLocation(houseItr->second.LocationId);
 }
 
+bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
+{
+    if (!player)
+        return false;
+
+    uint32 guildId = player->GetGuildId();
+    if (!guildId)
+        return false;
+
+    const GHGuildHouse* house = GetGuildHouse(guildId);
+    if (!house)
+        return false;
+
+    const GHLocation* location = GetLocation(house->LocationId);
+    if (!location)
+        return false;
+
+    uint32 instanceId = GetOrCreateGuildInstance(guildId);
+    if (!instanceId)
+        return false;
+
+    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(instanceId);
+    if (!save)
+        return false;
+
+    sInstanceSaveMgr->PlayerBindToInstance(player->GetGUID(), save, false, player);
+    player->TeleportTo(location->MapId, location->X, location->Y, location->Z, location->O);
+
+    return true;
+}
+
 bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 {
     if (!player)
