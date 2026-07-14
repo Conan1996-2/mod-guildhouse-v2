@@ -95,7 +95,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     Guild* guild = player->GetGuild();
     if (!guild)
     {
-        CloseGossipMenuFor(player);
+        ChatHandler(player->GetSession()).PSendSysMessage("Must be in a Guild.");
         return true;
     }
 
