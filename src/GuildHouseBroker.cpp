@@ -77,7 +77,7 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     else
     {
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Teleport to Guild House", GOSSIP_SENDER_MAIN, ACTION_TELEPORT);
-    
+
         if (IsGuildMaster(player))
         {
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Sell Guild House", GOSSIP_SENDER_MAIN, ACTION_SELL);
@@ -137,6 +137,15 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
         if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter(), locationId))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House.");
+            CloseGossipMenuFor(player);
+            return true;
+        }
+
+        uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
+        if (!instanceId)
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House instance.");
+            sGuildHouseMgr.SellGuildHouse(guildId);
             CloseGossipMenuFor(player);
             return true;
         }
