@@ -132,7 +132,7 @@ uint32_t GuildHouseMgr::GetOrCreateGuildInstance(uint32_t guildId)
         return 0;
     }
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (guildId, instanceId) VALUES (%u,%u)", guildId, instanceId);
+    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (guildId, instanceId) VALUES ({},{})", guildId, instanceId);
 
     SetGuildInstance(guildId, instanceId);
     
