@@ -152,20 +152,13 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     {
         case ACTION_TELEPORT:
         {
-            if (!sGuildHouseMgr.HasGuildHouse(guildId))
-                break;
-        
-            const GHLocation* location = sGuildHouseMgr.GetGuildLocation(guildId);
-            if (!location)
+            if (!sGuildHouseMgr.TeleportToGuildHouse(player))
             {
-                ChatHandler(player->GetSession()).PSendSysMessage("Your guild house location is invalid.");
-                break;
+                ChatHandler(player->GetSession())
+                    .PSendSysMessage(
+                        "Unable to teleport to Guild House.");
             }
         
-            uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
-
-            ChatHandler(player->GetSession()).PSendSysMessage("Teleport {}, {}, {}, {}, {}, {}.", location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
-            player->TeleportTo(location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
             break;
         }
 
