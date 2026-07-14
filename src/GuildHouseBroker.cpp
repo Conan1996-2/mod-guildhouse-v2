@@ -163,7 +163,8 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             }
         
             uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
-            
+
+            ChatHandler(player->GetSession()).PSendSysMessage("Teleport {}, {}, {}, {}, {}, {}.", location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
             player->TeleportTo(location->MapId, instanceId, location->X, location->Y, location->Z, location->O);
             break;
         }
