@@ -32,6 +32,8 @@ public:
 
     bool CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint32_t locationId);
 
+    bool TeleportToGuildHouse(Player* player);
+
     bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
 
     bool HasSalesman(uint32_t guildId) const;
