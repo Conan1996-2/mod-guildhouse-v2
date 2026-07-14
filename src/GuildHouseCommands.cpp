@@ -168,7 +168,7 @@ bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*
                 break;
         }
    
-        handler->PSendSysMessage("ID: %u | %s | %s", asset.AssetId, catalog ? catalog->Name.c_str() : "Unknown", status);
+        handler->PSendSysMessage("ID: {} | {} | {}", asset.AssetId, catalog ? catalog->Name.c_str() : "Unknown", status);
     }
     
     return true;
@@ -207,7 +207,7 @@ bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const*
         return false;
     }
     
-    handler->PSendSysMessage("Guild House asset %u placed.", assetId);
+    handler->PSendSysMessage("Guild House asset {} placed.", assetId);
    
     return true;
 }
@@ -237,7 +237,7 @@ bool GuildHouseCommandScript::HandleMoveAsset(ChatHandler* handler, char const* 
         return false;
     }
 
-    handler->PSendSysMessage("Guild House asset %u moved.", assetId);
+    handler->PSendSysMessage("Guild House asset {} moved.", assetId);
 
     return true;
 }
@@ -267,7 +267,7 @@ bool GuildHouseCommandScript::HandleStoreAsset(ChatHandler* handler, char const*
         return false;
     }
 
-    handler->PSendSysMessage("Guild House asset %u stored.", assetId);
+    handler->PSendSysMessage("Guild House asset {} stored.", assetId);
 
     return true;
 }
@@ -311,7 +311,7 @@ bool GuildHouseCommandScript::HandleSellAsset(ChatHandler* handler, char const* 
         return false;
     }
 
-    handler->PSendSysMessage("Guild House asset %u sold.", assetId);
+    handler->PSendSysMessage("Guild House asset {} sold.", assetId);
 
     return true;
 }
