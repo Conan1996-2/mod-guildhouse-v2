@@ -34,10 +34,10 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
                 
         static ChatCommandTable guildHouseTable =
         {
-            { "add",   npcTable },
-            { "asset", assetTable },
-            { "tele",   GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No }
-            { "teleport",   GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No }
+            { "add",      npcTable },
+            { "asset",    assetTable },
+            { "tele",     GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No },
+            { "teleport", GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No }
         };
                 
         static ChatCommandTable root =
