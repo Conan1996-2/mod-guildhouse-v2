@@ -36,7 +36,7 @@ void GuildHouseSpawner::LoadPlacedAssets()
 
 bool GuildHouseSpawner::HasExistingSpawn(uint32 instanceId, uint32 assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE instanceId=%u AND assetId=%u AND enabled=1", instanceId, assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE instanceId={} AND assetId={} AND enabled=1", instanceId, assetId);
 
     if (!result)
         return false;
@@ -50,7 +50,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32 instanceId, uint32 assetId)
 
 bool GuildHouseSpawner::SpawnAsset(uint32 guildId, uint32 assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT catalogId, status, instanceId, positionX, positionY, positionZ, orientation FROM guildhouse_asset WHERE assetId=%u AND guildId=%u", assetId, guildId);
+    QueryResult result = CharacterDatabase.Query("SELECT catalogId, status, instanceId, positionX, positionY, positionZ, orientation FROM guildhouse_asset WHERE assetId={} AND guildId={}", assetId, guildId);
     if (!result)
         return false;
 
@@ -159,7 +159,7 @@ bool GuildHouseSpawner::SpawnGameObject(uint32 guildId, uint32 instanceId, uint3
 
 bool GuildHouseSpawner::RemoveAsset(uint32 guildId, uint32 instanceId, uint32 assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid, spawnType FROM guildhouse_spawn WHERE guildId=%u AND instanceId=%u AND assetId=%u AND enabled=1", guildId, instanceId, assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid, spawnType FROM guildhouse_spawn WHERE guildId={} AND instanceId={} AND assetId={} AND enabled=1", guildId, instanceId, assetId);
 
     if (!result)
         return false;
@@ -172,13 +172,13 @@ bool GuildHouseSpawner::RemoveAsset(uint32 guildId, uint32 instanceId, uint32 as
         uint8 spawnType = fields[1].Get<uint8>();
 
         if (spawnType == 0)
-            WorldDatabase.Execute("DELETE FROM creature WHERE guid=%u", spawnGuid);
+            WorldDatabase.Execute("DELETE FROM creature WHERE guid={}", spawnGuid);
         else
-            WorldDatabase.Execute("DELETE FROM gameobject WHERE guid=%u", spawnGuid);
+            WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", spawnGuid);
 
     } while (result->NextRow());
 
-    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET enabled=0 WHERE guildId=%u AND instanceId=%u AND assetId=%u", guildId, instanceId, assetId);
+    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET enabled=0 WHERE guildId={} AND instanceId={} AND assetId={}", guildId, instanceId, assetId);
 
     return true;
 }
