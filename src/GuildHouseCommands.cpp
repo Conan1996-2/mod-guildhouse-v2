@@ -35,7 +35,9 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
         static ChatCommandTable guildHouseTable =
         {
             { "add",   npcTable },
-            { "asset", assetTable }
+            { "asset", assetTable },
+            { "tele",   GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No }
+            { "teleport",   GuildHouseCommandScript::HandleTeleportAsset,   SEC_PLAYER, Console::No }
         };
                 
         static ChatCommandTable root =
@@ -267,6 +269,20 @@ bool GuildHouseCommandScript::HandleStoreAsset(ChatHandler* handler, char const*
 
     handler->PSendSysMessage("Guild House asset %u stored.", assetId);
 
+    return true;
+}
+
+bool GuildHouseCommandScript::HandleTeleportAsset(ChatHandler* handler, char const* args)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+    if (!player)
+        return false;
+    
+    if (!sGuildHouseMgr.TeleportToGuildHouse(player))
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage("Unable to teleport to Guild House.");
+        return false;
+    }
     return true;
 }
 
