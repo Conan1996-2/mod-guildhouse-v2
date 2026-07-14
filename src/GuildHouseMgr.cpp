@@ -109,16 +109,32 @@ uint32_t GuildHouseMgr::GetGuildByInstance(uint32_t instanceId) const
     return itr->second;
 }
 
-uint32 GuildHouseMgr::GetOrCreateGuildInstance(uint32 guildId)
+uint32_t GuildHouseMgr::GetOrCreateGuildInstance(uint32_t guildId)
 {
     uint32 instanceId = GetGuildInstance(guildId);
-
     if (instanceId)
         return instanceId;
 
+    const GHGuildHouse* house = GetGuildHouse(guildId);
+    if (!house)
+        return 0;
+
+    const GHLocation* location = GetLocation(house->LocationId);
+    if (!location)
+        return 0;
+
     instanceId = sMapMgr->GenerateInstanceId();
 
+    InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(location->MapId, instanceId, DUNGEON_DIFFICULTY_NORMAL);
+    if (!save)
+    {
+        LOG_ERROR("module", "Failed creating Guild House Instance {} for guild {}", instanceId, guildId);
+        return 0;
+    }
+
     SetGuildInstance(guildId, instanceId);
+
+    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (guildId, instanceId) VALUES (%u,%u)", guildId, instanceId);
 
     return instanceId;
 }
@@ -250,15 +266,16 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
     GHGuildHouse house;
     house.GuildId = guildId;
     house.OwnerGuid = ownerGuid;
-    house.InstanceId = 0;
     house.LocationId = locationId;
+    house.InstanceId = 0;
 
     _houses.emplace(guildId, house);
 
     std::ostringstream sql;
     sql << "INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES (" << guildId << "," << ownerGuid << "," << locationId << ")";
     CharacterDatabase.Execute(sql.str());
-
+    GetOrCreateGuildInstance(guildId);
+    
     return true;
 }
 
