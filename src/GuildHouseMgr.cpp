@@ -132,9 +132,12 @@ uint32_t GuildHouseMgr::GetOrCreateGuildInstance(uint32_t guildId)
         return 0;
     }
 
-    SetGuildInstance(guildId, instanceId);
-
     CharacterDatabase.Execute("INSERT INTO guildhouse_instance (guildId, instanceId) VALUES (%u,%u)", guildId, instanceId);
+
+    SetGuildInstance(guildId, instanceId);
+    
+    GHGuildHouse* mutableHouse = const_cast<GHGuildHouse*>(house);
+    mutableHouse->InstanceId = instanceId;
 
     return instanceId;
 }
