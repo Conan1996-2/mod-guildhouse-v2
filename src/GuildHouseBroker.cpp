@@ -154,9 +154,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
         {
             if (!sGuildHouseMgr.TeleportToGuildHouse(player))
             {
-                ChatHandler(player->GetSession())
-                    .PSendSysMessage(
-                        "Unable to teleport to Guild House.");
+                ChatHandler(player->GetSession()).PSendSysMessage("Unable to teleport to Guild House.");
             }
         
             break;
