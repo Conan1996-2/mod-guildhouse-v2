@@ -274,9 +274,7 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
 
     _houses.emplace(guildId, house);
 
-    std::ostringstream sql;
-    sql << "INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES (" << guildId << "," << ownerGuid << "," << locationId << ")";
-    CharacterDatabase.Execute(sql.str());
+    CharacterDatabase.Execute("INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES ({}, {}, {},);", guildId, ownerGuid, locationId);
     GetOrCreateGuildInstance(guildId);
     
     return true;
@@ -363,10 +361,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
     //
     // Position values remain 0 until .gh place
     //
-    std::ostringstream ss;
-    ss << "INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)"
-    " VALUES (" << guildId << "," << 1 << "," << catalogId << "," << GH_ASSET_PURCHASED << "," << 0 << "," << 0 << "," << 0 << "," << 0 << "," << player->GetGUID().GetCounter() << ")";
-    CharacterDatabase.Execute(ss.str());
+    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)  VALUES
+        ({}, 1, {}, {}, 0, 0, 0, 0, {});", guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
     QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
     if (!result)
         return false;
@@ -380,9 +376,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 
 bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 {
-    std::ostringstream ss;
-    ss << "SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId=" << guildId;
-    QueryResult result = CharacterDatabase.Query(ss.str());
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId={};", guildId);
     if (!result)
         return false;
 
@@ -391,10 +385,8 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 
 void GuildHouseMgr::RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t instanceId, float x, float y, float z, float o)
 {
-    std::ostringstream ss;
-    ss << "INSERT INTO guildhouse_salesman (guildId,guid,mapId,instanceId,positionX,positionY,positionZ,orientation)"
-    " VALUES (" << guildId << "," << spawnId << "," << mapId << "," << instanceId << "," << x << "," << y << "," << z << "," << o << ")";
-    CharacterDatabase.Execute(ss.str());
+    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,guid,mapId,instanceId,positionX,positionY,positionZ,orientation)
+         VALUES ({}, {}, {}, {}, {}, {}, {}, {});", guildId, spawnId, mapId, instanceId, x, y, z, o);
 }
 
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
