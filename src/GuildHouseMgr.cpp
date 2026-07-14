@@ -89,7 +89,7 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
     CharacterDatabase.Execute("DELETE FROM guildhouse_salesman WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId={}", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}, guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId={}", guildId);
 
     RemoveGuildInstance(guildId);
