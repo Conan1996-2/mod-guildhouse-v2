@@ -66,7 +66,7 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
 
     uint32 instanceId = GetGuildInstance(guildId);
 
-    QueryResult assets = CharacterDatabase.Query("SELECT assetId FROM guildhouse_asset WHERE guildId=%u", guildId);
+    QueryResult assets = CharacterDatabase.Query("SELECT assetId FROM guildhouse_asset WHERE guildId={}", guildId);
     if (assets)
     {
         do
@@ -76,21 +76,21 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
         } while (assets->NextRow());
     }
 
-    QueryResult salesman = CharacterDatabase.Query("SELECT guid FROM guildhouse_salesman WHERE guildId=%u", guildId);
+    QueryResult salesman = CharacterDatabase.Query("SELECT guid FROM guildhouse_salesman WHERE guildId={}", guildId);
     if (salesman)
     {
         do
         {
             uint32 guid = salesman->Fetch()[0].Get<uint32>();
-            WorldDatabase.Execute("DELETE FROM creature WHERE guid=%u", guid);
+            WorldDatabase.Execute("DELETE FROM creature WHERE guid={}", guid);
         } while (salesman->NextRow());
     }
 
-    CharacterDatabase.Execute("DELETE FROM guildhouse_salesman WHERE guildId=%u", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId=%u", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId=%u", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId=%u", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId=%u", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_salesman WHERE guildId={}", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={}", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId={}", guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}, guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId={}", guildId);
 
     RemoveGuildInstance(guildId);
 
@@ -577,13 +577,13 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     asset->Z = newZ;
     asset->O = newO;
 
-    CharacterDatabase.Execute("UPDATE guildhouse_asset SET positionX=%f,positionY=%f,positionZ=%f,orientation=%f WHERE assetId=%u AND guildId=%u", newX, newY, newZ, newO, assetId, guildId);
+    CharacterDatabase.Execute("UPDATE guildhouse_asset SET positionX=%f,positionY=%f,positionZ=%f,orientation=%f WHERE assetId={} AND guildId={}", newX, newY, newZ, newO, assetId, guildId);
 
     //
     // Move permanent spawn records
     //
     uint32 instanceId = player->GetInstanceId();
-    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId=%u AND assetId=%u AND instanceId=%u AND enabled=1", guildId, assetId, instanceId);
+    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND instanceId={} AND enabled=1", guildId, assetId, instanceId);
     if (result)
     {
         do
@@ -593,9 +593,9 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
             uint8 spawnType = fields[1].Get<uint8>();
 
             if (spawnType == 0)
-                WorldDatabase.Execute("UPDATE creature SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid=%u", deltaX, deltaY, deltaZ, newO, spawnGuid);
+                WorldDatabase.Execute("UPDATE creature SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
             else
-                WorldDatabase.Execute("UPDATE gameobject SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid=%u", deltaX, deltaY, deltaZ, newO, spawnGuid);
+                WorldDatabase.Execute("UPDATE gameobject SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
 
         } while(result->NextRow());
     }
@@ -604,7 +604,7 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     // Update tracking table
     //
 
-    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET positionX=positionX+%f,positionY=positionY+%f,positionZ=positionZ+%f WHERE guildId=%u AND assetId=%u AND instanceId=%u", deltaX, deltaY, deltaZ, guildId, assetId, instanceId);
+    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET positionX=positionX+%f,positionY=positionY+%f,positionZ=positionZ+%f WHERE guildId={} AND assetId={} AND instanceId={}", deltaX, deltaY, deltaZ, guildId, assetId, instanceId);
 
     return true;
 }
@@ -629,7 +629,7 @@ bool GuildHouseMgr::StoreAsset(Player* player, uint32 assetId)
 
     asset->Status = GH_ASSET_STORED;
 
-    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status=%u WHERE assetId=%u", GH_ASSET_STORED, assetId);
+    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={} WHERE assetId={}", GH_ASSET_STORED, assetId);
 
     return true;
 }
@@ -651,7 +651,7 @@ bool GuildHouseMgr::SellAsset(Player* player, uint32 assetId)
     if (asset->Status == GH_ASSET_PLACED)
         sGuildHouseSpawner.RemoveAsset(guildId, player->GetInstanceId(), assetId);
 
-    CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE assetId=%u AND guildId=%u", assetId, guildId);
+    CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE assetId={} AND guildId={}", assetId, guildId);
 
     return true;
 }
