@@ -101,8 +101,6 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
 
     uint32 guildId = guild->GetId();
 
-    CloseGossipMenuFor(player);
-
     if (action >= ACTION_BUY_START && action < ACTION_CATEGORY_START)
     {
         uint32 locationId = action - ACTION_BUY_START;
