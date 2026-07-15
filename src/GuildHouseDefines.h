@@ -153,23 +153,35 @@ namespace GuildHouseUtil
         if (!player)
             return false;
 
-        if (player->GetMapId() != GH_MAP)
-            return false;
-
         Guild* guild = player->GetGuild();
         if (!guild)
+            return false;
+    
+        const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guild->GetId());
+        if (!house)
+            return false;
+    
+        const GHLocation* location = sGuildHouseMgr.GetLocation(house->LocationId);
+        if (!location)
+            return false;
+        
+        if (player->GetMapId() != location->MapId)
             return false;
 
         float x = player->GetPositionX();
         float y = player->GetPositionY();
-        if (x < GH_GM_ISLAND_MIN_X || x > GH_GM_ISLAND_MAX_X || y < GH_GM_ISLAND_MIN_Y || y > GH_GM_ISLAND_MAX_Y)
+        if (x < location->MinX || x > location->MaxX || y < location->MinY || y > location->MaxY)
             return false;
 
-        uint32 instanceId = player->GetInstanceId();
-        if (!instanceId)
-            return false;
+        return sGuildHouseMgr.IsGuildInstance(guild->GetId(), player->GetInstanceId());
+        
+        //uint32 instanceId = player->GetInstanceId();
+        //if (!instanceId)
+        //    return false;
 
-        return IsGuildHouseInstance(guild->GetId(), instanceId);
+        //return player->GetInstanceId() == sGuildHouseMgr.GetGuildInstance(guild->GetId());
+
+       // return IsGuildHouseInstance(guild->GetId(), instanceId);
     }
 
     inline bool IsGuildMaster(Player* player)
