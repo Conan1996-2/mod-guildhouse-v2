@@ -274,7 +274,7 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
 
     _houses.emplace(guildId, house);
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES ({}, {}, {},);", guildId, ownerGuid, locationId);
+    CharacterDatabase.Execute("INSERT INTO guildhouse (guildId, ownerGuid, locationId) VALUES ({}, {}, {});", guildId, ownerGuid, locationId);
     GetOrCreateGuildInstance(guildId);
     
     return true;
@@ -361,14 +361,12 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
     //
     // Position values remain 0 until .gh place
     //
-    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)  VALUES "
-        "({}, 1, {}, {}, 0, 0, 0, 0, {});", guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
+    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)  VALUES ({}, 1, {}, {}, 0, 0, 0, 0, {});", guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
     QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
     if (!result)
         return false;
 
     uint32 assetId = result->Fetch()[0].Get<uint32>();
-
     ChatHandler(player->GetSession()).PSendSysMessage("Guild House item purchased. Asset ID: {}. Use .gh place {} to place it.", assetId, assetId);
 
     return true;
@@ -385,8 +383,7 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 
 void GuildHouseMgr::RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t instanceId, float x, float y, float z, float o)
 {
-    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,guid,mapId,instanceId,positionX,positionY,positionZ,orientation)
-         VALUES ({}, {}, {}, {}, {}, {}, {}, {});", guildId, spawnId, mapId, instanceId, x, y, z, o);
+    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,guid,mapId,instanceId,positionX,positionY,positionZ,orientation) VALUES ({}, {}, {}, {}, {}, {}, {}, {});", guildId, spawnId, mapId, instanceId, x, y, z, o);
 }
 
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
@@ -412,30 +409,13 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
     }
 
     uint32 instanceId = player->GetInstanceId();
-
-    //
-    // Create permanent creature spawn
-    //
-
-    std::ostringstream sql;
-    sql << "INSERT INTO creature (id,map,position_x,position_y,position_z,orientation,spawntimesecs) VALUES ("
-    << entry << "," << player->GetMapId() << "," << player->GetPositionX() << "," << player->GetPositionY() << "," << player->GetPositionZ() << "," << player->GetOrientation() << "," << 300 << ")";
-    WorldDatabase.Execute(sql.str());
-
-    //
-    // Get generated creature GUID
-    //
+    WorldDatabase.Execute("INSERT INTO creature (id,map,position_x,position_y,position_z,orientation,spawntimesecs) VALUES ({}, {}, {}, {}, {}, {}, {});", entry, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 300);
 
     QueryResult result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
-
     if (!result)
         return false;
 
     uint32 spawnGuid = result->Fetch()[0].Get<uint32>();
-
-    //
-    // Store guild ownership
-    //
 
     RecordSalesmanSpawn(guildId, spawnGuid, player->GetMapId(), instanceId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
@@ -513,9 +493,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32 assetId)
     asset->Z = player->GetPositionZ();
     asset->O = player->GetOrientation();
 
-    std::ostringstream ss;
-    ss << "UPDATE guildhouse_asset SET status=" << GH_ASSET_PLACED << ",positionX=" << asset->X << ",positionY=" << asset->Y << ",positionZ=" << asset->Z << ",orientation=" << asset->O << " WHERE assetId=" << assetId;
-    CharacterDatabase.Execute(ss.str());
+    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={};", GH_ASSET_PLACED, asset->X, asset->Y, asset->Z, asset->O, assetId);
 
     sGuildHouseSpawner.SpawnAsset(guildId, assetId);
 
@@ -569,7 +547,7 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     asset->Z = newZ;
     asset->O = newO;
 
-    CharacterDatabase.Execute("UPDATE guildhouse_asset SET positionX=%f,positionY=%f,positionZ=%f,orientation=%f WHERE assetId={} AND guildId={}", newX, newY, newZ, newO, assetId, guildId);
+    CharacterDatabase.Execute("UPDATE guildhouse_asset SET positionX={},positionY={},positionZ={},orientation={} WHERE assetId={} AND guildId={}", newX, newY, newZ, newO, assetId, guildId);
 
     //
     // Move permanent spawn records
@@ -585,9 +563,9 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
             uint8 spawnType = fields[1].Get<uint8>();
 
             if (spawnType == 0)
-                WorldDatabase.Execute("UPDATE creature SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
+                WorldDatabase.Execute("UPDATE creature SET position_x=position_x+{},position_y=position_y+{},position_z=position_z+{},orientation={} WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
             else
-                WorldDatabase.Execute("UPDATE gameobject SET position_x=position_x+%f,position_y=position_y+%f,position_z=position_z+%f,orientation=%f WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
+                WorldDatabase.Execute("UPDATE gameobject SET position_x=position_x+{},position_y=position_y+{},position_z=position_z+{},orientation={} WHERE guid={}", deltaX, deltaY, deltaZ, newO, spawnGuid);
 
         } while(result->NextRow());
     }
@@ -596,7 +574,7 @@ bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
     // Update tracking table
     //
 
-    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET positionX=positionX+%f,positionY=positionY+%f,positionZ=positionZ+%f WHERE guildId={} AND assetId={} AND instanceId={}", deltaX, deltaY, deltaZ, guildId, assetId, instanceId);
+    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET positionX=positionX+{},positionY=positionY+{},positionZ=positionZ+{} WHERE guildId={} AND assetId={} AND instanceId={}", deltaX, deltaY, deltaZ, guildId, assetId, instanceId);
 
     return true;
 }
