@@ -361,8 +361,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
     //
     // Position values remain 0 until .gh place
     //
-    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)  VALUES
-        ({}, 1, {}, {}, 0, 0, 0, 0, {});", guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
+    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId, layoutId, catalogId, status, positionX, positionY, positionZ, orientation, createdBy)  VALUES "
+        "({}, 1, {}, {}, 0, 0, 0, 0, {});", guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
     QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
     if (!result)
         return false;
