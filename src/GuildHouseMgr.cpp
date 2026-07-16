@@ -88,9 +88,9 @@ uint32_t GuildHouseMgr::GetOrCreateGuildInstance(Player* player, uint32_t guildI
 }
 
 
-bool GuildHouseMgr::EnsureGuildInstanceSave(uint32_t guildId)
+bool GuildHouseMgr::EnsureGuildInstanceSave(Player* player, uint32_t guildId)
 {
-    uint32_t instanceId = GetOrCreateGuildInstance(guildId);
+    uint32_t instanceId = GetOrCreateGuildInstance(player, guildId);
 
     if (!instanceId)
         return false;
