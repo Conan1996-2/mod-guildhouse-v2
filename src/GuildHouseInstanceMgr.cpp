@@ -4,11 +4,14 @@
 #include "QueryResult.h"
 #include "Log.h"
 
+
 GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
 {
     static GuildHouseInstanceMgr instance;
+
     return instance;
 }
+
 
 // =====================================================
 // Load existing guild instances
@@ -20,8 +23,11 @@ void GuildHouseInstanceMgr::Load()
 {
     _instances.clear();
     _guildInstances.clear();
+    _instanceGuilds.clear();
 
-    if (QueryResult result = CharacterDatabase.Query("SELECT instanceId, guildId, mapId, x, y, z, o FROM guildhouse_instance"))
+
+    if (QueryResult result = CharacterDatabase.Query(
+        "SELECT guildId, instanceId, mapId FROM guildhouse_instance"))
     {
         do
         {
@@ -29,21 +35,37 @@ void GuildHouseInstanceMgr::Load()
 
             GHInstanceRecord record;
 
-            record.InstanceId = fields[0].Get<uint32>();
-            record.GuildId = fields[1].Get<uint32>();
+            record.GuildId = fields[0].Get<uint32>();
+            record.InstanceId = fields[1].Get<uint32>();
             record.MapId = fields[2].Get<uint32>();
-            record.X = fields[3].Get<float>();
-            record.Y = fields[4].Get<float>();
-            record.Z = fields[5].Get<float>();
-            record.O = fields[6].Get<float>();
 
-            _instances.emplace(record.InstanceId, record);
-            _guildInstances.emplace(record.GuildId, record.InstanceId);
+
+            _instances.emplace(
+                record.InstanceId,
+                record);
+
+
+            _guildInstances.emplace(
+                record.GuildId,
+                record.InstanceId);
+
+
+            _instanceGuilds.emplace(
+                record.InstanceId,
+                record.GuildId);
+
+
         } while(result->NextRow());
     }
 
-    LOG_INFO("server.loading", "GuildHouseInstanceMgr loaded {} instances", _instances.size());
+
+    LOG_INFO(
+        "server.loading",
+        "GuildHouseInstanceMgr loaded {} instances",
+        _instances.size());
 }
+
+
 
 // =====================================================
 // Create Guild Instance
@@ -51,27 +73,53 @@ void GuildHouseInstanceMgr::Load()
 // One instance per guild.
 // =====================================================
 
-uint32_t GuildHouseInstanceMgr::CreateInstance(uint32_t guildId)
+uint32_t GuildHouseInstanceMgr::CreateInstance(
+    uint32_t guildId,
+    uint32_t mapId)
 {
     if (HasInstance(guildId))
         return GetInstanceId(guildId);
 
+
     uint32_t instanceId = GenerateInstanceId();
+
 
     GHInstanceRecord record;
 
     record.InstanceId = instanceId;
     record.GuildId = guildId;
-    record.MapId = 1;
+    record.MapId = mapId;
 
-    _instances.emplace(instanceId, record);
-    _guildInstances.emplace(guildId, instanceId);
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_instance (instanceId,guildId,mapId,x,y,z,o) VALUES ({},{},{},%f,%f,%f,%f)",
-        instanceId, guildId, record.MapId, record.X, record.Y, record.Z, record.O);
+    _instances.emplace(
+        instanceId,
+        record);
+
+
+    _guildInstances.emplace(
+        guildId,
+        instanceId);
+
+
+    _instanceGuilds.emplace(
+        instanceId,
+        guildId);
+
+
+
+    CharacterDatabase.Execute(
+        "INSERT INTO guildhouse_instance "
+        "(guildId,instanceId,mapId) "
+        "VALUES ({},{},{})",
+        guildId,
+        instanceId,
+        mapId);
+
 
     return instanceId;
 }
+
+
 
 // =====================================================
 // Remove Guild Instance
@@ -79,57 +127,120 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(uint32_t guildId)
 // Does not remove purchased assets.
 // =====================================================
 
-bool GuildHouseInstanceMgr::RemoveInstance(uint32_t guildId)
+bool GuildHouseInstanceMgr::RemoveInstance(
+    uint32_t guildId)
 {
     auto itr = _guildInstances.find(guildId);
+
     if (itr == _guildInstances.end())
         return false;
 
-    uint32_t instanceId = itr->second;
 
-    _instances.erase(instanceId);
-    _guildInstances.erase(itr);
+    return RemoveInstanceById(
+        itr->second);
+}
 
-    CharacterDatabase.Execute("DELETE FROM guildhouse_instance WHERE guildId={}", guildId);
+
+
+bool GuildHouseInstanceMgr::RemoveInstanceById(
+    uint32_t instanceId)
+{
+    auto itr = _instances.find(instanceId);
+
+    if (itr == _instances.end())
+        return false;
+
+
+    uint32_t guildId = itr->second.GuildId;
+
+
+    _instances.erase(itr);
+
+    _guildInstances.erase(guildId);
+
+    _instanceGuilds.erase(instanceId);
+
+
+
+    CharacterDatabase.Execute(
+        "DELETE FROM guildhouse_instance WHERE instanceId={}",
+        instanceId);
+
 
     return true;
 }
+
+
 
 // =====================================================
 // Lookup
 // =====================================================
 
-uint32_t GuildHouseInstanceMgr::GetInstanceId(uint32_t guildId) const
+uint32_t GuildHouseInstanceMgr::GetInstanceId(
+    uint32_t guildId) const
 {
     auto itr = _guildInstances.find(guildId);
+
     if (itr == _guildInstances.end())
         return 0;
+
 
     return itr->second;
 }
 
-bool GuildHouseInstanceMgr::HasInstance(uint32_t guildId) const
+
+
+uint32_t GuildHouseInstanceMgr::GetGuildId(
+    uint32_t instanceId) const
 {
-    return _guildInstances.find(guildId) != _guildInstances.end();
+    auto itr = _instanceGuilds.find(instanceId);
+
+    if (itr == _instanceGuilds.end())
+        return 0;
+
+
+    return itr->second;
 }
 
-bool GuildHouseInstanceMgr::IsGuildInstance(uint32_t guildId, uint32_t instanceId) const
+
+
+bool GuildHouseInstanceMgr::HasInstance(
+    uint32_t guildId) const
+{
+    return _guildInstances.find(guildId)
+        != _guildInstances.end();
+}
+
+
+
+bool GuildHouseInstanceMgr::IsGuildInstance(
+    uint32_t guildId,
+    uint32_t instanceId) const
 {
     auto itr = _guildInstances.find(guildId);
+
     if (itr == _guildInstances.end())
         return false;
+
 
     return itr->second == instanceId;
 }
 
-const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(uint32_t instanceId) const
+
+
+const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(
+    uint32_t instanceId) const
 {
     auto itr = _instances.find(instanceId);
+
     if (itr == _instances.end())
         return nullptr;
 
+
     return &itr->second;
 }
+
+
 
 // =====================================================
 // Instance ID generation
