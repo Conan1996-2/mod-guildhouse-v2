@@ -3,7 +3,9 @@
 #include "DatabaseEnv.h"
 #include "QueryResult.h"
 #include "Log.h"
-
+#include "Player.h"
+#include "MapMgr.h"
+#include "Map.h"
 
 GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
 {
@@ -139,6 +141,70 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
     return instanceId;
 }
 
+
+// =====================================================
+// Enter Guild Instance
+//
+// Enter the instance.
+// =====================================================
+
+bool GuildHouseInstanceMgr::EnterInstance(
+    Player* player,
+    uint32_t guildId,
+    float x,
+    float y,
+    float z,
+    float o)
+{
+    if (!player)
+        return false;
+
+
+    uint32_t instanceId =
+        GetInstanceId(guildId);
+
+
+    if (!instanceId)
+        return false;
+
+
+    const GHInstanceRecord* record =
+        GetInstance(instanceId);
+
+
+    if (!record)
+        return false;
+
+
+    Map* map =
+        sMapMgr->CreateMap(
+            record->MapId,
+            player,
+            instanceId);
+
+
+    if (!map)
+    {
+        LOG_ERROR(
+            "module",
+            "Failed creating Guild House map {} instance {}",
+            record->MapId,
+            instanceId);
+
+        return false;
+    }
+
+
+    player->TeleportTo(
+        record->MapId,
+        x,
+        y,
+        z,
+        o);
+
+
+    return true;
+}
 
 
 // =====================================================
