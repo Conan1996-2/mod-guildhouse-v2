@@ -13,6 +13,7 @@ GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
 }
 
 
+
 // =====================================================
 // Load existing guild instances
 //
@@ -33,10 +34,13 @@ void GuildHouseInstanceMgr::Load()
         {
             Field* fields = result->Fetch();
 
+
             GHInstanceRecord record;
 
             record.GuildId = fields[0].Get<uint32>();
+
             record.InstanceId = fields[1].Get<uint32>();
+
             record.MapId = fields[2].Get<uint32>();
 
 
@@ -87,8 +91,11 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
     GHInstanceRecord record;
 
     record.InstanceId = instanceId;
+
     record.GuildId = guildId;
+
     record.MapId = mapId;
+
 
 
     _instances.emplace(
@@ -109,10 +116,19 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
 
     CharacterDatabase.Execute(
         "INSERT INTO guildhouse_instance "
-        "(guildId,instanceId,mapId) "
+        "(guildId, instanceId, mapId) "
         "VALUES ({},{},{})",
         guildId,
         instanceId,
+        mapId);
+
+
+
+    LOG_INFO(
+        "module",
+        "Created Guild House instance {} for guild {} on map {}",
+        instanceId,
+        guildId,
         mapId);
 
 
@@ -156,15 +172,27 @@ bool GuildHouseInstanceMgr::RemoveInstanceById(
 
     _instances.erase(itr);
 
-    _guildInstances.erase(guildId);
 
-    _instanceGuilds.erase(instanceId);
+    _guildInstances.erase(
+        guildId);
+
+
+    _instanceGuilds.erase(
+        instanceId);
 
 
 
     CharacterDatabase.Execute(
         "DELETE FROM guildhouse_instance WHERE instanceId={}",
         instanceId);
+
+
+
+    LOG_INFO(
+        "module",
+        "Removed Guild House instance {} for guild {}",
+        instanceId,
+        guildId);
 
 
     return true;
@@ -251,6 +279,10 @@ const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(
 uint32_t GuildHouseInstanceMgr::GenerateInstanceId()
 {
     static uint32_t nextId = 10000;
+
+    while (_instances.find(nextId) != _instances.end())
+        ++nextId;
+
 
     return nextId++;
 }
