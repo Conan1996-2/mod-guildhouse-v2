@@ -7,8 +7,8 @@ void AddSC_GuildHouseMgr();
 
 void AddGuildHouseScripts()
 {
+    AddSC_GuildHouseCommands();
     AddSC_GuildHouseBroker();
     AddSC_GuildHouseSalesman();
-    AddSC_GuildHouseCommands();
     AddSC_GuildHouseMgr();
 }
