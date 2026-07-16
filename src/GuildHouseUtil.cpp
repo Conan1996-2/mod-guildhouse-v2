@@ -1,59 +1,72 @@
 #include "GuildHouseDefines.h"
+
 #include "GuildHouseMgr.h"
 #include "GuildHouseTypes.h"
 
 #include "Player.h"
 #include "Guild.h"
-#include "Log.h"
+#include "Chat.h"
 
 namespace GuildHouseUtil
 {
 
-bool IsInGuildHouse(Player* player)
-{
-    if (!player)
-        return false;
+    bool IsInGuildHouse(Player* player)
+    {
+        if (!player)
+            return false;
 
-    Guild* guild = player->GetGuild();
+        Guild* guild = player->GetGuild();
+        if (!guild)
+            return false;
 
-    if (!guild)
-        return false;
+        const GHGuildHouse* house =
+            sGuildHouseMgr.GetGuildHouse(guild->GetId());
 
-    const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guild->GetId());
+        if (!house)
+            return false;
 
-    if (!house)
-        return false;
+        const GHLocation* location =
+            sGuildHouseMgr.GetLocation(house->LocationId);
 
-    const GHLocation* location = sGuildHouseMgr.GetLocation(house->LocationId);
+        if (!location)
+            return false;
 
-    if (!location)
-        return false;
+        //
+        // Must be inside the correct map
+        //
+        if (player->GetMapId() != location->MapId)
+            return false;
 
-    // Must be on the correct map
-    if (player->GetMapId() != location->MapId)
-        return false;
+        //
+        // Must be inside the configured guild house area
+        //
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
 
-    // Must be inside the guild house instance
-    if (!sGuildHouseMgr.IsGuildInstance(
+        if (x < location->MinX || x > location->MaxX || y < location->MinY || y > location->MaxY)
+        {
+            return false;
+        }
+
+        //
+        // Must be inside this guild's instance
+        //
+        uint32 instanceId = player->GetInstanceId();
+
+        if (!instanceId)
+            return false;
+
+        return sGuildHouseMgr.IsGuildInstance(
             guild->GetId(),
-            player->GetInstanceId()))
-    {
-        return false;
+            instanceId);
     }
 
-    // Must be inside allowed placement area
-    float x = player->GetPositionX();
-    float y = player->GetPositionY();
-
-    if (x < location->MinX ||
-        x > location->MaxX ||
-        y < location->MinY ||
-        y > location->MaxY)
+    bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
     {
-        return false;
-    }
+        if (!instanceId)
+            return false;
 
-    return true;
-}
+        return sGuildHouseMgr.IsGuildInstance(guildId, instanceId);
+    }
 
 }
