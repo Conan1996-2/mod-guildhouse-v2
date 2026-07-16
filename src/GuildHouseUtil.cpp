@@ -1,3 +1,11 @@
+#include "GuildHouseDefines.h"
+#include "GuildHouseMgr.h"
+#include "GuildHouseTypes.h"
+
+#include "Player.h"
+#include "Guild.h"
+
+
     inline bool IsInGuildHouse(Player* player)
     {
         if (!player)
