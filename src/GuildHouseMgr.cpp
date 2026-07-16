@@ -49,7 +49,7 @@ uint32_t GuildHouseMgr::GetGuildByInstance(uint32_t instanceId) const
 }
 
 
-uint32_t GuildHouseMgr::GetOrCreateGuildInstance(uint32_t guildId)
+uint32_t GuildHouseMgr::GetOrCreateGuildInstance(Player* player, uint32_t guildId)
 {
     uint32_t instanceId = sGuildHouseInstanceMgr.GetInstanceId(guildId);
 
@@ -69,7 +69,7 @@ uint32_t GuildHouseMgr::GetOrCreateGuildInstance(uint32_t guildId)
         return 0;
 
 
-    instanceId = sGuildHouseInstanceMgr.CreateInstance(guildId, location->MapId);
+    instanceId = sGuildHouseInstanceMgr.CreateInstance(player, guildId, location->MapId);
 
     if (!instanceId)
     {
