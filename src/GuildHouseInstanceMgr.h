@@ -32,7 +32,6 @@ public:
     /*
         Lookup
     */
-
     uint32_t GetInstanceId(uint32_t guildId) const;
 
     uint32_t GetGuildId(uint32_t instanceId) const;
