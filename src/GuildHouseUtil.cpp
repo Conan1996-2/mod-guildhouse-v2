@@ -48,7 +48,7 @@ namespace GuildHouseUtil
         float y = player->GetPositionY();
         if (x < location->MinX || x > location->MaxX || y < location->MinY || y > location->MaxY)
         {
-            ChatHandler(player->GetSession()).PSendSysMessage("Your not standing in the guild house boundries.");
+            ChatHandler(player->GetSession()).PSendSysMessage("Your not standing in the guild house boundries Min:{}, {} - Max:{}, {}.", location->MinX, location->MinY, location->MaxX, location->MaxY);
             return false;
         }
 
