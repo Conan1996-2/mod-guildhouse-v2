@@ -105,31 +105,15 @@ bool GuildHouseMgr::BindPlayerToGuildInstance(Player* player)
     if (!player)
         return false;
 
-
-    uint32_t guildId = player->GetGuildId();
+    uint32 guildId = player->GetGuildId();
 
     if (!guildId)
         return false;
 
-
-    uint32_t instanceId = GetOrCreateGuildInstance(guildId);
+    uint32 instanceId = GetOrCreateGuildInstance(guildId);
 
     if (!instanceId)
         return false;
-
-
-    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(instanceId);
-
-    if (!save)
-        return false;
-
-
-    sInstanceSaveMgr->PlayerBindToInstance(
-        player->GetGUID(),
-        save,
-        false,
-        player);
-
 
     return true;
 }
@@ -305,58 +289,40 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
     if (!player)
         return false;
 
+    uint32 guildId = player->GetGuildId();
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Get GuilId");
-    uint32_t guildId = player->GetGuildId();
     if (!guildId)
         return false;
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Get GuildHouse");
+
     const GHGuildHouse* house = GetGuildHouse(guildId);
+
     if (!house)
         return false;
 
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Get Location");
-    const GHLocation* location = GetLocation(house->LocationId);
+    const GHLocation* location =
+        GetLocation(house->LocationId);
+
     if (!location)
         return false;
 
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Get or Create Instance");
-    uint32_t instanceId = GetOrCreateGuildInstance(guildId);
+    uint32 instanceId =
+        GetOrCreateGuildInstance(guildId);
+
     if (!instanceId)
         return false;
 
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Get Saved Instance");
-    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(instanceId);
-    if (!save)
-        return false;
+    //
+    // GuildHouseInstanceMgr owns the instance mapping.
+    //
+    // No InstanceSaveMgr.
+    // No dungeon binding.
+    //
 
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Bind to Instance");
-    sInstanceSaveMgr->PlayerBindToInstance(
-        player->GetGUID(),
-        save,
-        false,
-        player);
-
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "Teleport");
     player->TeleportTo(
         location->MapId,
         location->X,
@@ -364,9 +330,7 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
         location->Z,
         location->O);
 
-    ChatHandler(player->GetSession())
-        .PSendSysMessage(
-            "");
+
     return true;
 }
 
