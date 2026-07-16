@@ -13,6 +13,8 @@ public:
 
     ChatCommandTable GetCommands() const;
 
+    static bool HandleSellGuildHouse(ChatHandler* handler, char const* args);
+
     static bool HandleAddBroker(ChatHandler* handler);
 
     static bool HandleAddSalesman(ChatHandler* handler);
