@@ -12,20 +12,6 @@ namespace GuildHouseUtil
 {
 
 // =====================================================
-// Guild House Permission Check
-//
-// Future expansion point:
-// Could allow guild ranks later.
-// Currently Guild Master only.
-// =====================================================
-
-bool CanManageGuildHouse(Player* player)
-{
-    return IsGuildMaster(player) && IsInGuildHouse(player);
-}
-
-
-// =====================================================
 // Is Player Inside Guild House
 // =====================================================
 
