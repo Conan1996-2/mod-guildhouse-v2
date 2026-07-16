@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "Guild.h"
 
+#include "GuildHouseTypes.h"
+
 // =====================================================
 // Core Constants
 // =====================================================
