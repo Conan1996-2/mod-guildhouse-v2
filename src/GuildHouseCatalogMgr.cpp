@@ -1,388 +1,707 @@
+#include "GuildHouseCommands.h"
+
+#include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
+#include "GuildHouseDefines.h"
+#include "GuildHouseTypes.h"
 
-#include "DatabaseEnv.h"
-#include "QueryResult.h"
-#include "Log.h"
+#include "Chat.h"
+#include "Player.h"
+#include "Creature.h"
+#include "ObjectMgr.h"
+#include "Map.h"
+#include "Guild.h"
 
-#include <algorithm>
+#include <cstdlib>
 
 
-GuildHouseCatalogMgr& GuildHouseCatalogMgr::Instance()
+GuildHouseCommandScript::GuildHouseCommandScript()
+    : CommandScript("GuildHouseCommandScript")
 {
-    static GuildHouseCatalogMgr instance;
-
-    return instance;
 }
 
 
 // =====================================================
-// Load catalog database
+// Command Registration
+// =====================================================
+
+ChatCommandTable GuildHouseCommandScript::GetCommands() const
+{
+    static ChatCommandTable npcTable =
+    {
+        { "broker",   HandleAddBroker,   SEC_GAMEMASTER, Console::No },
+        { "salesman", HandleAddSalesman, SEC_PLAYER,     Console::No }
+    };
+
+
+    static ChatCommandTable houseTable =
+    {
+        { "sell",     HandleSellGuildHouse,   SEC_PLAYER, Console::No },
+        { "tele",     HandleTeleportGuildHouse, SEC_PLAYER, Console::No },
+        { "teleport", HandleTeleportGuildHouse, SEC_PLAYER, Console::No }
+    };
+
+
+    static ChatCommandTable assetTable =
+    {
+        { "list",  HandleListAssets,  SEC_PLAYER, Console::No },
+        { "place", HandlePlaceAsset,  SEC_PLAYER, Console::No },
+        { "move",  HandleMoveAsset,   SEC_PLAYER, Console::No },
+        { "store", HandleStoreAsset,  SEC_PLAYER, Console::No },
+        { "sell",  HandleSellAsset,   SEC_PLAYER, Console::No }
+    };
+
+
+    static ChatCommandTable shopTable =
+    {
+        { "categories", HandleListCategories, SEC_PLAYER, Console::No },
+        { "list",       HandleListCatalog,    SEC_PLAYER, Console::No },
+        { "buy",        HandlePurchaseCatalog, SEC_PLAYER, Console::No }
+    };
+
+
+    static ChatCommandTable guildHouseTable =
+    {
+        { "npc",   npcTable },
+        { "house", houseTable },
+        { "asset", assetTable },
+        { "shop",  shopTable }
+    };
+
+
+    static ChatCommandTable root =
+    {
+        { "gh",          guildHouseTable },
+        { "guildhouse",  guildHouseTable }
+    };
+
+
+    return root;
+}
+
+
+// =====================================================
+// BROKER
 //
-// Loads:
-// - categories
-// - catalog entries
-// - catalog components
+// Global broker NPC.
+// =====================================================
+
+bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    uint32 entry =
+        player->GetTeamId() == TEAM_ALLIANCE
+        ? 900000
+        : 900001;
+
+
+    Creature* creature = new Creature();
+
+
+    if (!creature->Create(
+        player->GetMap()->GenerateLowGuid<HighGuid::Unit>(),
+        player->GetMap(),
+        player->GetPhaseMaskForSpawn(),
+        entry,
+        0,
+        player->GetPositionX(),
+        player->GetPositionY(),
+        player->GetPositionZ(),
+        player->GetOrientation()))
+    {
+        delete creature;
+        return false;
+    }
+
+
+    creature->SaveToDB(
+        player->GetMapId(),
+        (1 << player->GetMap()->GetSpawnMode()),
+        player->GetPhaseMaskForSpawn());
+
+
+    uint32 spawnId = creature->GetSpawnId();
+
+
+    creature->CleanupsBeforeDelete();
+    delete creature;
+
+
+    handler->PSendSysMessage(
+        "Guild House Broker permanently spawned. Spawn ID: {}",
+        spawnId);
+
+
+    return true;
+}
+
+
+// =====================================================
+// SALESMAN
 //
-// Components are stored both:
-// - inside catalog.Components
-// - inside _assets lookup map
+// Guild instance salesman.
 // =====================================================
 
-void GuildHouseCatalogMgr::Load()
+bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 {
-    _categories.clear();
-    _catalogs.clear();
-    _assets.clear();
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
 
 
-    //
-    // Categories
-    //
-    if (QueryResult result = WorldDatabase.Query(
-        "SELECT categoryId, parentId, name, sortOrder, enabled FROM guildhouse_category"))
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
     {
-        do
-        {
-            Field* fields = result->Fetch();
+        handler->PSendSysMessage(
+            "Only the Guild Master may place the Guild House salesman.");
 
-            GHCategory category;
-
-            category.Id = fields[0].Get<uint32_t>();
-            category.ParentId = fields[1].Get<uint32_t>();
-            category.Name = fields[2].Get<std::string>();
-            category.SortOrder = fields[3].Get<uint16_t>();
-            category.Enabled = fields[4].Get<bool>();
-
-            _categories.emplace(category.Id, category);
-
-        } while (result->NextRow());
+        return false;
     }
 
 
-    //
-    // Catalog Items
-    //
-    if (QueryResult result = WorldDatabase.Query(
-        "SELECT catalogId, categoryId, name, spawnFlags, behaviorFlags, enabled FROM guildhouse_catalog"))
+    uint32 entry =
+        player->GetTeamId() == TEAM_ALLIANCE
+        ? 900002
+        : 900003;
+
+
+    if (!sGuildHouseMgr.CreatePermanentSalesman(player, entry))
     {
-        do
-        {
-            Field* fields = result->Fetch();
+        handler->PSendSysMessage(
+            "Failed creating Guild House salesman.");
 
-            GHCatalog catalog;
-
-            catalog.CatalogId = fields[0].Get<uint32_t>();
-            catalog.CategoryId = fields[1].Get<uint32_t>();
-            catalog.Name = fields[2].Get<std::string>();
-
-            catalog.SpawnFlags =
-                static_cast<GHSpawnFlags>(fields[3].Get<uint32_t>());
-
-            catalog.BehaviorFlags =
-                static_cast<GHBehaviorFlags>(fields[4].Get<uint32_t>());
-
-            catalog.Enabled = fields[5].Get<bool>();
-
-            _catalogs.emplace(catalog.CatalogId, catalog);
-
-        } while (result->NextRow());
+        return false;
     }
 
 
-    //
-    // Catalog Components
-    //
-    if (QueryResult result = WorldDatabase.Query(
-        "SELECT "
-        "componentId,"
-        "catalogId,"
-        "spawnFlags,"
-        "behaviorFlags,"
-        "entry,"
-        "displayId,"
-        "scale,"
-        "scriptType,"
-        "scriptData,"
-        "xOffset,"
-        "yOffset,"
-        "zOffset,"
-        "oOffset,"
-        "targetMap,"
-        "targetX,"
-        "targetY,"
-        "targetZ,"
-        "targetO,"
-        "childCatalogId,"
-        "sortOrder "
-        "FROM guildhouse_catalog_asset "
-        "ORDER BY sortOrder"))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
+    handler->PSendSysMessage(
+        "Guild House salesman created.");
 
-            uint32_t catalogId = fields[1].Get<uint32_t>();
-
-            auto catalogItr = _catalogs.find(catalogId);
-
-            if (catalogItr == _catalogs.end())
-                continue;
-
-
-            GHCatalogAsset component;
-
-            component.ComponentId = fields[0].Get<uint32_t>();
-
-            component.CatalogId = catalogId;
-
-
-            component.SpawnFlags =
-                static_cast<GHSpawnFlags>(fields[2].Get<uint32_t>());
-
-            component.BehaviorFlags =
-                static_cast<GHBehaviorFlags>(fields[3].Get<uint32_t>());
-
-
-            component.Entry = fields[4].Get<uint32_t>();
-
-            component.DisplayId = fields[5].Get<uint32_t>();
-
-            component.Scale = fields[6].Get<float>();
-
-
-            component.ScriptType =
-                static_cast<GHScriptType>(fields[7].Get<uint32_t>());
-
-
-            component.ScriptData =
-                fields[8].IsNull()
-                ? ""
-                : fields[8].Get<std::string>();
-
-
-            component.XOffset = fields[9].Get<float>();
-
-            component.YOffset = fields[10].Get<float>();
-
-            component.ZOffset = fields[11].Get<float>();
-
-            component.OOffset = fields[12].Get<float>();
-
-
-            component.TargetMap =
-                fields[13].IsNull()
-                ? 0
-                : fields[13].Get<uint32_t>();
-
-
-            component.TargetX =
-                fields[14].IsNull()
-                ? 0.0f
-                : fields[14].Get<float>();
-
-            component.TargetY =
-                fields[15].IsNull()
-                ? 0.0f
-                : fields[15].Get<float>();
-
-            component.TargetZ =
-                fields[16].IsNull()
-                ? 0.0f
-                : fields[16].Get<float>();
-
-            component.TargetO =
-                fields[17].IsNull()
-                ? 0.0f
-                : fields[17].Get<float>();
-
-
-            component.ChildCatalogId =
-                fields[18].IsNull()
-                ? 0
-                : fields[18].Get<uint32_t>();
-
-
-            component.SortOrder =
-                fields[19].Get<uint16_t>();
-
-
-            //
-            // Store direct lookup
-            //
-            _assets.emplace(component.ComponentId, component);
-
-
-            //
-            // Store component in parent catalog
-            //
-            catalogItr->second.Components.push_back(component);
-
-
-        } while (result->NextRow());
-    }
-
-
-    LOG_INFO(
-        "server.loading",
-        "GuildHouseCatalogMgr loaded {} categories, {} catalogs, {} components",
-        _categories.size(),
-        _catalogs.size(),
-        _assets.size());
-}
-
-const GHCatalog* GuildHouseCatalogMgr::GetCatalog(uint32_t catalogId) const
-{
-    auto itr = _catalogs.find(catalogId);
-
-    if (itr == _catalogs.end())
-        return nullptr;
-
-    return &itr->second;
-}
-
-
-const GHCategory* GuildHouseCatalogMgr::GetCategory(uint32_t categoryId) const
-{
-    auto itr = _categories.find(categoryId);
-
-    if (itr == _categories.end())
-        return nullptr;
-
-    return &itr->second;
-}
-
-
-const GHCatalogAsset* GuildHouseCatalogMgr::GetCatalogAsset(uint32_t componentId) const
-{
-    auto itr = _assets.find(componentId);
-
-    if (itr == _assets.end())
-        return nullptr;
-
-    return &itr->second;
+    return true;
 }
 
 
 // =====================================================
-// Root category list
+// Sell Guild House
 // =====================================================
 
-std::vector<const GHCategory*> GuildHouseCatalogMgr::GetRootCategories() const
+bool GuildHouseCommandScript::HandleSellGuildHouse(ChatHandler* handler, char const*)
 {
-    std::vector<const GHCategory*> result;
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
 
 
-    for (auto const& [id, category] : _categories)
+    uint32 guildId = player->GetGuildId();
+
+    if (!guildId)
+        return false;
+
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
     {
-        if (category.ParentId == 0 &&
-            category.Enabled)
+        handler->PSendSysMessage(
+            "Only the Guild Master may sell the Guild House.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.SellGuildHouse(guildId))
+    {
+        handler->PSendSysMessage(
+            "Failed selling Guild House.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House sold.");
+
+    return true;
+}
+
+
+// =====================================================
+// Teleport
+// =====================================================
+
+bool GuildHouseCommandScript::HandleTeleportGuildHouse(ChatHandler* handler, char const*)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    if (!sGuildHouseMgr.TeleportToGuildHouse(player))
+    {
+        handler->PSendSysMessage(
+            "Unable to teleport to Guild House.");
+
+        return false;
+    }
+
+
+    return true;
+}
+
+// =====================================================
+// List Assets
+// =====================================================
+
+bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    uint32 guildId = player->GetGuildId();
+
+    if (!guildId)
+    {
+        handler->PSendSysMessage(
+            "You must belong to a guild.");
+
+        return false;
+    }
+
+
+    const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
+
+    if (!house)
+    {
+        handler->PSendSysMessage(
+            "Your guild does not own a Guild House.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "==== Guild House Assets ====");
+
+
+    for (const GHGuildAsset& asset : house->Assets)
+    {
+        const GHCatalog* catalog =
+            sGuildHouseCatalogMgr.GetCatalog(asset.CatalogId);
+
+
+        char const* status = "Unknown";
+
+
+        switch (asset.Status)
         {
-            result.push_back(&category);
+            case GH_ASSET_PURCHASED:
+                status = "Purchased";
+                break;
+
+            case GH_ASSET_PLACED:
+                status = "Placed";
+                break;
+
+            case GH_ASSET_STORED:
+                status = "Stored";
+                break;
+
+            case GH_ASSET_DISABLED:
+                status = "Disabled";
+                break;
         }
+
+
+        handler->PSendSysMessage(
+            "Asset {} | {} | {}",
+            asset.AssetId,
+            catalog ? catalog->Name.c_str() : "Unknown",
+            status);
     }
 
 
-    std::sort(
-        result.begin(),
-        result.end(),
-        [](const GHCategory* a, const GHCategory* b)
-        {
-            return a->SortOrder < b->SortOrder;
-        });
-
-
-    return result;
+    return true;
 }
 
 
 // =====================================================
-// Child category list
+// Place Asset
 // =====================================================
 
-std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
+bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const* args)
 {
-    std::vector<const GHCategory*> result;
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
 
 
-    for (auto const& [id, category] : _categories)
+    if (!args || !*args)
     {
-        if (category.ParentId == parentId &&
-            category.Enabled)
-        {
-            result.push_back(&category);
-        }
+        handler->PSendSysMessage(
+            "Usage: .gh asset place <assetId>");
+
+        return false;
     }
 
 
-    std::sort(
-        result.begin(),
-        result.end(),
-        [](const GHCategory* a, const GHCategory* b)
-        {
-            return a->SortOrder < b->SortOrder;
-        });
+    uint32 assetId = atoi(args);
 
 
-    return result;
+    if (!assetId)
+    {
+        handler->PSendSysMessage(
+            "Invalid asset id.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.PlaceAsset(player, assetId))
+    {
+        handler->PSendSysMessage(
+            "Failed placing Guild House asset.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House asset {} placed.",
+        assetId);
+
+
+    return true;
 }
 
 
 // =====================================================
-// Catalog list by category
+// Move Asset
 // =====================================================
 
-std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
+bool GuildHouseCommandScript::HandleMoveAsset(ChatHandler* handler, char const* args)
 {
-    std::vector<const GHCatalog*> result;
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
 
 
-    for (auto const& [id, catalog] : _catalogs)
+    if (!args || !*args)
     {
-        if (catalog.CategoryId == categoryId &&
-            catalog.Enabled)
-        {
-            result.push_back(&catalog);
-        }
+        handler->PSendSysMessage(
+            "Usage: .gh asset move <assetId>");
+
+        return false;
     }
 
 
-    std::sort(
-        result.begin(),
-        result.end(),
-        [](const GHCatalog* a, const GHCatalog* b)
-        {
-            return a->Name < b->Name;
-        });
+    uint32 assetId = atoi(args);
 
 
-    return result;
+    if (!assetId)
+    {
+        handler->PSendSysMessage(
+            "Invalid asset id.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.MoveAsset(player, assetId))
+    {
+        handler->PSendSysMessage(
+            "Failed moving Guild House asset.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House asset {} moved.",
+        assetId);
+
+
+    return true;
 }
 
 
 // =====================================================
-// All catalogs
+// Store Asset
+//
+// Removes world spawn but keeps ownership.
 // =====================================================
 
-std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetAllCatalogs() const
+bool GuildHouseCommandScript::HandleStoreAsset(ChatHandler* handler, char const* args)
 {
-    std::vector<const GHCatalog*> result;
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
 
 
-    for (auto const& [id, catalog] : _catalogs)
+    if (!args || !*args)
     {
-        if (catalog.Enabled)
-            result.push_back(&catalog);
+        handler->PSendSysMessage(
+            "Usage: .gh asset store <assetId>");
+
+        return false;
     }
 
 
-    std::sort(
-        result.begin(),
-        result.end(),
-        [](const GHCatalog* a, const GHCatalog* b)
-        {
-            return a->Name < b->Name;
-        });
+    uint32 assetId = atoi(args);
 
 
-    return result;
+    if (!assetId)
+    {
+        handler->PSendSysMessage(
+            "Invalid asset id.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.StoreAsset(player, assetId))
+    {
+        handler->PSendSysMessage(
+            "Failed storing Guild House asset.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House asset {} stored.",
+        assetId);
+
+
+    return true;
+}
+
+
+// =====================================================
+// Sell Asset
+//
+// Removes ownership permanently.
+// =====================================================
+
+bool GuildHouseCommandScript::HandleSellAsset(ChatHandler* handler, char const* args)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    if (!args || !*args)
+    {
+        handler->PSendSysMessage(
+            "Usage: .gh asset sell <assetId>");
+
+        return false;
+    }
+
+
+    uint32 assetId = atoi(args);
+
+
+    if (!assetId)
+    {
+        handler->PSendSysMessage(
+            "Invalid asset id.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.SellAsset(player, assetId))
+    {
+        handler->PSendSysMessage(
+            "Failed selling Guild House asset.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House asset {} sold.",
+        assetId);
+
+
+    return true;
+}
+
+// =====================================================
+// List Root Categories
+// =====================================================
+
+bool GuildHouseCommandScript::HandleListCategories(ChatHandler* handler, char const*)
+{
+    std::vector<const GHCategory*> categories =
+        sGuildHouseCatalogMgr.GetRootCategories();
+
+
+    if (categories.empty())
+    {
+        handler->PSendSysMessage(
+            "No Guild House categories available.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "==== Guild House Categories ====");
+
+
+    for (const GHCategory* category : categories)
+    {
+        if (!category)
+            continue;
+
+
+        handler->PSendSysMessage(
+            "{} - {}",
+            category->Id,
+            category->Name.c_str());
+    }
+
+
+    return true;
+}
+
+
+// =====================================================
+// List Catalog Items
+//
+// Usage:
+// .gh shop list <categoryId>
+// =====================================================
+
+bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const* args)
+{
+    if (!args || !*args)
+    {
+        handler->PSendSysMessage(
+            "Usage: .gh shop list <categoryId>");
+
+        return false;
+    }
+
+
+    uint32 categoryId = atoi(args);
+
+
+    if (!categoryId)
+    {
+        handler->PSendSysMessage(
+            "Invalid category id.");
+
+        return false;
+    }
+
+
+    std::vector<const GHCatalog*> catalogs =
+        sGuildHouseCatalogMgr.GetCatalogs(categoryId);
+
+
+    if (catalogs.empty())
+    {
+        handler->PSendSysMessage(
+            "No Guild House items found.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "==== Guild House Catalog ====");
+
+
+    for (const GHCatalog* catalog : catalogs)
+    {
+        if (!catalog)
+            continue;
+
+
+        handler->PSendSysMessage(
+            "{} - {}",
+            catalog->CatalogId,
+            catalog->Name.c_str());
+    }
+
+
+    return true;
+}
+
+
+// =====================================================
+// Purchase Catalog Item
+//
+// Usage:
+// .gh shop buy <catalogId>
+//
+// Purchase is handled by GuildHouseMgr.
+// =====================================================
+
+bool GuildHouseCommandScript::HandlePurchaseCatalog(ChatHandler* handler, char const* args)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    if (!args || !*args)
+    {
+        handler->PSendSysMessage(
+            "Usage: .gh shop buy <catalogId>");
+
+        return false;
+    }
+
+
+    uint32 catalogId = atoi(args);
+
+
+    if (!catalogId)
+    {
+        handler->PSendSysMessage(
+            "Invalid catalog id.");
+
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.PurchaseCatalogItem(player, catalogId))
+    {
+        handler->PSendSysMessage(
+            "Failed purchasing Guild House item.");
+
+        return false;
+    }
+
+
+    handler->PSendSysMessage(
+        "Guild House item purchased.");
+
+    return true;
+}
+
+
+// =====================================================
+// Script Registration
+// =====================================================
+
+void AddSC_GuildHouseCommands()
+{
+    new GuildHouseCommandScript();
 }
