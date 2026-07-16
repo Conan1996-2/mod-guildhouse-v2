@@ -121,11 +121,10 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
 
     CharacterDatabase.Execute(
         "INSERT INTO guildhouse_instance "
-        "(guildId, instanceId, mapId) "
-        "VALUES ({},{},{})",
+        "(guildId, instanceId) "
+        "VALUES ({},{})",
         guildId,
-        instanceId,
-        mapId);
+        instanceId);
 
 
 
