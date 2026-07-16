@@ -7,66 +7,146 @@
 #include "Guild.h"
 #include "Chat.h"
 
+
 namespace GuildHouseUtil
 {
 
-    bool IsInGuildHouse(Player* player)
+// =====================================================
+// Flag Helper
+// =====================================================
+
+bool HasFlag(uint32_t value, uint32_t flag)
+{
+    return (value & flag) != 0;
+}
+
+
+// =====================================================
+// Guild Master Check
+// =====================================================
+
+bool IsGuildMaster(Player* player)
+{
+    if (!player)
+        return false;
+
+
+    Guild* guild = player->GetGuild();
+
+    if (!guild)
+        return false;
+
+
+    return guild->GetLeaderGUID() == player->GetGUID();
+}
+
+
+// =====================================================
+// Guild House Permission Check
+//
+// Future expansion point:
+// Could allow guild ranks later.
+// Currently Guild Master only.
+// =====================================================
+
+bool CanManageGuildHouse(Player* player)
+{
+    return IsGuildMaster(player);
+}
+
+
+// =====================================================
+// Is Player Inside Guild House
+// =====================================================
+
+bool IsInGuildHouse(Player* player)
+{
+    if (!player)
+        return false;
+
+
+    Guild* guild = player->GetGuild();
+
+    if (!guild)
+        return false;
+
+
+    uint32 guildId = guild->GetId();
+
+
+    const GHGuildHouse* house =
+        sGuildHouseMgr.GetGuildHouse(guildId);
+
+
+    if (!house)
+        return false;
+
+
+    const GHLocation* location =
+        sGuildHouseMgr.GetLocation(house->LocationId);
+
+
+    if (!location)
+        return false;
+
+
+
+    //
+    // Correct map
+    //
+    if (player->GetMapId() != location->MapId)
+        return false;
+
+
+
+    //
+    // Correct coordinates
+    //
+    float x = player->GetPositionX();
+    float y = player->GetPositionY();
+
+
+    if (x < location->MinX ||
+        x > location->MaxX ||
+        y < location->MinY ||
+        y > location->MaxY)
     {
-        if (!player)
-            return false;
-
-        Guild* guild = player->GetGuild();
-        if (!guild)
-            return false;
-
-        const GHGuildHouse* house =
-            sGuildHouseMgr.GetGuildHouse(guild->GetId());
-
-        if (!house)
-            return false;
-
-        const GHLocation* location =
-            sGuildHouseMgr.GetLocation(house->LocationId);
-
-        if (!location)
-            return false;
-
-        //
-        // Must be inside the correct map
-        //
-        if (player->GetMapId() != location->MapId)
-            return false;
-
-        //
-        // Must be inside the configured guild house area
-        //
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-
-        if (x < location->MinX || x > location->MaxX || y < location->MinY || y > location->MaxY)
-        {
-            return false;
-        }
-
-        //
-        // Must be inside this guild's instance
-        //
-        uint32 instanceId = player->GetInstanceId();
-
-        if (!instanceId)
-            return false;
-
-        return sGuildHouseMgr.IsGuildInstance(
-            guild->GetId(),
-            instanceId);
+        return false;
     }
 
-    bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
-    {
-        if (!instanceId)
-            return false;
 
-        return sGuildHouseMgr.IsGuildInstance(guildId, instanceId);
-    }
+
+    //
+    // Correct guild instance
+    //
+    uint32 instanceId = player->GetInstanceId();
+
+
+    if (!instanceId)
+        return false;
+
+
+    return IsGuildHouseInstance(
+        guildId,
+        instanceId);
+}
+
+
+
+// =====================================================
+// Guild Instance Validation
+// =====================================================
+
+bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
+{
+    if (!instanceId)
+        return false;
+
+
+    return sGuildHouseMgr.IsGuildInstance(
+        guildId,
+        instanceId);
+}
+
 
 }
