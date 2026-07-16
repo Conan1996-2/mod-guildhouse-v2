@@ -128,7 +128,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             return true;
         }
 
-        if (!player->HasEnoughMoney(location->Price))
+        if (!player->HasEnoughMoney(uint(location->Price)))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not have enough gold.");
             return true;
