@@ -18,7 +18,9 @@ CREATE TABLE `guildhouse_locations`
     `price` BIGINT UNSIGNED NOT NULL DEFAULT 0,
     `enabled` TINYINT(1) NOT NULL DEFAULT 1,
 
-    PRIMARY KEY(`id`)
+    PRIMARY KEY(`id`),
+    KEY `idx_map` (`mapId`),
+    KEY `idx_enabled` (`enabled`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `guildhouse_locations` (`name`,`mapId`,`positionX`,`positionY`,`positionZ`,`orientation`,`minX`,`maxX`,`minY`,`maxY`,`price`,`enabled`) VALUES
