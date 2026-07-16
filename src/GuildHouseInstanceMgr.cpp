@@ -84,20 +84,36 @@ void GuildHouseInstanceMgr::Load()
 // One instance per guild.
 // =====================================================
 
-uint32 GuildHouseInstanceMgr::CreateInstance(
+uint32_t GuildHouseInstanceMgr::CreateInstance(
     Player* player,
-    uint32 guildId,
-    uint32 mapId)
+    uint32_t guildId,
+    uint32_t mapId)
 {
+    if (!player)
+        return 0;
+
+    if (HasInstance(guildId))
+        return GetInstanceId(guildId);
+
+
     Map* map = sMapMgr->CreateMap(
         mapId,
         player);
 
+
     if (!map)
+    {
+        LOG_ERROR(
+            "module",
+            "Failed creating Guild House map {} for guild {}",
+            mapId,
+            guildId);
+
         return 0;
+    }
 
 
-    uint32 instanceId =
+    uint32_t instanceId =
         map->GetInstanceId();
 
 
@@ -108,67 +124,37 @@ uint32 GuildHouseInstanceMgr::CreateInstance(
     record.MapId = mapId;
 
 
-    _instances[instanceId] = record;
-    _guildInstances[guildId] = instanceId;
-    _instanceGuilds[instanceId] = guildId;
+    _instances.emplace(
+        instanceId,
+        record);
 
 
-    CharacterDatabase.Execute(
-        "INSERT INTO guildhouse_instance "
-        "(guildId, instanceId) VALUES ({},{})",
+    _guildInstances.emplace(
         guildId,
         instanceId);
 
 
+    _instanceGuilds.emplace(
+        instanceId,
+        guildId);
+
+
+    CharacterDatabase.Execute(
+        "INSERT INTO guildhouse_instance "
+        "(guildId, instanceId) "
+        "VALUES ({},{})",
+        guildId,
+        instanceId);
+
+
+    LOG_INFO(
+        "module",
+        "Created Guild House instance {} for guild {}",
+        instanceId,
+        guildId);
+
+
     return instanceId;
-}
-
-// =====================================================
-// Enter Guild Instance
-//
-// Enter the instance.
-// =====================================================
-
-bool GuildHouseInstanceMgr::EnterInstance(
-    Player* player,
-    uint32_t guildId,
-    uint32_t mapId,
-    float x,
-    float y,
-    float z,
-    float o)
-{
-    if (!player)
-        return false;
-
-
-    uint32_t instanceId =
-        GetInstanceId(guildId);
-
-
-    if (!instanceId)
-    {
-        instanceId =
-            CreateInstance(
-                player,
-                guildId,
-                mapId);
-    }
-
-
-    if (!instanceId)
-        return false;
-
-
-    player->TeleportTo(
-        mapId,
-        x,
-        y,
-        z,
-        o);
-
-
-    return true;
 }
 
 
@@ -303,21 +289,3 @@ const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(
     return &itr->second;
 }
 
-
-
-// =====================================================
-// Instance ID generation
-//
-// Replace later with core instance manager integration.
-// =====================================================
-
-uint32_t GuildHouseInstanceMgr::GenerateInstanceId()
-{
-    static uint32_t nextId = 10000;
-
-    while (_instances.find(nextId) != _instances.end())
-        ++nextId;
-
-
-    return nextId++;
-}
