@@ -28,7 +28,7 @@ void GuildHouseInstanceMgr::Load()
 
 
     if (QueryResult result = CharacterDatabase.Query(
-        "SELECT guildId, instanceId, mapId FROM guildhouse_instance"))
+        "SELECT guildId, instanceId FROM guildhouse_instance"))
     {
         do
         {
@@ -40,9 +40,6 @@ void GuildHouseInstanceMgr::Load()
             record.GuildId = fields[0].Get<uint32>();
 
             record.InstanceId = fields[1].Get<uint32>();
-
-            record.MapId = fields[2].Get<uint32>();
-
 
             _instances.emplace(
                 record.InstanceId,
