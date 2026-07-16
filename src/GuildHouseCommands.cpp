@@ -131,6 +131,17 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
     creature->CleanupsBeforeDelete();
     delete creature;
 
+    creature = new Creature();
+    if (!creature->LoadCreatureFromDB(db_guid, player->GetMap()))
+    {
+        handler->PSendSysMessage(
+            "Unable to spawn Guild House Broker");
+
+        delete creature;
+        return;
+    }
+
+    sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
 
     handler->PSendSysMessage(
         "Guild House Broker permanently spawned. Spawn ID: {}",
