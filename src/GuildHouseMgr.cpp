@@ -636,8 +636,44 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 
 
 // =====================================================
-// Create Salesman
+// Salesman Functions
 // =====================================================
+bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
+{
+    QueryResult result = CharacterDatabase.Query(
+        "SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId={}",
+        guildId);
+
+    if (!result)
+        return false;
+
+    return result->Fetch()[0].Get<uint32_t>() > 0;
+}
+
+void GuildHouseMgr::RecordSalesmanSpawn(
+    uint32_t guildId,
+    uint32_t spawnId,
+    uint32_t mapId,
+    uint32_t instanceId,
+    float x,
+    float y,
+    float z,
+    float o)
+{
+    CharacterDatabase.Execute(
+        "INSERT INTO guildhouse_salesman "
+        "(guildId,guid,mapId,instanceId,positionX,positionY,positionZ,orientation) "
+        "VALUES ({},{},{},{},{},{},{},{})",
+        guildId,
+        spawnId,
+        mapId,
+        instanceId,
+        x,
+        y,
+        z,
+        o);
+}
+
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
 {
     if (!player)
