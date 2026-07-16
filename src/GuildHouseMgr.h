@@ -28,7 +28,7 @@ public:
 
     uint32_t GetOrCreateGuildInstance(Player* player, uint32_t guildId);
 
-    bool EnsureGuildInstanceSave(uint32_t guildId);
+    bool EnsureGuildInstanceSave(Player* player, uint32_t guildId);
 
     bool BindPlayerToGuildInstance(Player* player);
 
