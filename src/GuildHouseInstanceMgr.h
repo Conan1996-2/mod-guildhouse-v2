@@ -21,7 +21,7 @@ public:
 
     void Load();
 
-    uint32_t CreateInstance(uint32_t guildId, uint32_t mapId);
+    uint32_t CreateInstance(Player* player, uint32_t guildId, uint32_t mapId);
 
     bool RemoveInstance(uint32_t guildId);
 
