@@ -140,7 +140,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             return true;
         }
 
-        uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
+        uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(player, guildId);
 
         if (!instanceId)
         {
