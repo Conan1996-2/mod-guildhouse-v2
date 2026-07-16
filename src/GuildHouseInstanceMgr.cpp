@@ -45,7 +45,6 @@ void GuildHouseInstanceMgr::Load()
             GHInstanceRecord record;
             record.GuildId = fields[0].Get<uint32>();
             record.InstanceId = fields[1].Get<uint32>();
-            record.LocationId = fields[2].Get<uint32>();            
             record.MapId = fields[3].Get<uint32>();
             
             _instances.emplace(
