@@ -5,11 +5,6 @@
 #include "Player.h"
 #include "Guild.h"
 
-#include "GuildHouseTypes.h"
-
-struct GHGuildHouse;
-struct GHLocation;
-
 // =====================================================
 // Core Constants
 // =====================================================
