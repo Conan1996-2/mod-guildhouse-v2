@@ -28,7 +28,9 @@ void GuildHouseInstanceMgr::Load()
 
 
     if (QueryResult result = CharacterDatabase.Query(
-        "SELECT guildId, instanceId FROM guildhouse_instance"))
+        "SELECT i.guildId, i.instanceId, h.locationId "
+        "FROM guildhouse_instance i "
+        "JOIN guildhouse h ON h.guildId = i.guildId"))
     {
         do
         {
@@ -37,12 +39,18 @@ void GuildHouseInstanceMgr::Load()
             GHInstanceRecord record;
             record.GuildId = fields[0].Get<uint32>();
             record.InstanceId = fields[1].Get<uint32>();
+            record.LocationId = fields[2].Get<uint32>();
 
-
-
-
-            
-            record.MapId = fields[0].Get<uint32>();
+            if (QueryResult location = WorldDatabase.Query(
+                "SELECT mapId FROM guildhouse_locations WHERE id={}",
+                record.LocationId))
+            {
+                record.MapId = location->Fetch()[0].Get<uint32>();
+            }
+            else
+            {
+                record.MapId = 0;
+            }
             
             _instances.emplace(
                 record.InstanceId,
