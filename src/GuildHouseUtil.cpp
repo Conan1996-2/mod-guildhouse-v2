@@ -11,15 +11,6 @@
 namespace GuildHouseUtil
 {
 
-// =====================================================
-// Flag Helper
-// =====================================================
-
-bool HasFlag(uint32_t value, uint32_t flag)
-{
-    return (value & flag) != 0;
-}
-
 
 // =====================================================
 // Guild Master Check
