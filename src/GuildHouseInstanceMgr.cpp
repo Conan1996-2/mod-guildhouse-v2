@@ -28,39 +28,33 @@ void GuildHouseInstanceMgr::Load()
 
 
     if (QueryResult result = CharacterDatabase.Query(
-        "SELECT "
-        "i.guildId, "
-        "i.instanceId, "
-        "h.locationId, "
-        "l.mapId "
-        "FROM guildhouse_instance i "
-        "JOIN guildhouse h ON h.guildId = i.guildId "
-        "JOIN guildhouse_locations l ON l.id = h.locationId"))
+        "SELECT guildId, instanceId FROM guildhouse_instance"))
     {
         do
         {
             Field* fields = result->Fetch();
 
-
             GHInstanceRecord record;
             record.GuildId = fields[0].Get<uint32>();
             record.InstanceId = fields[1].Get<uint32>();
-            record.MapId = fields[3].Get<uint32>();
+
+
+
+
+            
+            record.MapId = fields[0].Get<uint32>();
             
             _instances.emplace(
                 record.InstanceId,
                 record);
 
-
             _guildInstances.emplace(
                 record.GuildId,
                 record.InstanceId);
 
-
             _instanceGuilds.emplace(
                 record.InstanceId,
                 record.GuildId);
-
 
         } while(result->NextRow());
     }
