@@ -52,6 +52,8 @@ namespace GuildHouseUtil
             return false;
         }
 
+        ChatHandler(player->GetSession()).PSendSysMessage("Guild instance reported in: {}", player->GetInstanceId());
+        
         return sGuildHouseMgr.IsGuildInstance(guild->GetId(), player->GetInstanceId());
         
         //uint32 instanceId = player->GetInstanceId();
