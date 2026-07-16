@@ -9,7 +9,7 @@
 
 namespace GuildHouseUtil
 {
-    inline bool IsInGuildHouse(Player* player)
+    bool IsInGuildHouse(Player* player)
     {
         if (!player)
             return false;
