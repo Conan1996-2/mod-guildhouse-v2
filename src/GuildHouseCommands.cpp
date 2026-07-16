@@ -50,6 +50,50 @@ GuildHouseCommandScript::GuildHouseCommandScript() : CommandScript("GuildHouseCo
     }
 
 // =====================================================
+// Guild House Sale
+//
+// Handle selling guild house
+//
+// Also handle compensation with all contents and removal
+// =====================================================
+
+bool GuildHouseCommandScript::HandleSellGuildHouse(ChatHandler* handler, char const*)
+{
+    Player* player = handler->GetSession()->GetPlayer();
+
+    if (!player)
+        return false;
+
+
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
+    {
+        handler->PSendSysMessage("Only the Guild Master inside the Guild House may sell it.");
+        return false;
+    }
+
+
+    uint32 guildId = player->GetGuildId();
+
+    if (!guildId)
+    {
+        handler->PSendSysMessage("You are not in a guild.");
+        return false;
+    }
+
+
+    if (!sGuildHouseMgr.SellGuildHouse(guildId))
+    {
+        handler->PSendSysMessage("Failed to sell Guild House.");
+        return false;
+    }
+
+
+    handler->PSendSysMessage("Guild House sold.");
+
+    return true;
+}
+
+// =====================================================
 // BROKER
 //
 // Global faction NPC.
