@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "GuildHouseDefines.h"
-
 // =====================================================
 // Catalog Category
 // =====================================================
@@ -15,15 +13,18 @@ struct GHCategory
 {
     uint32_t Id;
     uint32_t ParentId;
+
     std::string Name;
+
     uint16_t SortOrder;
+
     bool Enabled;
 };
 
 // =====================================================
 // Catalog Component
 //
-// One permanent object that belongs to a catalog item.
+// One permanent object belonging to a catalog item.
 // =====================================================
 
 struct GHCatalogAsset
@@ -33,11 +34,12 @@ struct GHCatalogAsset
 
     uint32_t Entry;
     uint32_t DisplayId;
+
     float Scale;
 
-    GHSpawnFlags SpawnFlags;
-    GHBehaviorFlags BehaviorFlags;
-    GHScriptType ScriptType;
+    uint32_t SpawnFlags;
+    uint32_t BehaviorFlags;
+    uint32_t ScriptType;
 
     std::string ScriptData;
 
@@ -47,12 +49,14 @@ struct GHCatalogAsset
     float OOffset;
 
     uint32_t TargetMap;
+
     float TargetX;
     float TargetY;
     float TargetZ;
     float TargetO;
 
     uint32_t ChildCatalogId;
+
     uint16_t SortOrder;
 };
 
@@ -69,8 +73,8 @@ struct GHCatalog
 
     std::string Name;
 
-    GHSpawnFlags SpawnFlags;
-    GHBehaviorFlags BehaviorFlags;
+    uint32_t SpawnFlags;
+    uint32_t BehaviorFlags;
 
     bool Enabled;
 
@@ -80,23 +84,18 @@ struct GHCatalog
 // =====================================================
 // Purchased Guild Asset
 //
-// Stored in guildhouse_asset
+// Stored in guildhouse_asset.
 //
-// Represents a purchased object before and after placement.
-// InstanceId replaces phase ownership.
+// Represents purchased objects.
 // =====================================================
 
 struct GHGuildAsset
 {
     uint32_t AssetId;
     uint32_t GuildId;
-
     uint32_t CatalogId;
     uint16_t LayoutId;
-
-    GHAssetStatus Status;
-
-    uint32_t InstanceId;
+    uint8_t Status;
 
     float X;
     float Y;
@@ -105,31 +104,27 @@ struct GHGuildAsset
 };
 
 // =====================================================
-// Permanent Spawn Registry
+// Permanent Instance Spawn Registry
 //
-// Stored in guildhouse_instance
+// Stored in guildhouse_instance.
 //
-// Tracks spawned objects inside a guild instance.
-// This replaces phase-based tracking.
+// Tracks objects spawned inside the guild instance.
 // =====================================================
 
 struct GHInstance
 {
     uint32_t SpawnId;
-
     uint32_t InstanceId;
     uint32_t GuildId;
-
     uint32_t AssetId;
     uint32_t CatalogId;
-
     uint32_t Guid;
 
     uint8_t Type;
-    // 0 = creature
-    // 1 = gameobject
-    // 2 = portal
-    // 3 = trigger
+    // 0 creature
+    // 1 gameobject
+    // 2 portal
+    // 3 trigger
 
     uint32_t MapId;
 
@@ -142,44 +137,44 @@ struct GHInstance
 // =====================================================
 // Guild House
 //
-// One active instance per guild.
-// Ownership is dynamic and resolved from the guild system.
+// One permanent instance per guild.
+// Instance remains until Guild House is sold.
 // =====================================================
 
 struct GHGuildHouse
 {
     uint32_t GuildId;
-
-    // Historical creator/owner record.
-    // Actual permissions come from Guild::GetLeaderGUID()
-    // and are not stored permanently here.
     uint32_t OwnerGuid;
     uint32_t LocationId;
     uint32_t InstanceId;
-
     std::vector<GHGuildAsset> Assets;
 };
 
 // =====================================================
-// Guild House locations
+// Guild House Location
 //
-// Used to populate the Broker purchasing
+// Used by Broker purchase menu.
 // =====================================================
 
 struct GHLocation
 {
-    uint32 Id;
+    uint32_t Id;
     std::string Name;
-    uint32 MapId;
+    uint32_t MapId;
+
     float X;
     float Y;
     float Z;
     float O;
+
     float MinX;
     float MaxX;
+
     float MinY;
     float MaxY;
-    uint64 Price;
+
+    uint64_t Price;
+
     bool Enabled;
 };
 
