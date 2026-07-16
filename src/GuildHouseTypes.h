@@ -124,6 +124,7 @@ struct GHInstanceRecord
 {
     uint32_t InstanceId = 0;
     uint32_t GuildId = 0;
+    uint32_t LocationId = 0;
 
     uint32_t MapId = 0;
 
