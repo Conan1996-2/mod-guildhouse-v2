@@ -21,7 +21,7 @@ VALUES (900001, 0, 25901, 1.0, 1.0);
 DELETE FROM creature_template WHERE entry=900002;
 
 INSERT INTO creature_template (entry, name, subname, minlevel, maxlevel, faction, npcflag, unit_class, type, speed_walk, speed_run, AIName, ScriptName)
-VALUES (900002, 'Guild House Broker', 'Guild Services', 80, 80, 35, 1, 1, 7, 1, 1.14286, '', 'GuildHouseSalesman');
+VALUES (900002, 'Guild House Salesman', 'Guild Services', 80, 80, 35, 1, 1, 7, 1, 1.14286, '', 'GuildHouseSalesman');
 
 DELETE FROM creature_template_model WHERE CreatureID=900002;
 
@@ -31,7 +31,7 @@ VALUES (900002, 0, 25901, 1.0, 1.0);
 DELETE FROM creature_template WHERE entry=900003;
 
 INSERT INTO creature_template (entry, name, subname, minlevel, maxlevel, faction, npcflag, unit_class, type, speed_walk, speed_run, AIName, ScriptName)
-VALUES (900003, 'Guild House Broker', 'Guild Services', 80, 80, 35, 1, 1, 7, 1, 1.14286, '', 'GuildHouseSalesman');
+VALUES (900003, 'Guild House Salesman', 'Guild Services', 80, 80, 35, 1, 1, 7, 1, 1.14286, '', 'GuildHouseSalesman');
 
 DELETE FROM creature_template_model WHERE CreatureID=900003;
 
