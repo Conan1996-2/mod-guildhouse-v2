@@ -1,61 +1,69 @@
-#ifndef MOD_GUILDHOUSE_CATALOG_MGR_H
-#define MOD_GUILDHOUSE_CATALOG_MGR_H
+#ifndef MOD_GUILDHOUSE_COMMANDS_H
+#define MOD_GUILDHOUSE_COMMANDS_H
 
-#include <unordered_map>
-#include <vector>
+#include "ScriptMgr.h"
 
-#include "GuildHouseTypes.h"
+using namespace Acore::ChatCommands;
 
-class GuildHouseCatalogMgr
+class GuildHouseCommandScript : public CommandScript
 {
 public:
 
-    static GuildHouseCatalogMgr& Instance();
+    GuildHouseCommandScript();
 
-    void Load();
-
-    // =====================================================
-    // Direct lookups
-    // =====================================================
-
-    const GHCatalog* GetCatalog(uint32_t catalogId) const;
-
-    const GHCategory* GetCategory(uint32_t categoryId) const;
-
-    const GHCatalogAsset* GetCatalogAsset(uint32_t componentId) const;
+    ChatCommandTable GetCommands() const override;
 
 
     // =====================================================
-    // Salesman browsing
+    // NPC MANAGEMENT
     // =====================================================
 
-    std::vector<const GHCategory*> GetRootCategories() const;
+    static bool HandleAddBroker(ChatHandler* handler);
 
-    std::vector<const GHCategory*> GetChildCategories(uint32_t parentId) const;
-
-    std::vector<const GHCatalog*> GetCatalogs(uint32_t categoryId) const;
-
-    std::vector<const GHCatalog*> GetAllCatalogs() const;
-
-
-private:
-
-    GuildHouseCatalogMgr() = default;
+    static bool HandleAddSalesman(ChatHandler* handler);
 
 
     // =====================================================
-    // Catalog data
+    // GUILD HOUSE MANAGEMENT
     // =====================================================
 
-    std::unordered_map<uint32_t, GHCategory> _categories;
+    static bool HandleSellGuildHouse(ChatHandler* handler, char const* args);
 
-    std::unordered_map<uint32_t, GHCatalog> _catalogs;
+    static bool HandleTeleportGuildHouse(ChatHandler* handler, char const* args);
 
-    std::unordered_map<uint32_t, GHCatalogAsset> _assets;
+
+    // =====================================================
+    // ASSET MANAGEMENT
+    // =====================================================
+
+    static bool HandleListAssets(ChatHandler* handler, char const* args);
+
+    static bool HandlePlaceAsset(ChatHandler* handler, char const* args);
+
+    static bool HandleMoveAsset(ChatHandler* handler, char const* args);
+
+    static bool HandleStoreAsset(ChatHandler* handler, char const* args);
+
+    static bool HandleSellAsset(ChatHandler* handler, char const* args);
+
+
+    // =====================================================
+    // CATALOG / SHOP
+    // =====================================================
+
+    static bool HandleListCategories(ChatHandler* handler, char const* args);
+
+    static bool HandleListCatalog(ChatHandler* handler, char const* args);
+
+    static bool HandlePurchaseCatalog(ChatHandler* handler, char const* args);
 };
 
 
-#define sGuildHouseCatalogMgr GuildHouseCatalogMgr::Instance()
+// =====================================================
+// Script registration
+// =====================================================
+
+void AddSC_GuildHouseCommands();
 
 
 #endif
