@@ -17,15 +17,18 @@ public:
     // =====================================================
     // Direct lookups
     // =====================================================
+
     const GHCatalog* GetCatalog(uint32_t catalogId) const;
 
     const GHCategory* GetCategory(uint32_t categoryId) const;
 
     const GHCatalogAsset* GetCatalogAsset(uint32_t componentId) const;
 
+
     // =====================================================
     // Salesman browsing
     // =====================================================
+
     std::vector<const GHCategory*> GetRootCategories() const;
 
     std::vector<const GHCategory*> GetChildCategories(uint32_t parentId) const;
@@ -34,9 +37,15 @@ public:
 
     std::vector<const GHCatalog*> GetAllCatalogs() const;
 
+
 private:
 
     GuildHouseCatalogMgr() = default;
+
+
+    // =====================================================
+    // Catalog data
+    // =====================================================
 
     std::unordered_map<uint32_t, GHCategory> _categories;
 
@@ -45,6 +54,8 @@ private:
     std::unordered_map<uint32_t, GHCatalogAsset> _assets;
 };
 
+
 #define sGuildHouseCatalogMgr GuildHouseCatalogMgr::Instance()
+
 
 #endif
