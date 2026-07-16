@@ -6,6 +6,9 @@
 #include "Guild.h"
 
 
+
+namespace GuildHouseUtil
+{
     inline bool IsInGuildHouse(Player* player)
     {
         if (!player)
@@ -41,4 +44,4 @@
 
        // return IsGuildHouseInstance(guild->GetId(), instanceId);
     }
-
+}
