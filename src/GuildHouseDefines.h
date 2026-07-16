@@ -7,6 +7,9 @@
 
 #include "GuildHouseTypes.h"
 
+struct GHGuildHouse;
+struct GHLocation;
+
 // =====================================================
 // Core Constants
 // =====================================================
