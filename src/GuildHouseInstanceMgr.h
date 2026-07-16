@@ -53,10 +53,6 @@ private:
 
     GuildHouseInstanceMgr() = default;
 
-
-    uint32_t GenerateInstanceId();
-
-
     std::unordered_map<uint32_t, GHInstanceRecord> _instances;
 
     std::unordered_map<uint32_t, uint32_t> _guildInstances;
