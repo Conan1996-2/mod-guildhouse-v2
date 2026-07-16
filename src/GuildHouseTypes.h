@@ -5,61 +5,6 @@
 #include <string>
 #include <vector>
 
-
-// =====================================================
-// Guild House Enums
-// =====================================================
-
-
-enum GHAssetStatus : uint8_t
-{
-    GH_ASSET_PURCHASED = 0,
-    GH_ASSET_PLACED    = 1,
-    GH_ASSET_STORED    = 2,
-    GH_ASSET_DISABLED  = 3
-};
-
-
-// =====================================================
-// Spawn Flags
-// =====================================================
-
-enum GHSpawnFlags : uint32_t
-{
-    GH_SPAWN_NONE        = 0x00,
-    GH_SPAWN_CREATURE    = 0x01,
-    GH_SPAWN_GAMEOBJECT  = 0x02,
-    GH_SPAWN_PORTAL      = 0x04,
-    GH_SPAWN_TRIGGER     = 0x08
-};
-
-
-// =====================================================
-// Behavior Flags
-// =====================================================
-
-enum GHBehaviorFlags : uint32_t
-{
-    GH_BEHAVIOR_NONE       = 0x00,
-    GH_BEHAVIOR_INTERACT   = 0x01,
-    GH_BEHAVIOR_VENDOR    = 0x02,
-    GH_BEHAVIOR_TELEPORT  = 0x04
-};
-
-
-// =====================================================
-// Script Types
-// =====================================================
-
-enum GHScriptType : uint32_t
-{
-    GH_SCRIPT_NONE      = 0,
-    GH_SCRIPT_VENDOR    = 1,
-    GH_SCRIPT_TELEPORT  = 2,
-    GH_SCRIPT_CUSTOM    = 3
-};
-
-
 // =====================================================
 // Catalog Category
 // =====================================================
