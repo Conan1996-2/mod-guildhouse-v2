@@ -11,27 +11,6 @@
 namespace GuildHouseUtil
 {
 
-
-// =====================================================
-// Guild Master Check
-// =====================================================
-
-bool IsGuildMaster(Player* player)
-{
-    if (!player)
-        return false;
-
-
-    Guild* guild = player->GetGuild();
-
-    if (!guild)
-        return false;
-
-
-    return guild->GetLeaderGUID() == player->GetGUID();
-}
-
-
 // =====================================================
 // Guild House Permission Check
 //
@@ -42,7 +21,7 @@ bool IsGuildMaster(Player* player)
 
 bool CanManageGuildHouse(Player* player)
 {
-    return IsGuildMaster(player);
+    return IsGuildMaster(player) && IsInGuildHouse(player);
 }
 
 
