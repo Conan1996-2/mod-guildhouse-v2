@@ -289,13 +289,18 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
     if (!player)
         return false;
 
-    uint32 guildId = player->GetGuildId();
+
+    uint32 guildId =
+        player->GetGuildId();
+
 
     if (!guildId)
         return false;
 
 
-    const GHGuildHouse* house = GetGuildHouse(guildId);
+    const GHGuildHouse* house =
+        GetGuildHouse(guildId);
+
 
     if (!house)
         return false;
@@ -304,34 +309,21 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
     const GHLocation* location =
         GetLocation(house->LocationId);
 
+
     if (!location)
         return false;
 
 
-    uint32 instanceId =
-        GetOrCreateGuildInstance(guildId);
-
-    if (!instanceId)
-        return false;
+    GetOrCreateGuildInstance(guildId);
 
 
-    //
-    // GuildHouseInstanceMgr owns the instance mapping.
-    //
-    // No InstanceSaveMgr.
-    // No dungeon binding.
-    //
-
-
-    player->TeleportTo(
-        location->MapId,
+    return sGuildHouseInstanceMgr.EnterInstance(
+        player,
+        guildId,
         location->X,
         location->Y,
         location->Z,
         location->O);
-
-
-    return true;
 }
 
 
