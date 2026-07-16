@@ -1,69 +1,61 @@
-#ifndef MOD_GUILDHOUSE_COMMANDS_H
-#define MOD_GUILDHOUSE_COMMANDS_H
+#ifndef MOD_GUILDHOUSE_CATALOG_MGR_H
+#define MOD_GUILDHOUSE_CATALOG_MGR_H
 
-#include "ScriptMgr.h"
+#include <unordered_map>
+#include <vector>
 
-using namespace Acore::ChatCommands;
+#include "GuildHouseTypes.h"
 
-class GuildHouseCommandScript : public CommandScript
+class GuildHouseCatalogMgr
 {
 public:
 
-    GuildHouseCommandScript();
+    static GuildHouseCatalogMgr& Instance();
 
-    ChatCommandTable GetCommands() const override;
+    void Load();
+
+    // =====================================================
+    // Direct lookups
+    // =====================================================
+
+    const GHCatalog* GetCatalog(uint32_t catalogId) const;
+
+    const GHCategory* GetCategory(uint32_t categoryId) const;
+
+    const GHCatalogAsset* GetCatalogAsset(uint32_t componentId) const;
 
 
     // =====================================================
-    // NPC MANAGEMENT
+    // Salesman browsing
     // =====================================================
 
-    static bool HandleAddBroker(ChatHandler* handler);
+    std::vector<const GHCategory*> GetRootCategories() const;
 
-    static bool HandleAddSalesman(ChatHandler* handler);
+    std::vector<const GHCategory*> GetChildCategories(uint32_t parentId) const;
 
+    std::vector<const GHCatalog*> GetCatalogs(uint32_t categoryId) const;
 
-    // =====================================================
-    // GUILD HOUSE MANAGEMENT
-    // =====================================================
-
-    static bool HandleSellGuildHouse(ChatHandler* handler, char const* args);
-
-    static bool HandleTeleportGuildHouse(ChatHandler* handler, char const* args);
+    std::vector<const GHCatalog*> GetAllCatalogs() const;
 
 
-    // =====================================================
-    // ASSET MANAGEMENT
-    // =====================================================
+private:
 
-    static bool HandleListAssets(ChatHandler* handler, char const* args);
-
-    static bool HandlePlaceAsset(ChatHandler* handler, char const* args);
-
-    static bool HandleMoveAsset(ChatHandler* handler, char const* args);
-
-    static bool HandleStoreAsset(ChatHandler* handler, char const* args);
-
-    static bool HandleSellAsset(ChatHandler* handler, char const* args);
+    GuildHouseCatalogMgr() = default;
 
 
     // =====================================================
-    // CATALOG / SHOP
+    // Catalog data
     // =====================================================
 
-    static bool HandleListCategories(ChatHandler* handler, char const* args);
+    std::unordered_map<uint32_t, GHCategory> _categories;
 
-    static bool HandleListCatalog(ChatHandler* handler, char const* args);
+    std::unordered_map<uint32_t, GHCatalog> _catalogs;
 
-    static bool HandlePurchaseCatalog(ChatHandler* handler, char const* args);
+    std::unordered_map<uint32_t, GHCatalogAsset> _assets;
 };
 
 
-// =====================================================
-// Script registration
-// =====================================================
-
-void AddSC_GuildHouseCommands();
+#define sGuildHouseCatalogMgr GuildHouseCatalogMgr::Instance()
 
 
 #endif
