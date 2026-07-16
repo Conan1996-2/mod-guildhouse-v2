@@ -636,6 +636,69 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 
 
 // =====================================================
+// Create Salesman
+// =====================================================
+bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32 entry)
+{
+    if (!player)
+        return false;
+
+    uint32 guildId = player->GetGuildId();
+
+    if (!guildId)
+        return false;
+
+    if (HasSalesman(guildId))
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Your guild already has a Guild House salesman.");
+        return false;
+    }
+
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Only someone with the proper rank can place the Salesman.");
+        return false;
+    }
+
+    uint32 instanceId = player->GetInstanceId();
+
+    WorldDatabase.Execute(
+        "INSERT INTO creature "
+        "(id,map,position_x,position_y,position_z,orientation,spawntimesecs) "
+        "VALUES ({},{},{},{},{},{},{});",
+        entry,
+        player->GetMapId(),
+        player->GetPositionX(),
+        player->GetPositionY(),
+        player->GetPositionZ(),
+        player->GetOrientation(),
+        300);
+
+    QueryResult result =
+        WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+
+    if (!result)
+        return false;
+
+    uint32 spawnGuid = result->Fetch()[0].Get<uint32>();
+
+    RecordSalesmanSpawn(
+        guildId,
+        spawnGuid,
+        player->GetMapId(),
+        instanceId,
+        player->GetPositionX(),
+        player->GetPositionY(),
+        player->GetPositionZ(),
+        player->GetOrientation());
+
+    return true;
+}
+
+
+// =====================================================
 // Assets
 // =====================================================
 
@@ -761,6 +824,226 @@ bool GuildHouseMgr::PlaceAsset(
     return true;
 }
 
+bool GuildHouseMgr::MoveAsset(Player* player, uint32 assetId)
+{
+    if (!player)
+        return false;
+
+    if (!GuildHouseUtil::CanManageGuildHouse(player))
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Only the Guild Master may move Guild House assets.");
+        return false;
+    }
+
+    uint32 guildId = player->GetGuildId();
+
+    GHGuildAsset* asset = GetAsset(guildId, assetId);
+
+    if (!asset)
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Unknown Guild House asset.");
+        return false;
+    }
+
+    if (asset->Status != GH_ASSET_PLACED)
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "Only placed assets can be moved.");
+        return false;
+    }
+
+    float oldX = asset->X;
+    float oldY = asset->Y;
+    float oldZ = asset->Z;
+
+    float newX = player->GetPositionX();
+    float newY = player->GetPositionY();
+    float newZ = player->GetPositionZ();
+    float newO = player->GetOrientation();
+
+    float deltaX = newX - oldX;
+    float deltaY = newY - oldY;
+    float deltaZ = newZ - oldZ;
+
+    asset->X = newX;
+    asset->Y = newY;
+    asset->Z = newZ;
+    asset->O = newO;
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset SET "
+        "positionX={}, positionY={}, positionZ={}, orientation={} "
+        "WHERE guildId={} AND assetId={}",
+        newX,
+        newY,
+        newZ,
+        newO,
+        guildId,
+        assetId);
+
+    uint32 instanceId = player->GetInstanceId();
+
+    QueryResult result = CharacterDatabase.Query(
+        "SELECT spawnGuid, spawnType "
+        "FROM guildhouse_spawn "
+        "WHERE guildId={} AND assetId={} AND instanceId={} AND enabled=1",
+        guildId,
+        assetId,
+        instanceId);
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 spawnGuid = fields[0].Get<uint32>();
+            uint8 spawnType = fields[1].Get<uint8>();
+
+            if (spawnType == 0)
+            {
+                WorldDatabase.Execute(
+                    "UPDATE creature SET "
+                    "position_x=position_x+{}, "
+                    "position_y=position_y+{}, "
+                    "position_z=position_z+{}, "
+                    "orientation={} "
+                    "WHERE guid={}",
+                    deltaX,
+                    deltaY,
+                    deltaZ,
+                    newO,
+                    spawnGuid);
+            }
+            else
+            {
+                WorldDatabase.Execute(
+                    "UPDATE gameobject SET "
+                    "position_x=position_x+{}, "
+                    "position_y=position_y+{}, "
+                    "position_z=position_z+{}, "
+                    "orientation={} "
+                    "WHERE guid={}",
+                    deltaX,
+                    deltaY,
+                    deltaZ,
+                    newO,
+                    spawnGuid);
+            }
+
+        } while (result->NextRow());
+    }
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_spawn SET "
+        "positionX=positionX+{}, "
+        "positionY=positionY+{}, "
+        "positionZ=positionZ+{} "
+        "WHERE guildId={} AND assetId={} AND instanceId={}",
+        deltaX,
+        deltaY,
+        deltaZ,
+        guildId,
+        assetId,
+        instanceId);
+
+    return true;
+}
+
+
+bool GuildHouseMgr::StoreAsset(Player* player, uint32 assetId)
+{
+    if (!player)
+        return false;
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+        return false;
+
+    uint32 guildId = player->GetGuildId();
+
+    GHGuildAsset* asset = GetAsset(guildId, assetId);
+
+    if (!asset)
+        return false;
+
+    if (asset->Status != GH_ASSET_PLACED)
+    {
+        ChatHandler(player->GetSession()).PSendSysMessage(
+            "That asset is not currently placed.");
+        return false;
+    }
+
+    if (!sGuildHouseSpawner.RemoveAsset(
+            guildId,
+            player->GetInstanceId(),
+            assetId))
+    {
+        return false;
+    }
+
+    asset->Status = GH_ASSET_STORED;
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset SET status={} "
+        "WHERE guildId={} AND assetId={}",
+        GH_ASSET_STORED,
+        guildId,
+        assetId);
+
+    return true;
+}
+
+
+bool GuildHouseMgr::SellAsset(Player* player, uint32 assetId)
+{
+    if (!player)
+        return false;
+
+    if (!GuildHouseUtil::IsGuildMaster(player))
+        return false;
+
+    uint32 guildId = player->GetGuildId();
+
+    GHGuildAsset* asset = GetAsset(guildId, assetId);
+
+    if (!asset)
+        return false;
+
+    if (asset->Status == GH_ASSET_PLACED)
+    {
+        sGuildHouseSpawner.RemoveAsset(
+            guildId,
+            player->GetInstanceId(),
+            assetId);
+    }
+
+    CharacterDatabase.Execute(
+        "DELETE FROM guildhouse_asset "
+        "WHERE guildId={} AND assetId={}",
+        guildId,
+        assetId);
+
+    auto houseItr = _houses.find(guildId);
+
+    if (houseItr != _houses.end())
+    {
+        auto& assets = houseItr->second.Assets;
+
+        assets.erase(
+            std::remove_if(
+                assets.begin(),
+                assets.end(),
+                [assetId](const GHGuildAsset& asset)
+                {
+                    return asset.AssetId == assetId;
+                }),
+            assets.end());
+    }
+
+    return true;
+}
 
 // =====================================================
 // Startup
