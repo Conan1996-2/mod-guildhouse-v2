@@ -4,7 +4,7 @@
 
 #include "Player.h"
 #include "Guild.h"
-
+#include "Chat.h"
 
 
 namespace GuildHouseUtil
