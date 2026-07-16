@@ -138,7 +138,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
             "Unable to spawn Guild House Broker");
 
         delete creature;
-        return;
+        return false;
     }
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
