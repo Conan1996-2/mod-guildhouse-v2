@@ -5,60 +5,120 @@
 #include <string>
 #include <vector>
 
+
+// =====================================================
+// Guild House Enums
+// =====================================================
+
+
+enum GHAssetStatus : uint8_t
+{
+    GH_ASSET_PURCHASED = 0,
+    GH_ASSET_PLACED    = 1,
+    GH_ASSET_STORED    = 2,
+    GH_ASSET_DISABLED  = 3
+};
+
+
+// =====================================================
+// Spawn Flags
+// =====================================================
+
+enum GHSpawnFlags : uint32_t
+{
+    GH_SPAWN_NONE        = 0x00,
+    GH_SPAWN_CREATURE    = 0x01,
+    GH_SPAWN_GAMEOBJECT  = 0x02,
+    GH_SPAWN_PORTAL      = 0x04,
+    GH_SPAWN_TRIGGER     = 0x08
+};
+
+
+// =====================================================
+// Behavior Flags
+// =====================================================
+
+enum GHBehaviorFlags : uint32_t
+{
+    GH_BEHAVIOR_NONE       = 0x00,
+    GH_BEHAVIOR_INTERACT   = 0x01,
+    GH_BEHAVIOR_VENDOR    = 0x02,
+    GH_BEHAVIOR_TELEPORT  = 0x04
+};
+
+
+// =====================================================
+// Script Types
+// =====================================================
+
+enum GHScriptType : uint32_t
+{
+    GH_SCRIPT_NONE      = 0,
+    GH_SCRIPT_VENDOR    = 1,
+    GH_SCRIPT_TELEPORT  = 2,
+    GH_SCRIPT_CUSTOM    = 3
+};
+
+
 // =====================================================
 // Catalog Category
 // =====================================================
 
 struct GHCategory
 {
-    uint32_t Id;
-    uint32_t ParentId;
+    uint32_t Id = 0;
+    uint32_t ParentId = 0;
 
     std::string Name;
 
-    uint16_t SortOrder;
+    uint16_t SortOrder = 0;
 
-    bool Enabled;
+    bool Enabled = false;
 };
+
 
 // =====================================================
 // Catalog Component
 //
-// One permanent object belonging to a catalog item.
+// Individual spawned component belonging to a catalog item.
 // =====================================================
 
 struct GHCatalogAsset
 {
-    uint32_t ComponentId;
-    uint32_t CatalogId;
+    uint32_t ComponentId = 0;
+    uint32_t CatalogId = 0;
 
-    uint32_t Entry;
-    uint32_t DisplayId;
+    uint32_t Entry = 0;
+    uint32_t DisplayId = 0;
 
-    float Scale;
+    float Scale = 1.0f;
 
-    uint32_t SpawnFlags;
-    uint32_t BehaviorFlags;
-    uint32_t ScriptType;
+    GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+    GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
+    GHScriptType ScriptType = GH_SCRIPT_NONE;
 
     std::string ScriptData;
 
-    float XOffset;
-    float YOffset;
-    float ZOffset;
-    float OOffset;
 
-    uint32_t TargetMap;
+    float XOffset = 0.0f;
+    float YOffset = 0.0f;
+    float ZOffset = 0.0f;
+    float OOffset = 0.0f;
 
-    float TargetX;
-    float TargetY;
-    float TargetZ;
-    float TargetO;
 
-    uint32_t ChildCatalogId;
+    uint32_t TargetMap = 0;
 
-    uint16_t SortOrder;
+    float TargetX = 0.0f;
+    float TargetY = 0.0f;
+    float TargetZ = 0.0f;
+    float TargetO = 0.0f;
+
+
+    uint32_t ChildCatalogId = 0;
+
+    uint16_t SortOrder = 0;
 };
+
 
 // =====================================================
 // Catalog Item
@@ -68,114 +128,166 @@ struct GHCatalogAsset
 
 struct GHCatalog
 {
-    uint32_t CatalogId;
-    uint32_t CategoryId;
+    uint32_t CatalogId = 0;
+    uint32_t CategoryId = 0;
 
     std::string Name;
 
-    uint32_t SpawnFlags;
-    uint32_t BehaviorFlags;
+    GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+    GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
 
-    bool Enabled;
+    bool Enabled = false;
 
     std::vector<GHCatalogAsset> Components;
 };
+
 
 // =====================================================
 // Purchased Guild Asset
 //
 // Stored in guildhouse_asset.
-//
-// Represents purchased objects.
 // =====================================================
 
 struct GHGuildAsset
 {
-    uint32_t AssetId;
-    uint32_t GuildId;
-    uint32_t CatalogId;
-    uint16_t LayoutId;
-    uint8_t Status;
+    uint32_t AssetId = 0;
+    uint32_t GuildId = 0;
+    uint32_t CatalogId = 0;
 
-    float X;
-    float Y;
-    float Z;
-    float O;
+    uint16_t LayoutId = 0;
+
+    GHAssetStatus Status = GH_ASSET_PURCHASED;
+
+
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
 };
 
+
 // =====================================================
-// Permanent Instance Spawn Registry
+// Guild Instance Record
 //
+// One instance belongs to one guild.
 // Stored in guildhouse_instance.
+// =====================================================
+
+struct GHInstanceRecord
+{
+    uint32_t InstanceId = 0;
+    uint32_t GuildId = 0;
+
+    uint32_t MapId = 0;
+
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
+};
+
+
+// =====================================================
+// Permanent Spawn Registry
 //
-// Tracks objects spawned inside the guild instance.
+// Stored in guildhouse_spawn.
 // =====================================================
 
 struct GHInstance
 {
-    uint32_t SpawnId;
-    uint32_t InstanceId;
-    uint32_t GuildId;
-    uint32_t AssetId;
-    uint32_t CatalogId;
-    uint32_t Guid;
+    uint32_t SpawnId = 0;
 
-    uint8_t Type;
-    // 0 creature
-    // 1 gameobject
-    // 2 portal
-    // 3 trigger
+    uint32_t InstanceId = 0;
+    uint32_t GuildId = 0;
 
-    uint32_t MapId;
+    uint32_t AssetId = 0;
+    uint32_t CatalogId = 0;
 
-    float X;
-    float Y;
-    float Z;
-    float O;
+    uint32_t Guid = 0;
+
+
+    GHSpawnFlags Type = GH_SPAWN_NONE;
+
+
+    uint32_t MapId = 0;
+
+
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
 };
 
+
 // =====================================================
-// Guild House
+// Guild House Ownership
 //
-// One permanent instance per guild.
-// Instance remains until Guild House is sold.
+// One house per guild.
 // =====================================================
 
 struct GHGuildHouse
 {
-    uint32_t GuildId;
-    uint32_t OwnerGuid;
-    uint32_t LocationId;
-    uint32_t InstanceId;
+    uint32_t GuildId = 0;
+    uint32_t OwnerGuid = 0;
+
+    uint32_t LocationId = 0;
+
+    uint32_t InstanceId = 0;
+
+
     std::vector<GHGuildAsset> Assets;
 };
+
 
 // =====================================================
 // Guild House Location
 //
-// Used by Broker purchase menu.
+// Available purchase locations.
 // =====================================================
 
 struct GHLocation
 {
-    uint32_t Id;
+    uint32_t Id = 0;
+
     std::string Name;
-    uint32_t MapId;
 
-    float X;
-    float Y;
-    float Z;
-    float O;
+    uint32_t MapId = 0;
 
-    float MinX;
-    float MaxX;
 
-    float MinY;
-    float MaxY;
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
 
-    uint64_t Price;
 
-    bool Enabled;
+    float MinX = 0.0f;
+    float MaxX = 0.0f;
+
+    float MinY = 0.0f;
+    float MaxY = 0.0f;
+
+
+    uint64_t Price = 0;
+
+
+    bool Enabled = false;
 };
+
+
+// =====================================================
+// Utility Helpers
+// =====================================================
+
+namespace GuildHouseUtil
+{
+    template<typename T>
+    constexpr bool HasFlag(T value, T flag)
+    {
+        using U = std::underlying_type_t<T>;
+
+        return (static_cast<U>(value) & static_cast<U>(flag)) != 0;
+    }
+}
+
 
 #endif
