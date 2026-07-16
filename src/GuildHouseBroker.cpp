@@ -8,7 +8,6 @@
 #include "GossipDef.h"
 #include "ScriptedGossip.h"
 #include "Chat.h"
-#include "MapMgr.h"
 
 namespace
 {
@@ -50,12 +49,13 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     }
 
     uint32 guildId = guild->GetId();
+
     if (!sGuildHouseMgr.HasGuildHouse(guildId))
     {
         if (IsGuildMaster(player))
         {
             auto locations = sGuildHouseMgr.GetLocations();
-    
+
             if (locations.empty())
             {
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "No Guild House locations are available.", GOSSIP_SENDER_MAIN, ACTION_NONE);
@@ -63,6 +63,7 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
             else
             {
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Purchase a Guild House:", GOSSIP_SENDER_MAIN, ACTION_NONE);
+
                 for (const GHLocation* location : locations)
                 {
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, location->Name, GOSSIP_SENDER_MAIN, ACTION_BUY_START + location->Id);
@@ -85,6 +86,7 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     }
 
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+
     return true;
 }
 
@@ -93,6 +95,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     ClearGossipMenuFor(player);
 
     Guild* guild = player->GetGuild();
+
     if (!guild)
     {
         ChatHandler(player->GetSession()).PSendSysMessage("Must be in a Guild.");
@@ -104,32 +107,33 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     if (action >= ACTION_BUY_START && action < ACTION_CATEGORY_START)
     {
         uint32 locationId = action - ACTION_BUY_START;
-    
+
         const GHLocation* location = sGuildHouseMgr.GetLocation(locationId);
+
         if (!location)
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Invalid Guild House location.");
             return true;
         }
-    
+
         if (sGuildHouseMgr.HasGuildHouse(guildId))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Your guild already owns a Guild House.");
             return true;
         }
-    
+
         if (!IsGuildMaster(player))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Only the Guild Master may purchase a Guild House.");
             return true;
         }
-    
-        if (!player->HasEnoughMoney(uint32(location->Price)))
+
+        if (!player->HasEnoughMoney(location->Price))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not have enough gold.");
             return true;
         }
-    
+
         if (!sGuildHouseMgr.CreateGuildHouse(guildId, player->GetGUID().GetCounter(), locationId))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House.");
@@ -137,19 +141,21 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
         }
 
         uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(guildId);
+
         if (!instanceId)
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House instance.");
             sGuildHouseMgr.SellGuildHouse(guildId);
             return true;
         }
-    
+
         player->ModifyMoney(-int64(location->Price));
-    
-        ChatHandler(player->GetSession()).PSendSysMessage("Guild House purchased: {}", location->Name);    
+
+        ChatHandler(player->GetSession()).PSendSysMessage("Guild House purchased: {}", location->Name);
+
         return true;
     }
-    
+
     switch(action)
     {
         case ACTION_TELEPORT:
@@ -158,7 +164,7 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Unable to teleport to Guild House.");
             }
-        
+
             break;
         }
 
@@ -169,13 +175,24 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 ChatHandler(player->GetSession()).PSendSysMessage("Only the Guild Master may sell the Guild House.");
                 break;
             }
-        
-            const GHGuildHouse* guild = sGuildHouseMgr.GetGuildHouse (guildId);
-            if (!sGuildHouseMgr.HasGuildHouse(guildId))
+
+            const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
+
+            if (!house)
             {
                 ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not own a Guild House.");
                 break;
             }
+
+            const GHLocation* location = sGuildHouseMgr.GetLocation(house->LocationId);
+
+            if (!location)
+            {
+                ChatHandler(player->GetSession()).PSendSysMessage("Guild House location is invalid.");
+                break;
+            }
+
+            uint64 refund = location->Price * sGuildHouseConfig.GetRefundPercent() / 100;
 
             if (!sGuildHouseMgr.SellGuildHouse(guildId))
             {
@@ -183,12 +200,10 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
                 break;
             }
 
-            const GHLocation* location = sGuildHouseMgr.GetLocation(guild->InstanceId);
-            uint64 refund = location->Price * sGuildHouseConfig.GetRefundPercent() / 100;
             player->ModifyMoney(refund);
-            
+
             ChatHandler(player->GetSession()).PSendSysMessage("Guild House sold for {}.", refund);
-        
+
             break;
         }
 
