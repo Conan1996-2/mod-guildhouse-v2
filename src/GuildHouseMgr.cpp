@@ -939,3 +939,12 @@ bool GuildHouseMgr::CreatePermanentSalesman(
 
     return true;
 }
+
+// =====================================================
+// Script Registration
+// =====================================================
+
+void AddSC_GuildHouseMgr()
+{
+    new GuildHouseMgrScript();
+}
