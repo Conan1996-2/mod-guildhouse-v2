@@ -110,7 +110,7 @@ bool GuildHouseMgr::BindPlayerToGuildInstance(Player* player)
     if (!guildId)
         return false;
 
-    uint32 instanceId = GetOrCreateGuildInstance(guildId);
+    uint32 instanceId = GetOrCreateGuildInstance(player, guildId);
 
     if (!instanceId)
         return false;
