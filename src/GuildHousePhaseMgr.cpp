@@ -1,319 +1,117 @@
-#include "GuildHousePhaseMgr.h"
+#ifndef MOD_GUILDHOUSE_PHASE_MGR_H
+#define MOD_GUILDHOUSE_PHASE_MGR_H
 
-#include "DatabaseEnv.h"
-#include "QueryResult.h"
-#include "Log.h"
+#include <cstdint>
+#include <unordered_map>
+
+#include "GuildHouseTypes.h"
+
+class Player;
 
 
-GuildHousePhaseMgr& GuildHousePhaseMgr::Instance()
+class GuildHousePhaseMgr
 {
-    static GuildHousePhaseMgr instance;
-    return instance;
-}
+public:
 
+    static GuildHousePhaseMgr& Instance();
 
-// =====================================================
-// Load Existing Guild House Phases
-//
-// One phase belongs to one guild.
-// =====================================================
 
-void GuildHousePhaseMgr::Load()
-{
-    _phases.clear();
+    /*
+        Phase lifecycle
+    */
 
+    void Load();
 
-    if (QueryResult result = CharacterDatabase.Query(
-        "SELECT guildId, phaseMask, mapId "
-        "FROM guildhouse_phase"))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
 
-            GHPhaseRecord record;
+    uint32_t CreatePhase(
+        uint32_t guildId,
+        uint32_t locationId);
 
-            record.GuildId =
-                fields[0].Get<uint32>();
 
-            record.PhaseMask =
-                fields[1].Get<uint32>();
+    bool RemovePhase(
+        uint32_t guildId);
 
-            record.MapId =
-                fields[2].Get<uint32>();
 
 
-            _phases.emplace(
-                record.GuildId,
-                record);
+    /*
+        Player phase handling
+    */
 
+    bool EnterPhase(
+        Player* player,
+        uint32_t guildId);
 
-        } while (result->NextRow());
-    }
 
+    bool LeavePhase(
+        Player* player);
 
-    LOG_INFO(
-        "server.loading",
-        "GuildHousePhaseMgr loaded {} guild phases",
-        _phases.size());
-}
 
+    bool IsMember(
+        Player* player) const;
 
 
-// =====================================================
-// Create Guild House Phase
-//
-// Generates one phase mask for a guild.
-// =====================================================
+    bool CheckBoundary(
+        Player* player);
 
-uint32_t GuildHousePhaseMgr::CreatePhase(
-    uint32_t guildId,
-    uint32_t mapId)
-{
-    if (HasPhase(guildId))
-        return GetPhaseMask(guildId);
 
 
-    uint32_t phaseMask =
-        GeneratePhaseMask();
+    /*
+        Lookup
+    */
 
+    uint32_t GetPhaseMask(
+        uint32_t guildId) const;
 
-    if (!phaseMask)
-    {
-        LOG_ERROR(
-            "module",
-            "No available Guild House phases");
 
-        return 0;
-    }
+    bool HasPhase(
+        uint32_t guildId) const;
 
 
-    GHPhaseRecord record;
+    const GHPhaseRecord* GetPhase(
+        uint32_t guildId) const;
 
-    record.GuildId =
-        guildId;
 
-    record.PhaseMask =
-        phaseMask;
 
-    record.MapId =
-        mapId;
+private:
 
+    GuildHousePhaseMgr() = default;
 
-    _phases.emplace(
-        guildId,
-        record);
 
+    /*
+        guildId -> phase record
+    */
 
-    CharacterDatabase.Execute(
-        "INSERT INTO guildhouse_phase "
-        "(guildId, phaseMask, mapId) "
-        "VALUES ({},{},{})",
-        guildId,
-        phaseMask,
-        mapId);
+    std::unordered_map<uint32_t, GHPhaseRecord> _phases;
 
 
 
-    LOG_INFO(
-        "module",
-        "Created Guild House phase {} for guild {}",
-        phaseMask,
-        guildId);
+    /*
+        Generates free bit phase mask
 
+        1
+        2
+        4
+        8
+        16
+        ...
+    */
 
-    return phaseMask;
-}
+    uint32_t GeneratePhaseMask();
 
 
+    bool AddMember(
+        uint32_t guildId,
+        uint64_t guid);
 
-// =====================================================
-// Enter Guild House Phase
-//
-// Applies phase and teleports player.
-// =====================================================
 
-bool GuildHousePhaseMgr::EnterPhase(
-    Player* player,
-    uint32_t guildId,
-    uint32_t mapId,
-    float x,
-    float y,
-    float z,
-    float o)
-{
-    if (!player)
-        return false;
+    bool RemoveMember(
+        uint32_t guildId,
+        uint64_t guid);
+};
 
 
-    uint32_t phaseMask =
-        GetPhaseMask(guildId);
 
+#define sGuildHousePhaseMgr GuildHousePhaseMgr::Instance()
 
-    if (!phaseMask)
-    {
-        LOG_ERROR(
-            "module",
-            "Guild {} has no phase",
-            guildId);
 
-        return false;
-    }
-
-
-
-    player->SetPhaseMask(
-        phaseMask,
-        true);
-
-
-
-    player->TeleportTo(
-        mapId,
-        x,
-        y,
-        z,
-        o);
-
-
-
-    return true;
-}
-
-
-
-// =====================================================
-// Remove Guild Phase
-//
-// Removes phase ownership.
-// =====================================================
-
-bool GuildHousePhaseMgr::RemovePhase(
-    uint32_t guildId)
-{
-    auto itr =
-        _phases.find(guildId);
-
-
-    if (itr == _phases.end())
-        return false;
-
-
-    uint32_t phaseMask =
-        itr->second.PhaseMask;
-
-
-
-    _phases.erase(
-        itr);
-
-
-
-    CharacterDatabase.Execute(
-        "DELETE FROM guildhouse_phase "
-        "WHERE guildId={}",
-        guildId);
-
-
-
-    LOG_INFO(
-        "module",
-        "Removed Guild House phase {} for guild {}",
-        phaseMask,
-        guildId);
-
-
-
-    return true;
-}
-
-
-
-// =====================================================
-// Lookup
-// =====================================================
-
-bool GuildHousePhaseMgr::HasPhase(
-    uint32_t guildId) const
-{
-    return _phases.find(guildId)
-        != _phases.end();
-}
-
-
-
-uint32_t GuildHousePhaseMgr::GetPhaseMask(
-    uint32_t guildId) const
-{
-    auto itr =
-        _phases.find(guildId);
-
-
-    if (itr == _phases.end())
-        return 0;
-
-
-    return itr->second.PhaseMask;
-}
-
-
-
-const GHPhaseRecord*
-GuildHousePhaseMgr::GetPhase(
-    uint32_t guildId) const
-{
-    auto itr =
-        _phases.find(guildId);
-
-
-    if (itr == _phases.end())
-        return nullptr;
-
-
-    return &itr->second;
-}
-
-
-
-// =====================================================
-// Phase Generator
-//
-// Bitmask phases only.
-//
-// 2,4,8,16,32...
-// =====================================================
-
-uint32_t GuildHousePhaseMgr::GeneratePhaseMask()
-{
-    static uint32_t nextPhase = 2;
-
-
-    while (nextPhase <= (1 << 30))
-    {
-        uint32_t candidate =
-            nextPhase;
-
-
-        nextPhase <<= 1;
-
-
-        bool used = false;
-
-
-        for (auto const& [guildId, phase] : _phases)
-        {
-            if (phase.PhaseMask == candidate)
-            {
-                used = true;
-                break;
-            }
-        }
-
-
-        if (!used)
-            return candidate;
-    }
-
-
-    return 0;
-}
+#endif
