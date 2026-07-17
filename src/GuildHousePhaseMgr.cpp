@@ -3,6 +3,9 @@
 #include "DatabaseEnv.h"
 #include "QueryResult.h"
 #include "Log.h"
+#include "Player.h"
+
+#include <algorithm>
 
 
 GuildHousePhaseMgr& GuildHousePhaseMgr::Instance()
@@ -24,8 +27,19 @@ void GuildHousePhaseMgr::Load()
 
 
     if (QueryResult result = CharacterDatabase.Query(
-        "SELECT guildId, phaseMask, mapId "
-        "FROM guildhouse_phase"))
+        "SELECT "
+        "p.guildId, "
+        "p.phaseMask, "
+        "p.mapId, "
+        "p.positionX, "
+        "p.positionY, "
+        "p.positionZ, "
+        "p.orientation, "
+        "p.minX, "
+        "p.maxX, "
+        "p.minY, "
+        "p.maxY "
+        "FROM guildhouse_phase p"))
     {
         do
         {
@@ -42,11 +56,34 @@ void GuildHousePhaseMgr::Load()
             record.MapId =
                 fields[2].Get<uint32>();
 
+            record.X =
+                fields[3].Get<float>();
+
+            record.Y =
+                fields[4].Get<float>();
+
+            record.Z =
+                fields[5].Get<float>();
+
+            record.O =
+                fields[6].Get<float>();
+
+            record.MinX =
+                fields[7].Get<float>();
+
+            record.MaxX =
+                fields[8].Get<float>();
+
+            record.MinY =
+                fields[9].Get<float>();
+
+            record.MaxY =
+                fields[10].Get<float>();
+
 
             _phases.emplace(
                 record.GuildId,
                 record);
-
 
         } while (result->NextRow());
     }
@@ -63,15 +100,46 @@ void GuildHousePhaseMgr::Load()
 // =====================================================
 // Create Guild House Phase
 //
-// Generates one phase mask for a guild.
+// One phase per guild.
 // =====================================================
 
 uint32_t GuildHousePhaseMgr::CreatePhase(
     uint32_t guildId,
-    uint32_t mapId)
+    uint32_t locationId)
 {
     if (HasPhase(guildId))
         return GetPhaseMask(guildId);
+
+
+    QueryResult result =
+        WorldDatabase.Query(
+            "SELECT "
+            "mapId, "
+            "positionX, "
+            "positionY, "
+            "positionZ, "
+            "orientation, "
+            "minX, "
+            "maxX, "
+            "minY, "
+            "maxY "
+            "FROM guildhouse_locations "
+            "WHERE id={}",
+            locationId);
+
+
+    if (!result)
+    {
+        LOG_ERROR(
+            "module",
+            "Guild House location {} does not exist",
+            locationId);
+
+        return 0;
+    }
+
+
+    Field* fields = result->Fetch();
 
 
     uint32_t phaseMask =
@@ -97,7 +165,31 @@ uint32_t GuildHousePhaseMgr::CreatePhase(
         phaseMask;
 
     record.MapId =
-        mapId;
+        fields[0].Get<uint32>();
+
+    record.X =
+        fields[1].Get<float>();
+
+    record.Y =
+        fields[2].Get<float>();
+
+    record.Z =
+        fields[3].Get<float>();
+
+    record.O =
+        fields[4].Get<float>();
+
+    record.MinX =
+        fields[5].Get<float>();
+
+    record.MaxX =
+        fields[6].Get<float>();
+
+    record.MinY =
+        fields[7].Get<float>();
+
+    record.MaxY =
+        fields[8].Get<float>();
 
 
     _phases.emplace(
@@ -105,13 +197,24 @@ uint32_t GuildHousePhaseMgr::CreatePhase(
         record);
 
 
+
     CharacterDatabase.Execute(
         "INSERT INTO guildhouse_phase "
-        "(guildId, phaseMask, mapId) "
-        "VALUES ({},{},{})",
+        "(guildId, phaseMask, mapId, "
+        "positionX, positionY, positionZ, orientation, "
+        "minX, maxX, minY, maxY) "
+        "VALUES ({},{},{},{},{},{},{},{},{},{},{})",
         guildId,
         phaseMask,
-        mapId);
+        record.MapId,
+        record.X,
+        record.Y,
+        record.Z,
+        record.O,
+        record.MinX,
+        record.MaxX,
+        record.MinY,
+        record.MaxY);
 
 
 
@@ -135,46 +238,204 @@ uint32_t GuildHousePhaseMgr::CreatePhase(
 
 bool GuildHousePhaseMgr::EnterPhase(
     Player* player,
-    uint32_t guildId,
-    uint32_t mapId,
-    float x,
-    float y,
-    float z,
-    float o)
+    uint32_t guildId)
 {
     if (!player)
         return false;
 
 
-    uint32_t phaseMask =
-        GetPhaseMask(guildId);
+    auto itr =
+        _phases.find(guildId);
 
 
-    if (!phaseMask)
-    {
-        LOG_ERROR(
-            "module",
-            "Guild {} has no phase",
-            guildId);
-
+    if (itr == _phases.end())
         return false;
-    }
 
+
+    GHPhaseRecord& phase =
+        itr->second;
 
 
     player->SetPhaseMask(
-        phaseMask,
+        phase.PhaseMask,
         true);
 
 
 
-    player->TeleportTo(
-        mapId,
-        x,
-        y,
-        z,
-        o);
+    AddMember(
+        guildId,
+        player->GetGUID().GetCounter());
 
+
+
+    player->TeleportTo(
+        phase.MapId,
+        phase.X,
+        phase.Y,
+        phase.Z,
+        phase.O);
+
+
+    return true;
+}
+
+
+
+// =====================================================
+// Leave Guild House Phase
+// =====================================================
+
+bool GuildHousePhaseMgr::LeavePhase(
+    Player* player)
+{
+    if (!player)
+        return false;
+
+
+    uint32_t guildId =
+        player->GetGuildId();
+
+
+    RemoveMember(
+        guildId,
+        player->GetGUID().GetCounter());
+
+
+    player->SetPhaseMask(
+        1,
+        true);
+
+
+    auto itr =
+        _phases.find(guildId);
+
+
+    if (itr != _phases.end() &&
+        itr->second.Members.empty())
+    {
+        RemovePhase(guildId);
+    }
+
+
+    return true;
+}
+
+
+
+// =====================================================
+// Member Tracking
+// =====================================================
+
+bool GuildHousePhaseMgr::AddMember(
+    uint32_t guildId,
+    uint64_t guid)
+{
+    auto itr =
+        _phases.find(guildId);
+
+    if (itr == _phases.end())
+        return false;
+
+
+    itr->second.Members.insert(guid);
+
+    return true;
+}
+
+
+
+bool GuildHousePhaseMgr::RemoveMember(
+    uint32_t guildId,
+    uint64_t guid)
+{
+    auto itr =
+        _phases.find(guildId);
+
+    if (itr == _phases.end())
+        return false;
+
+
+    itr->second.Members.erase(guid);
+
+    return true;
+}
+
+
+
+bool GuildHousePhaseMgr::IsMember(
+    Player* player) const
+{
+    if (!player)
+        return false;
+
+
+    uint32_t guildId =
+        player->GetGuildId();
+
+
+    auto itr =
+        _phases.find(guildId);
+
+
+    if (itr == _phases.end())
+        return false;
+
+
+    return itr->second.Members.find(
+        player->GetGUID().GetCounter())
+        != itr->second.Members.end();
+}
+
+
+
+// =====================================================
+// Boundary Check
+// =====================================================
+
+bool GuildHousePhaseMgr::CheckBoundary(
+    Player* player)
+{
+    if (!IsMember(player))
+        return true;
+
+
+    uint32_t guildId =
+        player->GetGuildId();
+
+
+    auto itr =
+        _phases.find(guildId);
+
+
+    if (itr == _phases.end())
+        return true;
+
+
+    GHPhaseRecord const& phase =
+        itr->second;
+
+
+    float x =
+        player->GetPositionX();
+
+    float y =
+        player->GetPositionY();
+
+
+    if (x < phase.MinX ||
+        x > phase.MaxX ||
+        y < phase.MinY ||
+        y > phase.MaxY)
+    {
+        player->TeleportTo(
+            phase.MapId,
+            phase.X,
+            phase.Y,
+            phase.Z,
+            phase.O);
+
+        return false;
+    }
 
 
     return true;
@@ -184,8 +445,6 @@ bool GuildHousePhaseMgr::EnterPhase(
 
 // =====================================================
 // Remove Guild Phase
-//
-// Removes phase ownership.
 // =====================================================
 
 bool GuildHousePhaseMgr::RemovePhase(
@@ -203,10 +462,7 @@ bool GuildHousePhaseMgr::RemovePhase(
         itr->second.PhaseMask;
 
 
-
-    _phases.erase(
-        itr);
-
+    _phases.erase(itr);
 
 
     CharacterDatabase.Execute(
@@ -280,15 +536,16 @@ GuildHousePhaseMgr::GetPhase(
 //
 // Bitmask phases only.
 //
-// 2,4,8,16,32...
+// 1,2,4,8,16...
 // =====================================================
 
 uint32_t GuildHousePhaseMgr::GeneratePhaseMask()
 {
-    static uint32_t nextPhase = 2;
+    static uint32_t nextPhase = 1;
 
 
-    while (nextPhase <= (1 << 30))
+    while (nextPhase &&
+           nextPhase <= (1 << 30))
     {
         uint32_t candidate =
             nextPhase;
