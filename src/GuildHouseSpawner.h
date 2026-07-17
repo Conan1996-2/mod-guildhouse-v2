@@ -1,6 +1,7 @@
 #ifndef MOD_GUILDHOUSE_SPAWNER_H
 #define MOD_GUILDHOUSE_SPAWNER_H
 
+
 #include <cstdint>
 
 
@@ -8,14 +9,13 @@ class GuildHouseSpawner
 {
 public:
 
+
     static GuildHouseSpawner& Instance();
 
 
+
     // =====================================================
-    // Startup loading
-    //
-    // Loads all placed guild assets and recreates missing
-    // phase based spawns.
+    // Startup
     // =====================================================
 
     void LoadPlacedAssets();
@@ -23,12 +23,13 @@ public:
 
 
     // =====================================================
-    // Spawn tracking
+    // Spawn lookup
     // =====================================================
 
     bool HasExistingSpawn(
         uint32_t guildId,
         uint32_t assetId);
+
 
 
 
@@ -42,8 +43,9 @@ public:
 
 
 
+
     // =====================================================
-    // Asset removal
+    // Removal
     // =====================================================
 
     bool RemoveAsset(
@@ -51,13 +53,15 @@ public:
         uint32_t assetId);
 
 
+
     bool RemoveAllAssets(
         uint32_t guildId);
 
 
 
+
     // =====================================================
-    // Asset movement
+    // Movement
     // =====================================================
 
     bool MoveAsset(
@@ -72,13 +76,11 @@ public:
 
 private:
 
+
     GuildHouseSpawner() = default;
 
 
 
-    // =====================================================
-    // Creature spawning
-    // =====================================================
 
     bool SpawnCreature(
         uint32_t guildId,
@@ -93,9 +95,6 @@ private:
 
 
 
-    // =====================================================
-    // GameObject spawning
-    // =====================================================
 
     bool SpawnGameObject(
         uint32_t guildId,
@@ -110,21 +109,21 @@ private:
 
 
 
-    // =====================================================
-    // Spawn removal helpers
-    // =====================================================
 
     bool RemoveCreatureSpawn(
-        uint32_t spawnGuid);
+        uint32_t guid);
+
 
 
     bool RemoveGameObjectSpawn(
-        uint32_t spawnGuid);
+        uint32_t guid);
 
 };
 
 
+
 #define sGuildHouseSpawner GuildHouseSpawner::Instance()
+
 
 
 #endif
