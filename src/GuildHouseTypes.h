@@ -122,11 +122,9 @@ struct GHGuildAsset
 
 struct GHInstanceRecord
 {
-    uint32_t InstanceId = 0;
     uint32_t GuildId = 0;
-    uint32_t LocationId = 0;
-
-    uint32_t MapId = 0;
+    uint32_t PhaseMask;
+    uint32_t MapId;
 
     float X = 0.0f;
     float Y = 0.0f;
