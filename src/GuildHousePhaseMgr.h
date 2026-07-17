@@ -6,7 +6,6 @@
 
 #include "GuildHouseTypes.h"
 
-
 class Player;
 
 
@@ -26,21 +25,33 @@ public:
 
     uint32_t CreatePhase(
         uint32_t guildId,
-        uint32_t mapId);
+        uint32_t locationId);
 
 
     bool RemovePhase(
         uint32_t guildId);
 
 
+
+    /*
+        Player phase handling
+    */
+
     bool EnterPhase(
         Player* player,
-        uint32_t guildId,
-        uint32_t mapId,
-        float x,
-        float y,
-        float z,
-        float o);
+        uint32_t guildId);
+
+
+    bool LeavePhase(
+        Player* player);
+
+
+    bool IsMember(
+        Player* player) const;
+
+
+    bool CheckBoundary(
+        Player* player);
 
 
 
@@ -75,8 +86,9 @@ private:
 
 
     /*
-        Generates a free bit phase
+        Generates free bit phase mask
 
+        1
         2
         4
         8
@@ -85,6 +97,16 @@ private:
     */
 
     uint32_t GeneratePhaseMask();
+
+
+    bool AddMember(
+        uint32_t guildId,
+        uint64_t guid);
+
+
+    bool RemoveMember(
+        uint32_t guildId,
+        uint64_t guid);
 };
 
 
