@@ -449,13 +449,13 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     //    "VALUES ({},{},{},{},{},{},{})", entry, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
     Creature* creature = new Creature();
-    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), player->GetPhaseMaskForSpawn(), entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), phaseMask, entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
     {
         delete creature;
         return false;
     }
 
-   creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), player->GetPhaseMaskForSpawn());
+   creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), phaseMask);
     
     uint32 spawnId = creature->GetSpawnId();
     creature->CleanupsBeforeDelete();
