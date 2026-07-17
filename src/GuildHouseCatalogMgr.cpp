@@ -24,7 +24,6 @@ GuildHouseCatalogMgr& GuildHouseCatalogMgr::Instance()
 // - inside catalog.Components
 // - inside _assets lookup map
 // =====================================================
-
 void GuildHouseCatalogMgr::Load()
 {
     _categories.clear();
@@ -157,7 +156,6 @@ const GHCatalogAsset* GuildHouseCatalogMgr::GetCatalogAsset(uint32_t componentId
 // =====================================================
 // Root category list
 // =====================================================
-
 std::vector<const GHCategory*> GuildHouseCatalogMgr::GetRootCategories() const
 {
     std::vector<const GHCategory*> result;
@@ -181,7 +179,6 @@ std::vector<const GHCategory*> GuildHouseCatalogMgr::GetRootCategories() const
 // =====================================================
 // Child category list
 // =====================================================
-
 std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
 {
     std::vector<const GHCategory*> result;
@@ -205,7 +202,6 @@ std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t
 // =====================================================
 // Catalog list by category
 // =====================================================
-
 std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
 {
     std::vector<const GHCatalog*> result;
@@ -229,7 +225,6 @@ std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categor
 // =====================================================
 // All catalogs
 // =====================================================
-
 std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetAllCatalogs() const
 {
     std::vector<const GHCatalog*> result;
