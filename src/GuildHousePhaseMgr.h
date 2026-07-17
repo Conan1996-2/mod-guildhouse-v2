@@ -47,8 +47,7 @@ private:
 private:
 
     // guildId -> phase
-    std::unordered_map<uint32_t, GHPhaseRecord>
-        _phases;
+    std::unordered_map<uint32_t, GHPhaseRecord> _phases;
 
 };
 
