@@ -120,7 +120,7 @@ struct GHGuildAsset
 // Stored in guildhouse_instance.
 // =====================================================
 
-struct GHInstanceRecord
+struct GHPhaseRecord
 {
     uint32_t GuildId = 0;
     uint32_t PhaseMask;
