@@ -6,7 +6,9 @@
 
 #include "GuildHouseTypes.h"
 
+
 class Player;
+
 
 class GuildHousePhaseMgr
 {
@@ -21,47 +23,73 @@ public:
 
     void Load();
 
-    uint32_t CreateInstance(Player* player, uint32_t guildId, uint32_t mapId);
 
-    bool RemoveInstance(uint32_t guildId);
+    uint32_t CreatePhase(
+        uint32_t guildId,
+        uint32_t mapId);
 
-    bool RemoveInstanceById(uint32_t instanceId);
 
-    bool EnterInstance(Player* player, uint32_t guildId, uint32_t instanceId, uint32_t mapId, float x, float y, float z, float o);
+    bool RemovePhase(
+        uint32_t guildId);
+
+
+    bool EnterPhase(
+        Player* player,
+        uint32_t guildId,
+        uint32_t mapId,
+        float x,
+        float y,
+        float z,
+        float o);
+
+
 
     /*
         Lookup
     */
 
-    uint32_t GetInstanceId(uint32_t guildId) const;
-
-    uint32_t GetGuildId(uint32_t instanceId) const;
-
-    bool HasInstance(uint32_t guildId) const;
-
-    bool IsGuildInstance(uint32_t guildId, uint32_t instanceId) const;
+    uint32_t GetPhaseMask(
+        uint32_t guildId) const;
 
 
-    /*
-        Runtime tracking
-    */
+    bool HasPhase(
+        uint32_t guildId) const;
 
-    const GHInstanceRecord* GetInstance(uint32_t instanceId) const;
+
+    const GHPhaseRecord* GetPhase(
+        uint32_t guildId) const;
+
 
 
 private:
 
     GuildHousePhaseMgr() = default;
 
-    std::unordered_map<uint32_t, GHInstanceRecord> _instances;
 
-    std::unordered_map<uint32_t, uint32_t> _guildInstances;
+    /*
+        guildId -> phase record
+    */
 
-    std::unordered_map<uint32_t, uint32_t> _instanceGuilds;
+    std::unordered_map<uint32_t, GHPhaseRecord> _phases;
+
+
+
+    /*
+        Generates a free bit phase
+
+        2
+        4
+        8
+        16
+        ...
+    */
+
+    uint32_t GeneratePhaseMask();
 };
 
 
-#define GuildHousePhaseMgr GuildHousePhaseMgr::Instance()
+
+#define sGuildHousePhaseMgr GuildHousePhaseMgr::Instance()
 
 
 #endif
