@@ -314,17 +314,23 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
         return false;
 
 
-    GetOrCreateGuildInstance(player, guildId);
-
-
+    uint32_t instanceId =
+        GetOrCreateGuildInstance(player, guildId);
+    
+    if (!instanceId)
+        return false;
+    
+    
     return sGuildHouseInstanceMgr.EnterInstance(
         player,
         guildId,
+        instanceId,
+        location->MapId,
         location->X,
         location->Y,
         location->Z,
         location->O);
-}
+    }
 
 
 // =====================================================
