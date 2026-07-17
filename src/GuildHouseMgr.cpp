@@ -946,5 +946,5 @@ bool GuildHouseMgr::CreatePermanentSalesman(
 
 void AddSC_GuildHouseMgr()
 {
-    new GuildHouseMgrScript();
+    new GuildHouseMgr();
 }
