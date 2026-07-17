@@ -116,6 +116,25 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
     uint32_t instanceId =
         map->GetInstanceId();
 
+    InstanceSave* save =
+        sInstanceSaveMgr->GetInstanceSave(instanceId);
+
+    if (!save)
+    {
+        LOG_ERROR(
+            "module",
+            "Guild House instance {} has no InstanceSave",
+            instanceId);
+    
+        return 0;
+    }
+    
+    
+    sInstanceSaveMgr->PlayerBindToInstance(
+        player->GetGUID(),
+        save,
+        false,
+        player);
 
     GHInstanceRecord record;
 
@@ -166,80 +185,27 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
 bool GuildHouseInstanceMgr::EnterInstance(
     Player* player,
     uint32_t guildId,
-    uint32_t mapId)
+    uint32_t instanceId,
+    uint32_t mapId,
+    float x,
+    float y,
+    float z,
+    float o)
 {
     if (!player)
         return false;
 
 
-    uint32_t instanceId = GetInstanceId(guildId);
+    if (!IsGuildInstance(guildId, instanceId))
+        return false;
 
 
-    //
-    // First entry:
-    // Let the core create the instance.
-    //
-    if (!instanceId)
-    {
-        Map* map = sMapMgr->CreateMap(
-            mapId,
-            player);
-
-        if (!map)
-        {
-            LOG_ERROR(
-                "module",
-                "Failed creating Guild House instance for guild {} on map {}",
-                guildId,
-                mapId);
-
-            return false;
-        }
-
-
-        instanceId = map->GetInstanceId();
-
-
-        GHInstanceRecord record;
-
-        record.GuildId = guildId;
-        record.InstanceId = instanceId;
-        record.MapId = mapId;
-
-
-        _instances.emplace(
-            instanceId,
-            record);
-
-
-        _guildInstances[guildId] = instanceId;
-        _instanceGuilds[instanceId] = guildId;
-
-
-        CharacterDatabase.Execute(
-            "INSERT INTO guildhouse_instance "
-            "(guildId, instanceId) VALUES ({},{})",
-            guildId,
-            instanceId);
-    }
-
-
-    //
-    // Bind player to existing guild instance
-    //
     InstanceSave* save =
         sInstanceSaveMgr->GetInstanceSave(instanceId);
 
 
     if (!save)
-    {
-        LOG_ERROR(
-            "module",
-            "Guild House instance {} has no InstanceSave",
-            instanceId);
-
         return false;
-    }
 
 
     sInstanceSaveMgr->PlayerBindToInstance(
@@ -247,6 +213,14 @@ bool GuildHouseInstanceMgr::EnterInstance(
         save,
         false,
         player);
+
+
+    player->TeleportTo(
+        mapId,
+        x,
+        y,
+        z,
+        o);
 
 
     return true;
