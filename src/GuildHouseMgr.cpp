@@ -314,7 +314,7 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
         return false;
 
 
-    GetOrCreateGuildInstance(guildId);
+    GetOrCreateGuildInstance(player, guildId);
 
 
     return sGuildHouseInstanceMgr.EnterInstance(
