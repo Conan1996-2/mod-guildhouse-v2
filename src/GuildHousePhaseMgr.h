@@ -51,7 +51,7 @@ public:
 
 private:
 
-    GuildHouseInstanceMgr() = default;
+    GuildHousePhaseMgr() = default;
 
     std::unordered_map<uint32_t, GHInstanceRecord> _instances;
 
@@ -61,7 +61,7 @@ private:
 };
 
 
-#define sGuildHouseInstanceMgr GuildHouseInstanceMgr::Instance()
+#define GuildHousePhaseMgr GuildHousePhaseMgr::Instance()
 
 
 #endif
