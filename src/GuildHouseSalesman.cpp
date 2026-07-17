@@ -3,6 +3,7 @@
 #include "GuildHouseMgr.h"
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseDefines.h"
+#include "GuildHousePhaseMgr.h"
 
 #include "Player.h"
 #include "Creature.h"
@@ -13,158 +14,397 @@
 
 #include "Chat.h"
 
+
+
 namespace
 {
-    
-    enum GuildHouseSalesmanActions
-    {
-        ACTION_CATEGORY_START = 1000,
-        ACTION_CATALOG_START  = 2000
-    };
+
+enum GuildHouseSalesmanActions
+{
+    ACTION_CATEGORY_START = 1000,
+    ACTION_CATALOG_START  = 2000
+};
 
 }
 
-bool GuildHouseSalesman::ValidateSalesmanAccess(Player* player, Creature* creature)
+
+
+// =====================================================
+// Validate Access
+//
+// Salesman exists inside one guild bit phase.
+//
+// Rules:
+// - Player must have guild
+// - Guild must own house
+// - Player must be inside guild phase
+// - Creature must be inside same guild phase
+// - Player must be inside boundary
+//
+// =====================================================
+
+bool GuildHouseSalesman::ValidateSalesmanAccess(
+    Player* player,
+    Creature* creature)
 {
     if (!player || !creature)
         return false;
 
-    Guild* guild = player->GetGuild();
+
+
+    Guild* guild =
+        player->GetGuild();
+
+
+
     if (!guild)
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("You must belong to a guild.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "You must belong to a guild.");
+
         return false;
     }
 
-    if (guild->GetLeaderGUID() != player->GetGUID())
+
+
+    uint32 guildId =
+        guild->GetId();
+
+
+
+    if (!sGuildHouseMgr.HasGuildHouse(
+            guildId))
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("Only the Guild Master may use the Guild House salesman.");
-        return false;
-    }
-    
-    uint32 guildId = guild->GetId();
-    if (!sGuildHouseMgr.HasGuildHouse(guildId))
-    {
-        ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not own a Guild House.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "Your guild does not own a Guild House.");
+
         return false;
     }
 
+
+
     //
-    // Player must be inside guild instance
+    // Verify player phase
     //
-    uint32 instanceId = sGuildHouseMgr.GetGuildInstance(guildId);
-    if (player->GetInstanceId() != instanceId)
+
+    uint32 phaseMask =
+        sGuildHouseMgr.GetPhaseMask(
+            guildId);
+
+
+
+    if (!phaseMask)
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("You must be inside your Guild House instance.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "Guild House phase unavailable.");
+
         return false;
     }
 
-    //
-    // Player must be on GM Island
-    //
-    if (!GuildHouseUtil::IsInGuildHouse(player))
+
+
+    if (player->GetPhaseMask() != phaseMask)
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("Guild House items may only be purchased on GM Island.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "You must be inside your Guild House.");
+
         return false;
     }
 
+
+
     //
-    // Salesman must also be in correct instance
+    // Verify salesman phase
     //
-    if (creature->GetInstanceId() != instanceId)
+
+    if (creature->GetPhaseMask() != phaseMask)
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("This Guild House salesman is incorrectly instanced.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "This salesman belongs to another Guild House.");
+
         return false;
     }
 
+
+
     //
-    // Salesman must be on GM Island
+    // Boundary check
     //
-    if (creature->GetMapId() != GH_MAP)
+
+    if (!sGuildHouseMgr.IsInsideGuildHouseBoundary(
+            guildId,
+            player->GetPositionX(),
+            player->GetPositionY()))
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("Guild House salesman is not on GM Island.");
+        ChatHandler(
+            player->GetSession())
+            .PSendSysMessage(
+                "You are outside the Guild House area.");
+
         return false;
     }
+
+
 
     return true;
 }
 
-bool GuildHouseSalesman::OnGossipHello(Player* player, Creature* creature)
+
+
+
+// =====================================================
+// Gossip Hello
+// =====================================================
+
+bool GuildHouseSalesman::OnGossipHello(
+    Player* player,
+    Creature* creature)
 {
     ClearGossipMenuFor(player);
 
-    if (!ValidateSalesmanAccess(player, creature))
+
+
+    if (!ValidateSalesmanAccess(
+            player,
+            creature))
     {
         CloseGossipMenuFor(player);
         return true;
     }
 
-    SendCatalogMenu(player, creature);
+
+
+    SendCatalogMenu(
+        player,
+        creature);
+
+
+
     return true;
 }
 
-void GuildHouseSalesman::SendCatalogMenu(Player* player, Creature* creature)
+
+
+
+// =====================================================
+// Root Catalog Menu
+// =====================================================
+
+void GuildHouseSalesman::SendCatalogMenu(
+    Player* player,
+    Creature* creature)
 {
-    auto categories = sGuildHouseCatalogMgr.GetRootCategories();
-    for (const GHCategory* category : categories)
+    auto categories =
+        sGuildHouseCatalogMgr.GetRootCategories();
+
+
+
+    for (const GHCategory* category :
+         categories)
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, category->Name, GOSSIP_SENDER_MAIN, ACTION_CATEGORY_START + category->Id);
+        if (!category)
+            continue;
+
+
+
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            category->Name,
+            GOSSIP_SENDER_MAIN,
+            ACTION_CATEGORY_START +
+            category->Id);
     }
 
-    SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+
+
+    SendGossipMenuFor(
+        player,
+        DEFAULT_GOSSIP_MESSAGE,
+        creature->GetGUID());
 }
 
-bool GuildHouseSalesman::OnGossipSelect(Player* player, Creature* creature, uint32, uint32 action)
+
+
+
+
+// =====================================================
+// Gossip Selection
+// =====================================================
+
+bool GuildHouseSalesman::OnGossipSelect(
+    Player* player,
+    Creature* creature,
+    uint32,
+    uint32 action)
 {
     ClearGossipMenuFor(player);
 
-    if (!ValidateSalesmanAccess(player, creature))
+
+
+    if (!ValidateSalesmanAccess(
+            player,
+            creature))
     {
         CloseGossipMenuFor(player);
         return true;
     }
 
-    if (action >= ACTION_CATEGORY_START && action < ACTION_CATALOG_START)
+
+
+
+    if (action >= ACTION_CATEGORY_START &&
+        action < ACTION_CATALOG_START)
     {
-        uint32 categoryId = action - ACTION_CATEGORY_START;
-        SendCategoryMenu(player, creature, categoryId);
+        uint32 categoryId =
+            action -
+            ACTION_CATEGORY_START;
+
+
+
+        SendCategoryMenu(
+            player,
+            creature,
+            categoryId);
+
+
+
         return true;
     }
+
+
+
+
 
     if (action >= ACTION_CATALOG_START)
     {
-        uint32 catalogId = action - ACTION_CATALOG_START;
-        sGuildHouseMgr.PurchaseCatalogItem(player, catalogId);
+        uint32 catalogId =
+            action -
+            ACTION_CATALOG_START;
+
+
+
+        if (!sGuildHouseMgr.PurchaseCatalogItem(
+                player,
+                catalogId))
+        {
+            ChatHandler(
+                player->GetSession())
+                .PSendSysMessage(
+                    "Unable to purchase item.");
+        }
+
+
+
         CloseGossipMenuFor(player);
+
         return true;
     }
 
+
+
+
     CloseGossipMenuFor(player);
+
     return true;
 }
 
-void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, uint32 categoryId)
+
+
+
+
+// =====================================================
+// Category Menu
+// =====================================================
+
+void GuildHouseSalesman::SendCategoryMenu(
+    Player* player,
+    Creature* creature,
+    uint32 categoryId)
 {
+
     //
     // Child categories
     //
-    auto children = sGuildHouseCatalogMgr.GetChildCategories(categoryId);
-    for (const GHCategory* child : children)
+
+    auto children =
+        sGuildHouseCatalogMgr.GetChildCategories(
+            categoryId);
+
+
+
+    for (const GHCategory* child :
+         children)
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, child->Name, GOSSIP_SENDER_MAIN, ACTION_CATEGORY_START + child->Id);
+        if (!child)
+            continue;
+
+
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            child->Name,
+            GOSSIP_SENDER_MAIN,
+            ACTION_CATEGORY_START +
+            child->Id);
     }
 
+
+
+
     //
-    // Items
+    // Catalog items
     //
-    auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId);
-    for (const GHCatalog* catalog : catalogs)
+
+    auto catalogs =
+        sGuildHouseCatalogMgr.GetCatalogs(
+            categoryId);
+
+
+
+    for (const GHCatalog* catalog :
+         catalogs)
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, catalog->Name, GOSSIP_SENDER_MAIN, ACTION_CATALOG_START + catalog->CatalogId);
+        if (!catalog)
+            continue;
+
+
+
+        AddGossipItemFor(
+            player,
+            GOSSIP_ICON_CHAT,
+            catalog->Name,
+            GOSSIP_SENDER_MAIN,
+            ACTION_CATALOG_START +
+            catalog->CatalogId);
     }
 
-  SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+
+
+
+    SendGossipMenuFor(
+        player,
+        DEFAULT_GOSSIP_MESSAGE,
+        creature->GetGUID());
 }
+
+
+
+
+
+// =====================================================
+// Registration
+// =====================================================
 
 void AddSC_GuildHouseSalesman()
 {
