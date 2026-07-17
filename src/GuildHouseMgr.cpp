@@ -958,7 +958,7 @@ public:
 
     void OnStartup() override
     {
-        sGuildHouseInstanceMgr.Load();
+        sGuildHousePhaseMgr.Load();
 
         sGuildHouseMgr.Load();
 
