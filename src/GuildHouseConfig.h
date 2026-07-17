@@ -20,16 +20,13 @@ public:
     uint64_t GetObjectCost() const;
     uint64_t GetRefundPercent() const;
 
-
 private:
 
     GuildHouseConfig() = default;
 
-
     bool _enabled = false;
     bool _free = false;
     bool _loadAll = false;
-
 
     uint64_t _npcCost = 0;
     uint64_t _portalCost = 0;
@@ -37,8 +34,6 @@ private:
     uint64_t _refundPercent = 80;
 };
 
-
 #define sGuildHouseConfig GuildHouseConfig::Instance()
-
 
 #endif
