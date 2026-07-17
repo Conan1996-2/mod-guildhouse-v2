@@ -25,21 +25,34 @@ public:
     // Guild Phase Management
     // =====================================================
 
-    uint32_t GetGuildPhase(
-        uint32_t guildId) const;
+    bool HasPhase(uint32_t guildId) const;
 
 
-    uint32_t GetOrCreateGuildPhase(
+    const GHPhaseRecord* GetPhase(uint32_t guildId) const;
+
+
+    uint32_t GetPhaseMask(uint32_t guildId) const;
+
+
+    uint32_t CreatePhase(
+        uint32_t guildId,
+        uint32_t mapId);
+
+
+
+    bool EnterPhase(
         Player* player,
+        uint32_t guildId,
+        uint32_t mapId,
+        float x,
+        float y,
+        float z,
+        float o);
+
+
+
+    bool RemovePhase(
         uint32_t guildId);
-
-
-    bool EnterGuildHousePhase(
-        Player* player);
-
-
-    bool LeaveGuildHousePhase(
-        Player* player);
 
 
 
@@ -51,12 +64,15 @@ public:
         uint32_t guildId) const;
 
 
+
     const GHGuildHouse* GetGuildHouse(
         uint32_t guildId) const;
 
 
+
     const GHLocation* GetGuildLocation(
         uint32_t guildId) const;
+
 
 
     bool CreateGuildHouse(
@@ -66,8 +82,10 @@ public:
         uint32_t locationId);
 
 
+
     bool SellGuildHouse(
         uint32_t guildId);
+
 
 
 
@@ -80,6 +98,7 @@ public:
 
 
 
+
     // =====================================================
     // Locations
     // =====================================================
@@ -88,7 +107,9 @@ public:
         uint32_t locationId) const;
 
 
+
     std::vector<const GHLocation*> GetLocations() const;
+
 
 
 
@@ -103,6 +124,7 @@ public:
 
 
 
+
     // =====================================================
     // Catalog Purchasing
     // =====================================================
@@ -110,6 +132,7 @@ public:
     bool PurchaseCatalogItem(
         Player* player,
         uint32_t catalogId);
+
 
 
 
@@ -121,9 +144,11 @@ public:
         uint32_t guildId) const;
 
 
+
     bool CreatePermanentSalesman(
         Player* player,
         uint32_t entry);
+
 
 
     void RecordSalesmanSpawn(
@@ -138,6 +163,7 @@ public:
 
 
 
+
     // =====================================================
     // Assets
     // =====================================================
@@ -146,9 +172,11 @@ public:
         uint32_t guildId) const;
 
 
+
     const GHGuildAsset* GetAsset(
         uint32_t guildId,
         uint32_t assetId) const;
+
 
 
     GHGuildAsset* GetAsset(
@@ -162,14 +190,17 @@ public:
         uint32_t assetId);
 
 
+
     bool MoveAsset(
         Player* player,
         uint32_t assetId);
 
 
+
     bool StoreAsset(
         Player* player,
         uint32_t assetId);
+
 
 
     bool SellAsset(
@@ -178,7 +209,9 @@ public:
 
 
 
+
 private:
+
 
     GuildHouseMgr() = default;
 
@@ -188,7 +221,17 @@ private:
     // Guild Houses
     // =====================================================
 
-    std::unordered_map<uint32_t, GHGuildHouse> _houses;
+    std::unordered_map<uint32_t, GHGuildHouse>
+        _houses;
+
+
+
+    // =====================================================
+    // Guild Phases
+    // =====================================================
+
+    std::unordered_map<uint32_t, GHPhaseRecord>
+        _phases;
 
 
 
@@ -196,7 +239,8 @@ private:
     // Locations
     // =====================================================
 
-    std::unordered_map<uint32_t, GHLocation> _locations;
+    std::unordered_map<uint32_t, GHLocation>
+        _locations;
 
 };
 
