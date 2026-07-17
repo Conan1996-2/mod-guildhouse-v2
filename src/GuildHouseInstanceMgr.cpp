@@ -95,7 +95,12 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
     if (HasInstance(guildId))
         return GetInstanceId(guildId);
 
-
+LOG_INFO(
+    "module",
+    "Creating Guild House map {} instanceable={}",
+    mapId,
+    sMapStore.LookupEntry(mapId)->Instanceable());
+    
     Map* map = sMapMgr->CreateMap(
         mapId,
         player);
