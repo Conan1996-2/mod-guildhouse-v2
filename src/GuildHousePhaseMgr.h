@@ -1,5 +1,5 @@
-#ifndef MOD_GUILDHOUSE_INSTANCE_MGR_H
-#define MOD_GUILDHOUSE_INSTANCE_MGR_H
+#ifndef MOD_GUILDHOUSE_PHASE_MGR_H
+#define MOD_GUILDHOUSE_PHASE_MGR_H
 
 #include <cstdint>
 #include <unordered_map>
@@ -8,15 +8,15 @@
 
 class Player;
 
-class GuildHouseInstanceMgr
+class GuildHousePhaseMgr
 {
 public:
 
-    static GuildHouseInstanceMgr& Instance();
+    static GuildHousePhaseMgr& Instance();
 
 
     /*
-        Instance lifecycle
+        Phase lifecycle
     */
 
     void Load();
