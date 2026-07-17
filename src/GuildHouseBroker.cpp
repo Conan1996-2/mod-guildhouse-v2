@@ -108,6 +108,8 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
     {
         uint32 locationId = action - ACTION_BUY_START;
 
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse A.");
+
         const GHLocation* location = sGuildHouseMgr.GetLocation(locationId);
 
         if (!location)
@@ -116,11 +118,15 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             return true;
         }
 
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse B.");
+
         if (sGuildHouseMgr.HasGuildHouse(guildId))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Your guild already owns a Guild House.");
             return true;
         }
+
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse C.");
 
         if (!IsGuildMaster(player))
         {
@@ -128,19 +134,23 @@ bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* creature, uint32
             return true;
         }
 
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse D.");
+
         if (!player->HasEnoughMoney(uint(location->Price)))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Your guild does not have enough gold.");
             return true;
         }
 
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse E.");
+
         if (!sGuildHouseMgr.CreateGuildHouse(player, guildId, player->GetGUID().GetCounter(), locationId))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Failed to create Guild House.");
             return true;
         }
-        
-        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse.");
+
+        ChatHandler(player->GetSession()).PSendSysMessage("Trying to create guildhouse F.");
         
         uint32 instanceId = sGuildHouseMgr.GetOrCreateGuildInstance(player, guildId);
 
