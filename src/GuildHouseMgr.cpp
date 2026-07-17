@@ -441,6 +441,9 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
         return false;
 
     uint32_t guildId = player->GetGuildId();
+    if(HasSalesman(guildId))
+        return false;
+
     uint32_t phaseMask = GetPhaseMask(guildId);
     if(!phaseMask)
         return false;
