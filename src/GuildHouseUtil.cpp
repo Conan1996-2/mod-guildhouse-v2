@@ -1,11 +1,12 @@
-#include "GuildHouseDefines.h"
+#include "GuildHouseUtil.h"
 
 #include "GuildHouseMgr.h"
+#include "GuildHousePhaseMgr.h"
+
 #include "GuildHouseTypes.h"
 
-#include "Player.h"
 #include "Guild.h"
-#include "Chat.h"
+#include "Player.h"
 
 
 namespace GuildHouseUtil
@@ -33,7 +34,6 @@ bool IsInGuildHouse(Player* player)
     const GHGuildHouse* house =
         sGuildHouseMgr.GetGuildHouse(guildId);
 
-
     if (!house)
         return false;
 
@@ -41,10 +41,8 @@ bool IsInGuildHouse(Player* player)
     const GHLocation* location =
         sGuildHouseMgr.GetLocation(house->LocationId);
 
-
     if (!location)
         return false;
-
 
 
     //
@@ -54,13 +52,11 @@ bool IsInGuildHouse(Player* player)
         return false;
 
 
-
     //
     // Correct coordinates
     //
     float x = player->GetPositionX();
     float y = player->GetPositionY();
-
 
     if (x < location->MinX ||
         x > location->MaxX ||
@@ -71,38 +67,27 @@ bool IsInGuildHouse(Player* player)
     }
 
 
-
     //
-    // Correct guild instance
+    // Correct guild phase
     //
-    uint32 instanceId = player->GetInstanceId();
-
-
-    if (!instanceId)
-        return false;
-
-
-    return IsGuildHouseInstance(
-        guildId,
-        instanceId);
+    return sGuildHousePhaseMgr.IsMember(player);
 }
 
 
 
 // =====================================================
-// Guild Instance Validation
+// Guild Phase Validation
 // =====================================================
 
-bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId)
+bool IsGuildHousePhase(uint32_t guildId, uint32_t phaseMask)
 {
-    if (!instanceId)
+    uint32_t guildPhase =
+        sGuildHousePhaseMgr.GetPhaseMask(guildId);
+
+    if (!guildPhase)
         return false;
 
-
-    return sGuildHouseMgr.IsGuildInstance(
-        guildId,
-        instanceId);
+    return (phaseMask & guildPhase) != 0;
 }
-
 
 }
