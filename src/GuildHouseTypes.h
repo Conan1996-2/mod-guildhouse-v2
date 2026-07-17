@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <unordered_set>
 
 #include "GuildHouseDefines.h"
 
@@ -30,7 +29,7 @@ struct GHCategory
 // =====================================================
 // Catalog Component
 //
-// Individual spawned component belonging to a catalog item.
+// Individual object belonging to a catalog item.
 // =====================================================
 
 struct GHCatalogAsset
@@ -41,23 +40,29 @@ struct GHCatalogAsset
     uint32_t Entry = 0;
     uint32_t DisplayId = 0;
 
+
     float Scale = 1.0f;
 
 
-    GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+    GHSpawnFlags SpawnFlags =
+        GH_SPAWN_NONE;
 
-    GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
+    GHBehaviorFlags BehaviorFlags =
+        GH_BEHAVIOR_NONE;
 
-    GHScriptType ScriptType = GH_SCRIPT_NONE;
+    GHScriptType ScriptType =
+        GH_SCRIPT_NONE;
 
 
     std::string ScriptData;
+
 
 
     float XOffset = 0.0f;
     float YOffset = 0.0f;
     float ZOffset = 0.0f;
     float OOffset = 0.0f;
+
 
 
     uint32_t TargetMap = 0;
@@ -68,7 +73,9 @@ struct GHCatalogAsset
     float TargetO = 0.0f;
 
 
+
     uint32_t ChildCatalogId = 0;
+
 
     uint16_t SortOrder = 0;
 };
@@ -77,8 +84,6 @@ struct GHCatalogAsset
 
 // =====================================================
 // Catalog Item
-//
-// What the salesman sells.
 // =====================================================
 
 struct GHCatalog
@@ -91,12 +96,16 @@ struct GHCatalog
     std::string Name;
 
 
-    GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+    GHSpawnFlags SpawnFlags =
+        GH_SPAWN_NONE;
 
-    GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
+
+    GHBehaviorFlags BehaviorFlags =
+        GH_BEHAVIOR_NONE;
 
 
     bool Enabled = false;
+
 
 
     std::vector<GHCatalogAsset> Components;
@@ -107,23 +116,28 @@ struct GHCatalog
 // =====================================================
 // Purchased Guild Asset
 //
-// Stored in guildhouse_asset.
+// Stored in guildhouse_asset
 // =====================================================
 
 struct GHGuildAsset
 {
     uint32_t AssetId = 0;
 
+
     uint32_t GuildId = 0;
 
+
     uint32_t CatalogId = 0;
+
 
 
     uint16_t LayoutId = 0;
 
 
+
     GHAssetStatus Status =
         GH_ASSET_PURCHASED;
+
 
 
     float X = 0.0f;
@@ -137,10 +151,9 @@ struct GHGuildAsset
 // =====================================================
 // Guild Phase Record
 //
-// Runtime phase ownership.
+// Replaces Guild Instance.
 //
 // One phase belongs to one guild.
-// No instance system.
 // =====================================================
 
 struct GHPhaseRecord
@@ -159,40 +172,22 @@ struct GHPhaseRecord
     float Y = 0.0f;
     float Z = 0.0f;
     float O = 0.0f;
-
-
-
-    float MinX = 0.0f;
-    float MaxX = 0.0f;
-
-    float MinY = 0.0f;
-    float MaxY = 0.0f;
-
-
-
-    /*
-        Runtime only.
-
-        Tracks guild members currently
-        inside the active phase.
-    */
-
-    std::unordered_set<uint64_t> Members;
 };
 
 
 
 // =====================================================
-// Phase Spawn Registry
+// Permanent Spawn Registry
 //
-// Runtime spawned objects.
+// Stored in guildhouse_spawn
 //
-// Replaces guildhouse_instance_object.
+// Spawns are now phase based.
 // =====================================================
 
-struct GHPhaseObject
+struct GHInstance
 {
     uint32_t SpawnId = 0;
+
 
 
     uint32_t GuildId = 0;
@@ -200,7 +195,9 @@ struct GHPhaseObject
 
     uint32_t AssetId = 0;
 
+
     uint32_t CatalogId = 0;
+
 
 
     uint32_t Guid = 0;
@@ -246,6 +243,10 @@ struct GHGuildHouse
 
 
 
+    uint32_t PhaseMask = 0;
+
+
+
     std::vector<GHGuildAsset> Assets;
 };
 
@@ -253,8 +254,6 @@ struct GHGuildHouse
 
 // =====================================================
 // Guild House Location
-//
-// Available purchase locations.
 // =====================================================
 
 struct GHLocation
@@ -263,6 +262,7 @@ struct GHLocation
 
 
     std::string Name;
+
 
 
     uint32_t MapId = 0;
@@ -288,6 +288,7 @@ struct GHLocation
     uint64_t Price = 0;
 
 
+
     bool Enabled = false;
 };
 
@@ -309,7 +310,6 @@ namespace GuildHouseUtil
              static_cast<U>(flag)) != 0;
     }
 }
-
 
 
 #endif
