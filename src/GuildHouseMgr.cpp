@@ -456,8 +456,31 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     if(!phaseMask)
         return false;
 
-    WorldDatabase.Execute("INSERT INTO creature (id,map,phaseMask,position_x,position_y,position_z,orientation)"
-        "VALUES ({},{},{},{},{},{},{})", entry, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+    //WorldDatabase.Execute("INSERT INTO creature (id,map,phaseMask,position_x,position_y,position_z,orientation)"
+    //    "VALUES ({},{},{},{},{},{},{})", entry, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+
+    Creature* creature = new Creature();
+    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), player->GetPhaseMaskForSpawn(), entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+    {
+        delete creature;
+        return false;
+    }
+
+   creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), player->GetPhaseMaskForSpawn());
+    
+    uint32 spawnId = creature->GetSpawnId();
+    creature->CleanupsBeforeDelete();
+    delete creature;
+
+    creature = new Creature();
+    if (!creature->LoadCreatureFromDB(spawnId, player->GetMap()))
+    {
+        handler->PSendSysMessage("Unable to spawn Guild House Salesman");
+        delete creature;
+        return false;
+    }
+
+    sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
 
     return true;
 }
