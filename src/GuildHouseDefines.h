@@ -7,40 +7,7 @@
 #include "Guild.h"
 
 // =====================================================
-// Core Constants
-// =====================================================
-
-// Default Guild House location
-constexpr uint32_t GH_MAP = 1;
-constexpr float GH_X = 16222.57f;
-constexpr float GH_Y = 16265.91f;
-constexpr float GH_Z = 13.21f;
-constexpr float GH_O = 0.0f;
-
-// Other areas: Azshara Crater x=128, y=135, z=236.1, map=37
-// horde  Valormok 88.38 915.82 338.12 37
-// either Talrendis Outpost 1144.43 240 353 37
-
-
-// =====================================================
-// GM Island Placement Boundary
-//
-// Salesman and Guild House objects may only be placed
-// inside this area.
-// =====================================================
-
-constexpr float GH_GM_ISLAND_MIN_X = 16000.0f;
-constexpr float GH_GM_ISLAND_MAX_X = 16500.0f;
-constexpr float GH_GM_ISLAND_MIN_Y = 16000.0f;
-constexpr float GH_GM_ISLAND_MAX_Y = 16500.0f;
-
-
-// =====================================================
 // Spawn Flags
-//
-// Defines WHAT permanent world object is created.
-//
-// Stored in database as INT UNSIGNED.
 // =====================================================
 
 enum GHSpawnFlags : uint32_t
@@ -53,13 +20,8 @@ enum GHSpawnFlags : uint32_t
     GH_SPAWN_TRIGGER     = 1 << 3
 };
 
-
 // =====================================================
 // Behavior Flags
-//
-// Defines WHAT the object does.
-//
-// Stored in database as INT UNSIGNED.
 // =====================================================
 
 enum GHBehaviorFlags : uint32_t
@@ -87,11 +49,8 @@ enum GHBehaviorFlags : uint32_t
     GH_FLAG_STARTER = 1 << 15
 };
 
-
 // =====================================================
-// Persistent Asset Status
-//
-// Stored in guildhouse_asset.status
+// Asset Status
 // =====================================================
 
 enum GHAssetStatus : uint8_t
@@ -102,11 +61,8 @@ enum GHAssetStatus : uint8_t
     GH_ASSET_DISABLED  = 3
 };
 
-
 // =====================================================
 // Script Types
-//
-// Used for special permanent objects.
 // =====================================================
 
 enum GHScriptType : uint32_t
@@ -120,15 +76,13 @@ enum GHScriptType : uint32_t
     GH_SCRIPT_CUSTOM
 };
 
-
 // =====================================================
 // Utility Helpers
 // =====================================================
 
 namespace GuildHouseUtil
 {
-
-    bool IsGuildHouseInstance(uint32 guildId, uint32 instanceId);
+    bool IsGuildHousePhase(uint32_t guildId, uint32_t phaseMask);
 
     bool IsInGuildHouse(Player* player);
 
@@ -169,7 +123,6 @@ namespace GuildHouseUtil
     {
         return IsGuildMaster(player) && IsInGuildHouse(player);
     }
-
 }
 
 #endif
