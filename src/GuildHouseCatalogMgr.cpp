@@ -77,7 +77,7 @@ void GuildHouseCatalogMgr::Load()
     //
     // Catalog Components
     //
-    if (QueryResult result = WorldDatabase.Query("SELECT componentId,catalogId,spawnFlags,behaviorFlags,entry,displayId,scale,scriptType,scriptData,xOffset,yOffset,zOffset,oOffset,targetMap,targetX,targetY,targetZ,targetO,childCatalogId,sortOrder "
+    if (QueryResult result = WorldDatabase.Query("SELECT componentId,catalogId,spawnFlags,behaviorFlags,entryId,displayId,scale,scriptType,scriptData,xOffset,yOffset,zOffset,oOffset,targetMapId,targetX,targetY,targetZ,targetO,childCatalogId,sortOrder "
         "FROM guildhouse_catalog_asset ORDER BY sortOrder"))
     {
         do
