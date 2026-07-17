@@ -2,7 +2,6 @@
 
 #include "GuildHouseMgr.h"
 #include "GuildHousePhaseMgr.h"
-#include "GuildHouseInstanceMgr.h"
 #include "GuildHouseSpawner.h"
 
 
@@ -16,8 +15,6 @@ void GuildHouseWorldScript::OnStartup()
     sGuildHouseMgr.Load();
 
     sGuildHousePhaseMgr.Load();
-
-    sGuildHouseInstanceMgr.Load();
 
 
     //
