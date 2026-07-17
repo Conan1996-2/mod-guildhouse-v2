@@ -1,4 +1,4 @@
-#include "GuildHouseInstanceMgr.h"
+#include "GuildHousePhaseMgr.h"
 
 #include "DatabaseEnv.h"
 #include "QueryResult.h"
@@ -7,11 +7,11 @@
 #include "MapMgr.h"
 #include "Map.h"
 
-GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
+GuildHousePhaseMgr& GuildHousePhaseMgr::Instance()
 {
-    static GuildHouseInstanceMgr instance;
+    static GuildHousePhaseMgr phase;
 
-    return instance;
+    return phase;
 }
 
 
@@ -22,7 +22,7 @@ GuildHouseInstanceMgr& GuildHouseInstanceMgr::Instance()
 // One instance belongs to one guild.
 // =====================================================
 
-void GuildHouseInstanceMgr::Load()
+void GuildHousePhaseMgr::Load()
 {
     _instances.clear();
     _guildInstances.clear();
@@ -72,7 +72,7 @@ void GuildHouseInstanceMgr::Load()
 
     LOG_INFO(
         "server.loading",
-        "GuildHouseInstanceMgr loaded {} instances",
+        "GuildHousePhaseMgr loaded {} instances",
         _instances.size());
 }
 
@@ -84,7 +84,7 @@ void GuildHouseInstanceMgr::Load()
 // One instance per guild.
 // =====================================================
 
-uint32_t GuildHouseInstanceMgr::CreateInstance(
+uint32_t GuildHousePhaseMgr::CreateInstance(
     Player* player,
     uint32_t guildId,
     uint32_t mapId)
@@ -188,7 +188,7 @@ uint32_t GuildHouseInstanceMgr::CreateInstance(
 // Allows the member to enter instance.
 // =====================================================
 
-bool GuildHouseInstanceMgr::EnterInstance(
+bool GuildHousePhaseMgr::EnterInstance(
     Player* player,
     uint32_t guildId,
     uint32_t instanceId,
@@ -239,7 +239,7 @@ bool GuildHouseInstanceMgr::EnterInstance(
 // Does not remove purchased assets.
 // =====================================================
 
-bool GuildHouseInstanceMgr::RemoveInstance(
+bool GuildHousePhaseMgr::RemoveInstance(
     uint32_t guildId)
 {
     auto itr = _guildInstances.find(guildId);
@@ -254,7 +254,7 @@ bool GuildHouseInstanceMgr::RemoveInstance(
 
 
 
-bool GuildHouseInstanceMgr::RemoveInstanceById(
+bool GuildHousePhaseMgr::RemoveInstanceById(
     uint32_t instanceId)
 {
     auto itr = _instances.find(instanceId);
@@ -300,7 +300,7 @@ bool GuildHouseInstanceMgr::RemoveInstanceById(
 // Lookup
 // =====================================================
 
-uint32_t GuildHouseInstanceMgr::GetInstanceId(
+uint32_t GuildHousePhaseMgr::GetInstanceId(
     uint32_t guildId) const
 {
     auto itr = _guildInstances.find(guildId);
@@ -314,7 +314,7 @@ uint32_t GuildHouseInstanceMgr::GetInstanceId(
 
 
 
-uint32_t GuildHouseInstanceMgr::GetGuildId(
+uint32_t GuildHousePhaseMgr::GetGuildId(
     uint32_t instanceId) const
 {
     auto itr = _instanceGuilds.find(instanceId);
@@ -328,7 +328,7 @@ uint32_t GuildHouseInstanceMgr::GetGuildId(
 
 
 
-bool GuildHouseInstanceMgr::HasInstance(
+bool GuildHousePhaseMgr::HasInstance(
     uint32_t guildId) const
 {
     return _guildInstances.find(guildId)
@@ -337,7 +337,7 @@ bool GuildHouseInstanceMgr::HasInstance(
 
 
 
-bool GuildHouseInstanceMgr::IsGuildInstance(
+bool GuildHousePhaseMgr::IsGuildInstance(
     uint32_t guildId,
     uint32_t instanceId) const
 {
@@ -352,7 +352,7 @@ bool GuildHouseInstanceMgr::IsGuildInstance(
 
 
 
-const GHInstanceRecord* GuildHouseInstanceMgr::GetInstance(
+const GHInstanceRecord* GuildHousePhaseMgr::GetInstance(
     uint32_t instanceId) const
 {
     auto itr = _instances.find(instanceId);
