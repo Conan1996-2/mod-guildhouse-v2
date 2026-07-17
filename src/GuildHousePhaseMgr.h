@@ -6,21 +6,26 @@
 
 #include "GuildHouseTypes.h"
 
+
 class Player;
+
 
 
 class GuildHousePhaseMgr
 {
 public:
 
+
     static GuildHousePhaseMgr& Instance();
 
 
-    /*
-        Phase lifecycle
-    */
+
+    // =====================================================
+    // Lifecycle
+    // =====================================================
 
     void Load();
+
 
 
     uint32_t CreatePhase(
@@ -28,26 +33,31 @@ public:
         uint32_t locationId);
 
 
+
     bool RemovePhase(
         uint32_t guildId);
 
 
 
-    /*
-        Player phase handling
-    */
+
+    // =====================================================
+    // Player phase handling
+    // =====================================================
 
     bool EnterPhase(
         Player* player,
         uint32_t guildId);
 
 
+
     bool LeavePhase(
         Player* player);
 
 
+
     bool IsMember(
         Player* player) const;
+
 
 
     bool CheckBoundary(
@@ -55,48 +65,37 @@ public:
 
 
 
-    /*
-        Lookup
-    */
 
-    uint32_t GetPhaseMask(
-        uint32_t guildId) const;
-
+    // =====================================================
+    // Lookup
+    // =====================================================
 
     bool HasPhase(
         uint32_t guildId) const;
 
 
-    const GHPhaseRecord* GetPhase(
+
+    uint32_t GetPhaseMask(
         uint32_t guildId) const;
+
+
+
+    const GHPhaseRecord*
+    GetPhase(
+        uint32_t guildId) const;
+
 
 
 
 private:
 
+
     GuildHousePhaseMgr() = default;
 
 
-    /*
-        guildId -> phase record
-    */
-
-    std::unordered_map<uint32_t, GHPhaseRecord> _phases;
-
-
-
-    /*
-        Generates free bit phase mask
-
-        1
-        2
-        4
-        8
-        16
-        ...
-    */
 
     uint32_t GeneratePhaseMask();
+
 
 
     bool AddMember(
@@ -104,14 +103,26 @@ private:
         uint64_t guid);
 
 
+
     bool RemoveMember(
         uint32_t guildId,
         uint64_t guid);
+
+
+
+private:
+
+
+    // guildId -> phase
+    std::unordered_map<uint32_t, GHPhaseRecord>
+        _phases;
+
 };
 
 
 
 #define sGuildHousePhaseMgr GuildHousePhaseMgr::Instance()
+
 
 
 #endif
