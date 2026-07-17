@@ -10,11 +10,14 @@
 class Player;
 
 
+
 class GuildHouseMgr
 {
 public:
 
+
     static GuildHouseMgr& Instance();
+
 
 
     void Load();
@@ -22,32 +25,34 @@ public:
 
 
     // =====================================================
-    // Guild Phase Management
+    // Phase
     // =====================================================
 
-    bool HasPhase(uint32_t guildId) const;
+    bool HasPhase(
+        uint32_t guildId) const;
 
 
-    const GHPhaseRecord* GetPhase(uint32_t guildId) const;
+
+    const GHPhaseRecord*
+    GetPhase(
+        uint32_t guildId) const;
 
 
-    uint32_t GetPhaseMask(uint32_t guildId) const;
+
+    uint32_t GetPhaseMask(
+        uint32_t guildId) const;
+
 
 
     uint32_t CreatePhase(
         uint32_t guildId,
-        uint32_t mapId);
+        uint32_t locationId);
 
 
 
     bool EnterPhase(
         Player* player,
-        uint32_t guildId,
-        uint32_t mapId,
-        float x,
-        float y,
-        float z,
-        float o);
+        uint32_t guildId);
 
 
 
@@ -56,8 +61,9 @@ public:
 
 
 
+
     // =====================================================
-    // Guild House Ownership
+    // Ownership
     // =====================================================
 
     bool HasGuildHouse(
@@ -65,12 +71,14 @@ public:
 
 
 
-    const GHGuildHouse* GetGuildHouse(
+    const GHGuildHouse*
+    GetGuildHouse(
         uint32_t guildId) const;
 
 
 
-    const GHLocation* GetGuildLocation(
+    const GHLocation*
+    GetGuildLocation(
         uint32_t guildId) const;
 
 
@@ -90,7 +98,7 @@ public:
 
 
     // =====================================================
-    // Guild House Teleport
+    // Teleport
     // =====================================================
 
     bool TeleportToGuildHouse(
@@ -103,18 +111,20 @@ public:
     // Locations
     // =====================================================
 
-    const GHLocation* GetLocation(
+    const GHLocation*
+    GetLocation(
         uint32_t locationId) const;
 
 
 
-    std::vector<const GHLocation*> GetLocations() const;
+    std::vector<const GHLocation*>
+    GetLocations() const;
 
 
 
 
     // =====================================================
-    // Boundary Validation
+    // Boundary
     // =====================================================
 
     bool IsInsideGuildHouseBoundary(
@@ -126,7 +136,7 @@ public:
 
 
     // =====================================================
-    // Catalog Purchasing
+    // Catalog
     // =====================================================
 
     bool PurchaseCatalogItem(
@@ -168,18 +178,21 @@ public:
     // Assets
     // =====================================================
 
-    std::vector<const GHGuildAsset*> GetPurchasedAssets(
+    std::vector<const GHGuildAsset*>
+    GetPurchasedAssets(
         uint32_t guildId) const;
 
 
 
-    const GHGuildAsset* GetAsset(
+    const GHGuildAsset*
+    GetAsset(
         uint32_t guildId,
         uint32_t assetId) const;
 
 
 
-    GHGuildAsset* GetAsset(
+    GHGuildAsset*
+    GetAsset(
         uint32_t guildId,
         uint32_t assetId);
 
@@ -209,7 +222,6 @@ public:
 
 
 
-
 private:
 
 
@@ -217,27 +229,10 @@ private:
 
 
 
-    // =====================================================
-    // Guild Houses
-    // =====================================================
-
     std::unordered_map<uint32_t, GHGuildHouse>
         _houses;
 
 
-
-    // =====================================================
-    // Guild Phases
-    // =====================================================
-
-    std::unordered_map<uint32_t, GHPhaseRecord>
-        _phases;
-
-
-
-    // =====================================================
-    // Locations
-    // =====================================================
 
     std::unordered_map<uint32_t, GHLocation>
         _locations;
@@ -247,6 +242,7 @@ private:
 
 
 #define sGuildHouseMgr GuildHouseMgr::Instance()
+
 
 
 #endif
