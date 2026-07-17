@@ -111,7 +111,7 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
 {
     uint32 guid = sObjectMgr->GenerateCreatureSpawnId();
 
-    WorldDatabase.Execute(INSERT INTO creature (guid,id,map,phaseMask,position_x,position_y,position_z,orientation) VALUES ({},{},{},{},{},{},{},{})", guid, entry, mapId, phaseMask, x, y, z, o);
+    WorldDatabase.Execute("INSERT INTO creature (guid,id,map,phaseMask,position_x,position_y,position_z,orientation) VALUES ({},{},{},{},{},{},{},{})", guid, entry, mapId, phaseMask, x, y, z, o);
 
     //CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,positionX,positionY,positionZ,orientation) "
     //    "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 0, mapId, phaseMask, x, y, z, o);
