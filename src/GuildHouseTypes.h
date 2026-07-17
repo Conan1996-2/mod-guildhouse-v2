@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #include "GuildHouseDefines.h"
+
 
 // =====================================================
 // Catalog Category
@@ -24,6 +26,7 @@ struct GHCategory
 };
 
 
+
 // =====================================================
 // Catalog Component
 //
@@ -40,9 +43,13 @@ struct GHCatalogAsset
 
     float Scale = 1.0f;
 
+
     GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+
     GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
+
     GHScriptType ScriptType = GH_SCRIPT_NONE;
+
 
     std::string ScriptData;
 
@@ -67,6 +74,7 @@ struct GHCatalogAsset
 };
 
 
+
 // =====================================================
 // Catalog Item
 //
@@ -76,17 +84,24 @@ struct GHCatalogAsset
 struct GHCatalog
 {
     uint32_t CatalogId = 0;
+
     uint32_t CategoryId = 0;
+
 
     std::string Name;
 
+
     GHSpawnFlags SpawnFlags = GH_SPAWN_NONE;
+
     GHBehaviorFlags BehaviorFlags = GH_BEHAVIOR_NONE;
+
 
     bool Enabled = false;
 
+
     std::vector<GHCatalogAsset> Components;
 };
+
 
 
 // =====================================================
@@ -98,12 +113,17 @@ struct GHCatalog
 struct GHGuildAsset
 {
     uint32_t AssetId = 0;
+
     uint32_t GuildId = 0;
+
     uint32_t CatalogId = 0;
+
 
     uint16_t LayoutId = 0;
 
-    GHAssetStatus Status = GH_ASSET_PURCHASED;
+
+    GHAssetStatus Status =
+        GH_ASSET_PURCHASED;
 
 
     float X = 0.0f;
@@ -113,56 +133,99 @@ struct GHGuildAsset
 };
 
 
+
 // =====================================================
-// Guild Instance Record
+// Guild Phase Record
 //
-// One instance belongs to one guild.
-// Stored in guildhouse_instance.
+// Runtime phase ownership.
+//
+// One phase belongs to one guild.
+// No instance system.
 // =====================================================
 
 struct GHPhaseRecord
 {
     uint32_t GuildId = 0;
-    uint32_t PhaseMask;
-    uint32_t MapId;
-
-    float X = 0.0f;
-    float Y = 0.0f;
-    float Z = 0.0f;
-    float O = 0.0f;
-};
 
 
-// =====================================================
-// Permanent Spawn Registry
-//
-// Stored in guildhouse_spawn.
-// =====================================================
-
-struct GHInstance
-{
-    uint32_t SpawnId = 0;
-
-    uint32_t InstanceId = 0;
-    uint32_t GuildId = 0;
-
-    uint32_t AssetId = 0;
-    uint32_t CatalogId = 0;
-
-    uint32_t Guid = 0;
-
-
-    GHSpawnFlags Type = GH_SPAWN_NONE;
+    uint32_t PhaseMask = 0;
 
 
     uint32_t MapId = 0;
 
 
+
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
+
+
+
+    float MinX = 0.0f;
+    float MaxX = 0.0f;
+
+    float MinY = 0.0f;
+    float MaxY = 0.0f;
+
+
+
+    /*
+        Runtime only.
+
+        Tracks guild members currently
+        inside the active phase.
+    */
+
+    std::unordered_set<uint64_t> Members;
+};
+
+
+
+// =====================================================
+// Phase Spawn Registry
+//
+// Runtime spawned objects.
+//
+// Replaces guildhouse_instance_object.
+// =====================================================
+
+struct GHPhaseObject
+{
+    uint32_t SpawnId = 0;
+
+
+    uint32_t GuildId = 0;
+
+
+    uint32_t AssetId = 0;
+
+    uint32_t CatalogId = 0;
+
+
+    uint32_t Guid = 0;
+
+
+
+    GHSpawnFlags Type =
+        GH_SPAWN_NONE;
+
+
+
+    uint32_t MapId = 0;
+
+
+
+    uint32_t PhaseMask = 0;
+
+
+
     float X = 0.0f;
     float Y = 0.0f;
     float Z = 0.0f;
     float O = 0.0f;
 };
+
 
 
 // =====================================================
@@ -174,15 +237,18 @@ struct GHInstance
 struct GHGuildHouse
 {
     uint32_t GuildId = 0;
+
+
     uint32_t OwnerGuid = 0;
+
 
     uint32_t LocationId = 0;
 
-    uint32_t InstanceId = 0;
 
 
     std::vector<GHGuildAsset> Assets;
 };
+
 
 
 // =====================================================
@@ -195,9 +261,12 @@ struct GHLocation
 {
     uint32_t Id = 0;
 
+
     std::string Name;
 
+
     uint32_t MapId = 0;
+
 
 
     float X = 0.0f;
@@ -206,11 +275,14 @@ struct GHLocation
     float O = 0.0f;
 
 
+
     float MinX = 0.0f;
     float MaxX = 0.0f;
 
+
     float MinY = 0.0f;
     float MaxY = 0.0f;
+
 
 
     uint64_t Price = 0;
@@ -218,6 +290,7 @@ struct GHLocation
 
     bool Enabled = false;
 };
+
 
 
 // =====================================================
@@ -231,9 +304,12 @@ namespace GuildHouseUtil
     {
         using U = std::underlying_type_t<T>;
 
-        return (static_cast<U>(value) & static_cast<U>(flag)) != 0;
+        return
+            (static_cast<U>(value) &
+             static_cast<U>(flag)) != 0;
     }
 }
+
 
 
 #endif
