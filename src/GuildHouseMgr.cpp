@@ -108,9 +108,7 @@ bool GuildHouseMgr::CreateGuildHouse(Player* player, uint32_t guildId, uint32_t 
     if (!phaseMask)
     {
         CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}", guildId);
-
         _houses.erase(guildId);
-
         return false;
     }
 
@@ -130,9 +128,7 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
 
     uint32_t phaseMask = GetPhaseMask(guildId);
     if (phaseMask)
-    {
         sGuildHouseSpawner.RemoveAllAssets(guildId);
-    }
 
     CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId={}", guildId);
@@ -169,9 +165,7 @@ bool GuildHouseMgr::TeleportToGuildHouse(Player* player)
     if (!HasPhase(guildId))
     {
         if (!CreatePhase(guildId, house->LocationId))
-        {
             return false;
-        }
     }
 
     return EnterPhase(player, guildId);
@@ -227,7 +221,6 @@ void GuildHouseMgr::Load()
     // -------------------------------------------------
     // Locations
     // -------------------------------------------------
-
     if(QueryResult result = WorldDatabase.Query("SELECT id,name,mapId,positionX,positionY,positionZ,orientation,minX,maxX,minY,maxY,price,enabled FROM guildhouse_locations"))
     {
         do
@@ -279,9 +272,7 @@ void GuildHouseMgr::Load()
     sGuildHousePhaseMgr.Load();
 
     for(auto& [guildId, house] : _houses)
-    {
         house.PhaseMask = GetPhaseMask(guildId);
-    }
 
     // -------------------------------------------------
     // Assets
@@ -417,9 +408,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 
     const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
     if(!catalog || !catalog->Enabled)
-    {
         return false;
-    }
 
     // Missing assetId?
     CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy)"
@@ -475,7 +464,6 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     creature = new Creature();
     if (!creature->LoadCreatureFromDB(spawnId, player->GetMap()))
     {
-        handler->PSendSysMessage("Unable to spawn Guild House Salesman");
         delete creature;
         return false;
     }
