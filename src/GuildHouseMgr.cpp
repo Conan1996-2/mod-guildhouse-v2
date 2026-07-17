@@ -1,3 +1,5 @@
+#include "ScriptMgr.h"
+
 #include "GuildHouseMgr.h"
 
 #include "GuildHousePhaseMgr.h"
@@ -944,7 +946,28 @@ bool GuildHouseMgr::CreatePermanentSalesman(
 // Script Registration
 // =====================================================
 
+class GuildHouseWorldScript : public WorldScript
+{
+public:
+
+    GuildHouseWorldScript()
+        : WorldScript("GuildHouseWorldScript")
+    {
+    }
+
+
+    void OnStartup() override
+    {
+        sGuildHouseInstanceMgr.Load();
+
+        sGuildHouseMgr.Load();
+
+        sGuildHouseSpawner.LoadPlacedAssets();
+    }
+};
+
+
 void AddSC_GuildHouseMgr()
 {
-    new GuildHouseMgr();
+    new GuildHouseWorldScript();
 }
