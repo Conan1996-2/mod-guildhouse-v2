@@ -9,7 +9,6 @@
 // =====================================================
 // Spawn Flags
 // =====================================================
-
 enum GHSpawnFlags : uint32_t
 {
     GH_SPAWN_NONE        = 0,
@@ -23,7 +22,6 @@ enum GHSpawnFlags : uint32_t
 // =====================================================
 // Behavior Flags
 // =====================================================
-
 enum GHBehaviorFlags : uint32_t
 {
     GH_BEHAVIOR_NONE = 0,
@@ -52,7 +50,6 @@ enum GHBehaviorFlags : uint32_t
 // =====================================================
 // Asset Status
 // =====================================================
-
 enum GHAssetStatus : uint8_t
 {
     GH_ASSET_PURCHASED = 0,
@@ -64,7 +61,6 @@ enum GHAssetStatus : uint8_t
 // =====================================================
 // Script Types
 // =====================================================
-
 enum GHScriptType : uint32_t
 {
     GH_SCRIPT_NONE = 0,
@@ -79,7 +75,6 @@ enum GHScriptType : uint32_t
 // =====================================================
 // Utility Helpers
 // =====================================================
-
 namespace GuildHouseUtil
 {
     bool IsGuildHousePhase(uint32_t guildId, uint32_t phaseMask);
@@ -112,7 +107,6 @@ namespace GuildHouseUtil
             return false;
 
         Guild* guild = player->GetGuild();
-
         if (!guild)
             return false;
 
