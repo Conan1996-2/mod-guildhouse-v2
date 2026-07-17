@@ -763,9 +763,169 @@ void GuildHouseMgr::Load()
         _locations.size());
 }
 
+bool GuildHouseMgr::PlaceAsset(
+    Player* player,
+    uint32_t assetId)
+{
+    if (!player)
+        return false;
+
+
+    uint32_t guildId =
+        player->GetGuildId();
+
+
+    if (!guildId)
+        return false;
+
+
+    GHGuildHouse const* house =
+        GetGuildHouse(guildId);
+
+
+    if (!house)
+        return false;
 
 
 
+    //
+    // Must be inside guild phase
+    //
+
+    if (!sGuildHousePhaseMgr.IsMember(player))
+        return false;
+
+
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset "
+        "SET status={} "
+        "WHERE guildId={} "
+        "AND assetId={}",
+        GH_ASSET_PLACED,
+        guildId,
+        assetId);
+
+
+
+    return sGuildHouseSpawner.SpawnAsset(
+        guildId,
+        assetId);
+}
+
+bool GuildHouseMgr::MoveAsset(
+    Player* player,
+    uint32_t assetId)
+{
+    if (!player)
+        return false;
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+    if (!guildId)
+        return false;
+
+
+
+    if (!sGuildHousePhaseMgr.IsMember(player))
+        return false;
+
+
+
+    //
+    // Later we can add mover mode:
+    // target position capture
+    //
+
+    return true;
+}
+
+bool GuildHouseMgr::StoreAsset(
+    Player* player,
+    uint32_t assetId)
+{
+    if (!player)
+        return false;
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+
+    if (!guildId)
+        return false;
+
+
+
+    if (!sGuildHousePhaseMgr.IsMember(player))
+        return false;
+
+
+
+    sGuildHouseSpawner.RemoveAsset(
+        guildId,
+        assetId);
+
+
+
+    CharacterDatabase.Execute(
+        "UPDATE guildhouse_asset "
+        "SET status={} "
+        "WHERE guildId={} "
+        "AND assetId={}",
+        GH_ASSET_STORED,
+        guildId,
+        assetId);
+
+
+
+    return true;
+}
+
+bool GuildHouseMgr::SellAsset(
+    Player* player,
+    uint32_t assetId)
+{
+    if (!player)
+        return false;
+
+
+    uint32 guildId =
+        player->GetGuildId();
+
+
+
+    if (!guildId)
+        return false;
+
+
+
+    if (!sGuildHousePhaseMgr.IsMember(player))
+        return false;
+
+
+
+    sGuildHouseSpawner.RemoveAsset(
+        guildId,
+        assetId);
+
+
+
+    CharacterDatabase.Execute(
+        "DELETE FROM guildhouse_asset "
+        "WHERE guildId={} "
+        "AND assetId={}",
+        guildId,
+        assetId);
+
+
+
+    return true;
+}
 
 
 // =====================================================
