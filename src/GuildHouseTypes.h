@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "GuildHouseDefines.h"
 
@@ -184,38 +185,21 @@ struct GHPhaseRecord
 // Spawns are now phase based.
 // =====================================================
 
-struct GHInstance
+struct GHSpawnRecord
 {
     uint32_t SpawnId = 0;
 
-
-
     uint32_t GuildId = 0;
-
-
     uint32_t AssetId = 0;
-
-
     uint32_t CatalogId = 0;
-
-
 
     uint32_t Guid = 0;
 
-
-
-    GHSpawnFlags Type =
-        GH_SPAWN_NONE;
-
-
+    GHSpawnFlags Type = GH_SPAWN_NONE;
 
     uint32_t MapId = 0;
 
-
-
     uint32_t PhaseMask = 0;
-
-
 
     float X = 0.0f;
     float Y = 0.0f;
