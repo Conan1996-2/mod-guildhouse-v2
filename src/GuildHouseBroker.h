@@ -6,28 +6,17 @@
 class Player;
 class Creature;
 
-
 class GuildHouseBroker : public CreatureScript
 {
 public:
 
-    GuildHouseBroker()
-        : CreatureScript("GuildHouseBroker")
+    GuildHouseBroker() : CreatureScript("GuildHouseBroker")
     {
     }
 
+    bool OnGossipHello(Player* player, Creature* creature) override;
 
-    bool OnGossipHello(
-        Player* player,
-        Creature* creature) override;
-
-
-    bool OnGossipSelect(
-        Player* player,
-        Creature* creature,
-        uint32 sender,
-        uint32 action) override;
-
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override;
 
 private:
 
