@@ -473,6 +473,8 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
 
+    RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+
     return true;
 }
 
