@@ -59,6 +59,23 @@ CREATE TABLE guildhouse_phase
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS guildhouse_spawn;
+CREATE TABLE guildhouse_spawn
+(
+    spawnId INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    guildId INT UNSIGNED NOT NULL,
+    assetId INT UNSIGNED NOT NULL,
+    phaseMask INT UNSIGNED NOT NULL,
+    spawnGuid INT UNSIGNED NOT NULL,
+    spawnType TINYINT NOT NULL,
+    mapId INT UNSIGNED NOT NULL,
+
+    x FLOAT,
+    y FLOAT,
+    z FLOAT,
+    o FLOAT
+);
+
 DROP TABLE IF EXISTS guildhouse_phase_object;
 CREATE TABLE guildhouse_phase_object
 (
