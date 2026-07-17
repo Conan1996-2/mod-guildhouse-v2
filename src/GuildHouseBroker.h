@@ -1,7 +1,8 @@
-#ifndef MOD_GUILDHOUSE_NPC_H
-#define MOD_GUILDHOUSE_NPC_H
+#ifndef MOD_GUILDHOUSE_BROKER_H
+#define MOD_GUILDHOUSE_BROKER_H
 
 #include "ScriptMgr.h"
+
 
 class Player;
 class Creature;
@@ -29,12 +30,30 @@ public:
         uint32 action) override;
 
 
+
 private:
 
-    bool IsGuildMaster(Player* player);
 
-    void SendMainMenu(Player* player, Creature* creature);
+    bool IsGuildMaster(
+        Player* player) const;
+
+
+
+    void SendMainMenu(
+        Player* player,
+        Creature* creature);
+
+
+
+    bool CreateGuildHouse(
+        Player* player);
+
+
+
+    bool TeleportGuildHouse(
+        Player* player);
 
 };
+
 
 #endif
