@@ -6,7 +6,9 @@
 
 #include "GuildHouseTypes.h"
 
+
 class Player;
+
 
 class GuildHouseMgr
 {
@@ -14,98 +16,166 @@ public:
 
     static GuildHouseMgr& Instance();
 
+
     void Load();
 
+
+
     // =====================================================
-    // Guild Instance Management
+    // Guild Phase Management
     // =====================================================
 
-    bool IsGuildInstance(uint32_t guildId, uint32_t instanceId) const;
+    uint32_t GetGuildPhase(
+        uint32_t guildId) const;
 
-    uint32_t GetGuildInstance(uint32_t guildId) const;
 
-    uint32_t GetGuildByInstance(uint32_t instanceId) const;
+    uint32_t GetOrCreateGuildPhase(
+        Player* player,
+        uint32_t guildId);
 
-    uint32_t GetOrCreateGuildInstance(Player* player, uint32_t guildId);
 
-    bool EnsureGuildInstanceSave(Player* player, uint32_t guildId);
+    bool EnterGuildHousePhase(
+        Player* player);
 
-    bool BindPlayerToGuildInstance(Player* player);
+
+    bool LeaveGuildHousePhase(
+        Player* player);
+
 
 
     // =====================================================
     // Guild House Ownership
     // =====================================================
 
-    bool HasGuildHouse(uint32_t guildId) const;
+    bool HasGuildHouse(
+        uint32_t guildId) const;
 
-    const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
 
-    const GHLocation* GetGuildLocation(uint32_t guildId) const;
+    const GHGuildHouse* GetGuildHouse(
+        uint32_t guildId) const;
 
-    bool CreateGuildHouse(Player* player, uint32_t guildId, uint32_t ownerGuid, uint32_t locationId);
 
-    bool SellGuildHouse(uint32_t guildId);
+    const GHLocation* GetGuildLocation(
+        uint32_t guildId) const;
+
+
+    bool CreateGuildHouse(
+        Player* player,
+        uint32_t guildId,
+        uint32_t ownerGuid,
+        uint32_t locationId);
+
+
+    bool SellGuildHouse(
+        uint32_t guildId);
+
 
 
     // =====================================================
-    // Instance Teleport
+    // Guild House Teleport
     // =====================================================
 
-    bool TeleportToGuildHouse(Player* player);
+    bool TeleportToGuildHouse(
+        Player* player);
+
 
 
     // =====================================================
     // Locations
     // =====================================================
 
-    const GHLocation* GetLocation(uint32_t locationId) const;
+    const GHLocation* GetLocation(
+        uint32_t locationId) const;
+
 
     std::vector<const GHLocation*> GetLocations() const;
+
 
 
     // =====================================================
     // Boundary Validation
     // =====================================================
 
-    bool IsInsideGuildHouseBoundary(uint32_t guildId, float x, float y) const;
+    bool IsInsideGuildHouseBoundary(
+        uint32_t guildId,
+        float x,
+        float y) const;
+
 
 
     // =====================================================
     // Catalog Purchasing
     // =====================================================
 
-    bool PurchaseCatalogItem(Player* player, uint32_t catalogId);
+    bool PurchaseCatalogItem(
+        Player* player,
+        uint32_t catalogId);
+
 
 
     // =====================================================
     // Salesman
     // =====================================================
 
-    bool HasSalesman(uint32_t guildId) const;
+    bool HasSalesman(
+        uint32_t guildId) const;
 
-    bool CreatePermanentSalesman(Player* player, uint32 entry);
 
-    void RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t instanceId, float x, float y, float z, float o);
+    bool CreatePermanentSalesman(
+        Player* player,
+        uint32_t entry);
+
+
+    void RecordSalesmanSpawn(
+        uint32_t guildId,
+        uint32_t spawnId,
+        uint32_t mapId,
+        uint32_t phaseMask,
+        float x,
+        float y,
+        float z,
+        float o);
+
 
 
     // =====================================================
     // Assets
     // =====================================================
 
-    std::vector<const GHGuildAsset*> GetPurchasedAssets(uint32_t guildId) const;
+    std::vector<const GHGuildAsset*> GetPurchasedAssets(
+        uint32_t guildId) const;
 
-    const GHGuildAsset* GetAsset(uint32_t guildId, uint32_t assetId) const;
 
-    GHGuildAsset* GetAsset(uint32_t guildId, uint32_t assetId);
+    const GHGuildAsset* GetAsset(
+        uint32_t guildId,
+        uint32_t assetId) const;
 
-    bool PlaceAsset(Player* player, uint32_t assetId);
 
-    bool MoveAsset(Player* player, uint32_t assetId);
+    GHGuildAsset* GetAsset(
+        uint32_t guildId,
+        uint32_t assetId);
 
-    bool StoreAsset(Player* player, uint32_t assetId);
 
-    bool SellAsset(Player* player, uint32_t assetId);
+
+    bool PlaceAsset(
+        Player* player,
+        uint32_t assetId);
+
+
+    bool MoveAsset(
+        Player* player,
+        uint32_t assetId);
+
+
+    bool StoreAsset(
+        Player* player,
+        uint32_t assetId);
+
+
+    bool SellAsset(
+        Player* player,
+        uint32_t assetId);
+
 
 
 private:
@@ -113,11 +183,13 @@ private:
     GuildHouseMgr() = default;
 
 
+
     // =====================================================
     // Guild Houses
     // =====================================================
 
     std::unordered_map<uint32_t, GHGuildHouse> _houses;
+
 
 
     // =====================================================
@@ -129,6 +201,8 @@ private:
 };
 
 
+
 #define sGuildHouseMgr GuildHouseMgr::Instance()
+
 
 #endif
