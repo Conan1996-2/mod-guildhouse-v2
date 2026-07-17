@@ -153,7 +153,7 @@ const GHLocation* GuildHouseMgr::GetGuildLocation(uint32_t guildId) const
 }
 
 
-bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint32_t locationId)
+bool GuildHouseMgr::CreateGuildHouse(Player* player, uint32_t guildId, uint32_t ownerGuid, uint32_t locationId)
 {
     if (HasGuildHouse(guildId))
         return false;
@@ -183,7 +183,7 @@ bool GuildHouseMgr::CreateGuildHouse(uint32_t guildId, uint32_t ownerGuid, uint3
         locationId);
 
 
-    GetOrCreateGuildInstance(guildId);
+    GetOrCreateGuildInstance(player, guildId);
 
 
     return true;
