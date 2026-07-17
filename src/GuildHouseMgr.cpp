@@ -11,12 +11,13 @@
 #include "Player.h"
 #include "Chat.h"
 #include "Log.h"
-#include "ObjectMgr.h"
 
 #include <algorithm>
 
 
-GuildHouseMgr& GuildHouseMgr::Instance()
+
+GuildHouseMgr&
+GuildHouseMgr::Instance()
 {
     static GuildHouseMgr instance;
 
@@ -26,8 +27,9 @@ GuildHouseMgr& GuildHouseMgr::Instance()
 
 
 // =====================================================
-// Guild Phase Management
+// Phase Management
 // =====================================================
+
 
 bool GuildHouseMgr::HasPhase(
     uint32_t guildId) const
@@ -59,32 +61,22 @@ uint32_t GuildHouseMgr::GetPhaseMask(
 
 uint32_t GuildHouseMgr::CreatePhase(
     uint32_t guildId,
-    uint32_t mapId)
+    uint32_t locationId)
 {
     return sGuildHousePhaseMgr.CreatePhase(
         guildId,
-        mapId);
+        locationId);
 }
 
 
 
 bool GuildHouseMgr::EnterPhase(
     Player* player,
-    uint32_t guildId,
-    uint32_t mapId,
-    float x,
-    float y,
-    float z,
-    float o)
+    uint32_t guildId)
 {
     return sGuildHousePhaseMgr.EnterPhase(
         player,
-        guildId,
-        mapId,
-        x,
-        y,
-        z,
-        o);
+        guildId);
 }
 
 
@@ -103,6 +95,7 @@ bool GuildHouseMgr::RemovePhase(
 // Guild House Ownership
 // =====================================================
 
+
 bool GuildHouseMgr::HasGuildHouse(
     uint32_t guildId) const
 {
@@ -120,8 +113,10 @@ GuildHouseMgr::GetGuildHouse(
         _houses.find(guildId);
 
 
+
     if (itr == _houses.end())
         return nullptr;
+
 
 
     return &itr->second;
@@ -137,8 +132,10 @@ GuildHouseMgr::GetGuildLocation(
         GetGuildHouse(guildId);
 
 
+
     if (!house)
         return nullptr;
+
 
 
     return GetLocation(
@@ -146,6 +143,11 @@ GuildHouseMgr::GetGuildLocation(
 }
 
 
+
+
+// =====================================================
+// Create Guild House
+// =====================================================
 
 
 bool GuildHouseMgr::CreateGuildHouse(
@@ -172,19 +174,24 @@ bool GuildHouseMgr::CreateGuildHouse(
     GHGuildHouse house;
 
 
+
     house.GuildId =
         guildId;
+
 
 
     house.OwnerGuid =
         ownerGuid;
 
 
+
     house.LocationId =
         locationId;
 
 
-    house.InstanceId = 0;
+
+    house.PhaseMask =
+        0;
 
 
 
@@ -198,32 +205,41 @@ bool GuildHouseMgr::CreateGuildHouse(
         "INSERT INTO guildhouse "
         "(guildId,ownerGuid,locationId) "
         "VALUES ({},{},{})",
+
         guildId,
         ownerGuid,
         locationId);
 
 
 
-    uint32_t phase =
+    uint32_t phaseMask =
         CreatePhase(
             guildId,
-            location->MapId);
+            locationId);
 
 
 
-    if (!phase)
+    if (!phaseMask)
     {
         CharacterDatabase.Execute(
-            "DELETE FROM guildhouse WHERE guildId={}",
+            "DELETE FROM guildhouse "
+            "WHERE guildId={}",
             guildId);
+
 
 
         _houses.erase(
             guildId);
 
 
+
         return false;
     }
+
+
+
+    _houses[guildId].PhaseMask =
+        phaseMask;
 
 
 
@@ -232,6 +248,12 @@ bool GuildHouseMgr::CreateGuildHouse(
 
 
 
+
+
+
+// =====================================================
+// Sell Guild House
+// =====================================================
 
 
 bool GuildHouseMgr::SellGuildHouse(
@@ -248,21 +270,15 @@ bool GuildHouseMgr::SellGuildHouse(
 
 
     uint32_t phaseMask =
-        GetPhaseMask(
-            guildId);
+        GetPhaseMask(guildId);
 
 
 
-    //
-    // Remove spawned objects
-    //
     if (phaseMask)
     {
         sGuildHouseSpawner.RemoveAllAssets(
-            guildId,
-            phaseMask);
+            guildId);
     }
-
 
 
 
@@ -307,9 +323,15 @@ bool GuildHouseMgr::SellGuildHouse(
     return true;
 }
 
+
+
+
+
+
 // =====================================================
-// Phase Teleport
+// Teleport
 // =====================================================
+
 
 bool GuildHouseMgr::TeleportToGuildHouse(
     Player* player)
@@ -318,8 +340,10 @@ bool GuildHouseMgr::TeleportToGuildHouse(
         return false;
 
 
+
     uint32_t guildId =
         player->GetGuildId();
+
 
 
     if (!guildId)
@@ -339,8 +363,8 @@ bool GuildHouseMgr::TeleportToGuildHouse(
 
 
     const GHLocation* location =
-        GetLocation(
-            house->LocationId);
+        GetGuildLocation(
+            guildId);
 
 
 
@@ -349,11 +373,12 @@ bool GuildHouseMgr::TeleportToGuildHouse(
 
 
 
+
     if (!HasPhase(guildId))
     {
         if (!CreatePhase(
-                guildId,
-                location->MapId))
+            guildId,
+            house->LocationId))
         {
             return false;
         }
@@ -363,20 +388,14 @@ bool GuildHouseMgr::TeleportToGuildHouse(
 
     return EnterPhase(
         player,
-        guildId,
-        location->MapId,
-        location->X,
-        location->Y,
-        location->Z,
-        location->O);
+        guildId);
 }
-
-
 
 
 // =====================================================
 // Locations
 // =====================================================
+
 
 const GHLocation*
 GuildHouseMgr::GetLocation(
@@ -405,10 +424,10 @@ GuildHouseMgr::GetLocations() const
 
 
 
-    for (auto const& [id, location] :
-         _locations)
+    for(auto const& [id, location] :
+        _locations)
     {
-        if (location.Enabled)
+        if(location.Enabled)
             result.push_back(
                 &location);
     }
@@ -421,9 +440,11 @@ GuildHouseMgr::GetLocations() const
 
 
 
+
 // =====================================================
-// Boundary Validation
+// Boundary
 // =====================================================
+
 
 bool GuildHouseMgr::IsInsideGuildHouseBoundary(
     uint32_t guildId,
@@ -436,28 +457,16 @@ bool GuildHouseMgr::IsInsideGuildHouseBoundary(
 
 
 
-    if (!location)
+    if(!location)
         return false;
 
 
 
-    if (x < location->MinX ||
-        x > location->MaxX)
-    {
-        return false;
-    }
-
-
-
-    if (y < location->MinY ||
-        y > location->MaxY)
-    {
-        return false;
-    }
-
-
-
-    return true;
+    return
+        x >= location->MinX &&
+        x <= location->MaxX &&
+        y >= location->MinY &&
+        y <= location->MaxY;
 }
 
 
@@ -467,6 +476,7 @@ bool GuildHouseMgr::IsInsideGuildHouseBoundary(
 // =====================================================
 // Load
 // =====================================================
+
 
 void GuildHouseMgr::Load()
 {
@@ -482,10 +492,12 @@ void GuildHouseMgr::Load()
 
 
 
-    //
+
+    // -------------------------------------------------
     // Locations
-    //
-    if (QueryResult result =
+    // -------------------------------------------------
+
+    if(QueryResult result =
         WorldDatabase.Query(
         "SELECT "
         "id,"
@@ -515,51 +527,51 @@ void GuildHouseMgr::Load()
 
 
             location.Id =
-                fields[0].Get<uint32_t>();
+                fields[0].Get<uint32>();
+
 
 
             location.Name =
                 fields[1].Get<std::string>();
 
 
+
             location.MapId =
-                fields[2].Get<uint32_t>();
+                fields[2].Get<uint32>();
+
 
 
             location.X =
                 fields[3].Get<float>();
 
-
             location.Y =
                 fields[4].Get<float>();
 
-
             location.Z =
                 fields[5].Get<float>();
-
 
             location.O =
                 fields[6].Get<float>();
 
 
+
             location.MinX =
                 fields[7].Get<float>();
-
 
             location.MaxX =
                 fields[8].Get<float>();
 
-
             location.MinY =
                 fields[9].Get<float>();
-
 
             location.MaxY =
                 fields[10].Get<float>();
 
 
+
             location.Price =
                 fields[11].Get<uint64_t>();
+
 
 
             location.Enabled =
@@ -573,17 +585,17 @@ void GuildHouseMgr::Load()
 
 
 
-        } while (result->NextRow());
+        }while(result->NextRow());
     }
 
 
 
 
+    // -------------------------------------------------
+    // Guild Houses
+    // -------------------------------------------------
 
-    //
-    // Guild houses
-    //
-    if (QueryResult result =
+    if(QueryResult result =
         CharacterDatabase.Query(
         "SELECT "
         "guildId,"
@@ -603,18 +615,22 @@ void GuildHouseMgr::Load()
 
 
             house.GuildId =
-                fields[0].Get<uint32_t>();
+                fields[0].Get<uint32>();
+
 
 
             house.OwnerGuid =
-                fields[1].Get<uint32_t>();
+                fields[1].Get<uint32>();
+
 
 
             house.LocationId =
-                fields[2].Get<uint32_t>();
+                fields[2].Get<uint32>();
 
 
-            house.InstanceId = 0;
+
+            house.PhaseMask =
+                0;
 
 
 
@@ -624,26 +640,36 @@ void GuildHouseMgr::Load()
 
 
 
-        } while (result->NextRow());
+        }while(result->NextRow());
     }
 
 
 
 
-
-    //
+    // -------------------------------------------------
     // Load phases
-    //
+    // -------------------------------------------------
+
     sGuildHousePhaseMgr.Load();
 
 
 
+    for(auto& [guildId, house] :
+        _houses)
+    {
+        house.PhaseMask =
+            GetPhaseMask(
+                guildId);
+    }
 
 
-    //
-    // Load assets
-    //
-    if (QueryResult result =
+
+
+    // -------------------------------------------------
+    // Assets
+    // -------------------------------------------------
+
+    if(QueryResult result =
         CharacterDatabase.Query(
         "SELECT "
         "assetId,"
@@ -663,18 +689,18 @@ void GuildHouseMgr::Load()
 
 
 
-            uint32_t guildId =
-                fields[1].Get<uint32_t>();
+            uint32 guildId =
+                fields[1].Get<uint32>();
 
 
 
-            auto houseItr =
+            auto itr =
                 _houses.find(
                     guildId);
 
 
 
-            if (houseItr == _houses.end())
+            if(itr == _houses.end())
                 continue;
 
 
@@ -684,90 +710,93 @@ void GuildHouseMgr::Load()
 
 
             asset.AssetId =
-                fields[0].Get<uint32_t>();
+                fields[0].Get<uint32>();
+
 
 
             asset.GuildId =
                 guildId;
 
 
+
             asset.CatalogId =
-                fields[2].Get<uint32_t>();
+                fields[2].Get<uint32>();
+
 
 
             asset.Status =
                 static_cast<GHAssetStatus>(
-                    fields[3].Get<uint8_t>());
+                    fields[3].Get<uint8>());
 
 
 
             asset.X =
                 fields[4].Get<float>();
 
-
             asset.Y =
                 fields[5].Get<float>();
 
-
             asset.Z =
                 fields[6].Get<float>();
-
 
             asset.O =
                 fields[7].Get<float>();
 
 
 
-            houseItr->second.Assets.push_back(
+            itr->second.Assets.push_back(
                 asset);
 
 
 
-        } while(result->NextRow());
+        }while(result->NextRow());
     }
 
 
 
     LOG_INFO(
         "server.loading",
-        "GuildHouseMgr loaded {} guild houses and {} locations",
+        "GuildHouseMgr loaded {} houses and {} locations",
         _houses.size(),
         _locations.size());
 }
 
+
+
+
+
+
 // =====================================================
-// Catalog Purchasing
+// Catalog Purchase
 // =====================================================
+
 
 bool GuildHouseMgr::PurchaseCatalogItem(
     Player* player,
     uint32_t catalogId)
 {
-    if (!player)
+    if(!player)
         return false;
+
 
 
     uint32_t guildId =
         player->GetGuildId();
 
 
-    if (!guildId)
+
+    if(!guildId)
         return false;
 
 
-    if (!HasGuildHouse(guildId))
+
+    if(!HasGuildHouse(guildId))
         return false;
 
 
 
-    if (!GuildHouseUtil::IsGuildMaster(player))
-    {
-        ChatHandler(player->GetSession())
-            .PSendSysMessage(
-                "Only the Guild Master may purchase Guild House items.");
-
+    if(!GuildHouseUtil::IsGuildMaster(player))
         return false;
-    }
 
 
 
@@ -777,8 +806,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
 
 
-    if (!catalog ||
-        !catalog->Enabled)
+    if(!catalog ||
+       !catalog->Enabled)
     {
         return false;
     }
@@ -787,8 +816,10 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
     CharacterDatabase.Execute(
         "INSERT INTO guildhouse_asset "
-        "(guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy) "
+        "(guildId,catalogId,status,"
+        "positionX,positionY,positionZ,orientation,createdBy)"
         "VALUES ({},{},{},0,0,0,0,{})",
+
         guildId,
         catalogId,
         GH_ASSET_PURCHASED,
@@ -803,9 +834,11 @@ bool GuildHouseMgr::PurchaseCatalogItem(
 
 
 
+
 // =====================================================
 // Salesman
 // =====================================================
+
 
 bool GuildHouseMgr::HasSalesman(
     uint32_t guildId) const
@@ -819,14 +852,15 @@ bool GuildHouseMgr::HasSalesman(
 
 
 
-    if (!result)
+    if(!result)
         return false;
 
 
 
     return result->Fetch()[0]
-        .Get<uint32_t>() > 0;
+        .Get<uint32>() > 0;
 }
+
 
 
 
@@ -843,8 +877,10 @@ void GuildHouseMgr::RecordSalesmanSpawn(
 {
     CharacterDatabase.Execute(
         "INSERT INTO guildhouse_salesman "
-        "(guildId,guid,mapId,phaseMask,positionX,positionY,positionZ,orientation) "
+        "(guildId,guid,mapId,phaseMask,"
+        "positionX,positionY,positionZ,orientation)"
         "VALUES ({},{},{},{},{},{},{},{})",
+
         guildId,
         spawnId,
         mapId,
@@ -859,11 +895,12 @@ void GuildHouseMgr::RecordSalesmanSpawn(
 
 
 
+
 bool GuildHouseMgr::CreatePermanentSalesman(
     Player* player,
-    uint32 entry)
+    uint32_t entry)
 {
-    if (!player)
+    if(!player)
         return false;
 
 
@@ -873,80 +910,24 @@ bool GuildHouseMgr::CreatePermanentSalesman(
 
 
 
-    if (!guildId)
-        return false;
-
-
-
-    if (HasSalesman(guildId))
-    {
-        ChatHandler(player->GetSession())
-            .PSendSysMessage(
-                "Your guild already has a Guild House salesman.");
-
-        return false;
-    }
-
-
-
-
-    if (!GuildHouseUtil::CanManageGuildHouse(player))
-    {
-        ChatHandler(player->GetSession())
-            .PSendSysMessage(
-                "You cannot place this salesman.");
-
-        return false;
-    }
-
-
-
     uint32_t phaseMask =
         GetPhaseMask(
             guildId);
 
 
 
-    if (!phaseMask)
+    if(!phaseMask)
         return false;
 
 
 
     WorldDatabase.Execute(
         "INSERT INTO creature "
-        "(id,map,phaseMask,position_x,position_y,position_z,orientation,spawntimesecs) "
-        "VALUES ({},{},{},{},{},{},{},{})",
+        "(id,map,phaseMask,"
+        "position_x,position_y,position_z,orientation)"
+        "VALUES ({},{},{},{},{},{},{})",
+
         entry,
-        player->GetMapId(),
-        phaseMask,
-        player->GetPositionX(),
-        player->GetPositionY(),
-        player->GetPositionZ(),
-        player->GetOrientation(),
-        300);
-
-
-
-    QueryResult result =
-        WorldDatabase.Query(
-            "SELECT MAX(guid) FROM creature");
-
-
-
-    if (!result)
-        return false;
-
-
-
-    uint32_t guid =
-        result->Fetch()[0]
-        .Get<uint32_t>();
-
-
-
-    RecordSalesmanSpawn(
-        guildId,
-        guid,
         player->GetMapId(),
         phaseMask,
         player->GetPositionX(),
@@ -957,492 +938,4 @@ bool GuildHouseMgr::CreatePermanentSalesman(
 
 
     return true;
-}
-
-
-
-
-
-// =====================================================
-// Assets
-// =====================================================
-
-const GHGuildAsset*
-GuildHouseMgr::GetAsset(
-    uint32_t guildId,
-    uint32_t assetId) const
-{
-    auto itr =
-        _houses.find(guildId);
-
-
-
-    if (itr == _houses.end())
-        return nullptr;
-
-
-
-    for (const GHGuildAsset& asset :
-         itr->second.Assets)
-    {
-        if (asset.AssetId == assetId)
-            return &asset;
-    }
-
-
-
-    return nullptr;
-}
-
-
-
-
-
-GHGuildAsset*
-GuildHouseMgr::GetAsset(
-    uint32_t guildId,
-    uint32_t assetId)
-{
-    auto itr =
-        _houses.find(guildId);
-
-
-
-    if (itr == _houses.end())
-        return nullptr;
-
-
-
-    for (GHGuildAsset& asset :
-         itr->second.Assets)
-    {
-        if (asset.AssetId == assetId)
-            return &asset;
-    }
-
-
-
-    return nullptr;
-}
-
-
-
-
-
-std::vector<const GHGuildAsset*>
-GuildHouseMgr::GetPurchasedAssets(
-    uint32_t guildId) const
-{
-    std::vector<const GHGuildAsset*> result;
-
-
-
-    auto itr =
-        _houses.find(guildId);
-
-
-
-    if (itr == _houses.end())
-        return result;
-
-
-
-    for (const GHGuildAsset& asset :
-         itr->second.Assets)
-    {
-        result.push_back(&asset);
-    }
-
-
-
-    return result;
-}
-
-// =====================================================
-// Place Asset
-// =====================================================
-
-bool GuildHouseMgr::PlaceAsset(
-    Player* player,
-    uint32_t assetId)
-{
-    if (!player)
-        return false;
-
-
-    uint32_t guildId =
-        player->GetGuildId();
-
-
-    if (!GuildHouseUtil::CanManageGuildHouse(player))
-        return false;
-
-
-
-    if (!IsInsideGuildHouseBoundary(
-            guildId,
-            player->GetPositionX(),
-            player->GetPositionY()))
-    {
-        ChatHandler(player->GetSession())
-            .PSendSysMessage(
-                "You cannot place Guild House objects outside the boundary.");
-
-        return false;
-    }
-
-
-
-    GHGuildAsset* asset =
-        GetAsset(
-            guildId,
-            assetId);
-
-
-
-    if (!asset)
-        return false;
-
-
-
-    if (asset->Status != GH_ASSET_PURCHASED &&
-        asset->Status != GH_ASSET_STORED)
-    {
-        return false;
-    }
-
-
-
-    asset->Status =
-        GH_ASSET_PLACED;
-
-
-    asset->X =
-        player->GetPositionX();
-
-    asset->Y =
-        player->GetPositionY();
-
-    asset->Z =
-        player->GetPositionZ();
-
-    asset->O =
-        player->GetOrientation();
-
-
-
-    CharacterDatabase.Execute(
-        "UPDATE guildhouse_asset SET "
-        "status={},positionX={},positionY={},positionZ={},orientation={} "
-        "WHERE guildId={} AND assetId={}",
-        GH_ASSET_PLACED,
-        asset->X,
-        asset->Y,
-        asset->Z,
-        asset->O,
-        guildId,
-        assetId);
-
-
-
-    sGuildHouseSpawner.SpawnAsset(
-        guildId,
-        assetId);
-
-
-
-    return true;
-}
-
-
-
-
-
-// =====================================================
-// Move Asset
-// =====================================================
-
-bool GuildHouseMgr::MoveAsset(
-    Player* player,
-    uint32_t assetId)
-{
-    if (!player)
-        return false;
-
-
-
-    uint32_t guildId =
-        player->GetGuildId();
-
-
-
-    if (!GuildHouseUtil::CanManageGuildHouse(player))
-        return false;
-
-
-
-    GHGuildAsset* asset =
-        GetAsset(
-            guildId,
-            assetId);
-
-
-
-    if (!asset)
-        return false;
-
-
-
-    if (asset->Status != GH_ASSET_PLACED)
-        return false;
-
-
-
-    float deltaX =
-        player->GetPositionX() - asset->X;
-
-
-    float deltaY =
-        player->GetPositionY() - asset->Y;
-
-
-    float deltaZ =
-        player->GetPositionZ() - asset->Z;
-
-
-
-    asset->X =
-        player->GetPositionX();
-
-    asset->Y =
-        player->GetPositionY();
-
-    asset->Z =
-        player->GetPositionZ();
-
-    asset->O =
-        player->GetOrientation();
-
-
-
-    CharacterDatabase.Execute(
-        "UPDATE guildhouse_asset SET "
-        "positionX={},positionY={},positionZ={},orientation={} "
-        "WHERE guildId={} AND assetId={}",
-        asset->X,
-        asset->Y,
-        asset->Z,
-        asset->O,
-        guildId,
-        assetId);
-
-
-
-    sGuildHouseSpawner.MoveAsset(
-        guildId,
-        assetId,
-        deltaX,
-        deltaY,
-        deltaZ,
-        asset->O);
-
-
-
-    return true;
-}
-
-
-
-
-
-// =====================================================
-// Store Asset
-// =====================================================
-
-bool GuildHouseMgr::StoreAsset(
-    Player* player,
-    uint32_t assetId)
-{
-    if (!player)
-        return false;
-
-
-
-    uint32_t guildId =
-        player->GetGuildId();
-
-
-
-    if (!GuildHouseUtil::IsGuildMaster(player))
-        return false;
-
-
-
-    GHGuildAsset* asset =
-        GetAsset(
-            guildId,
-            assetId);
-
-
-
-    if (!asset)
-        return false;
-
-
-
-    if (asset->Status != GH_ASSET_PLACED)
-        return false;
-
-
-
-    if (!sGuildHouseSpawner.RemoveAsset(
-            guildId,
-            assetId))
-    {
-        return false;
-    }
-
-
-
-    asset->Status =
-        GH_ASSET_STORED;
-
-
-
-    CharacterDatabase.Execute(
-        "UPDATE guildhouse_asset SET status={} "
-        "WHERE guildId={} AND assetId={}",
-        GH_ASSET_STORED,
-        guildId,
-        assetId);
-
-
-
-    return true;
-}
-
-
-
-
-
-// =====================================================
-// Sell Asset
-// =====================================================
-
-bool GuildHouseMgr::SellAsset(
-    Player* player,
-    uint32_t assetId)
-{
-    if (!player)
-        return false;
-
-
-
-    uint32_t guildId =
-        player->GetGuildId();
-
-
-
-    if (!GuildHouseUtil::IsGuildMaster(player))
-        return false;
-
-
-
-    GHGuildAsset* asset =
-        GetAsset(
-            guildId,
-            assetId);
-
-
-
-    if (!asset)
-        return false;
-
-
-
-    if (asset->Status == GH_ASSET_PLACED)
-    {
-        sGuildHouseSpawner.RemoveAsset(
-            guildId,
-            assetId);
-    }
-
-
-
-    CharacterDatabase.Execute(
-        "DELETE FROM guildhouse_asset "
-        "WHERE guildId={} AND assetId={}",
-        guildId,
-        assetId);
-
-
-
-    auto itr =
-        _houses.find(guildId);
-
-
-
-    if (itr != _houses.end())
-    {
-        auto& assets =
-            itr->second.Assets;
-
-
-
-        assets.erase(
-            std::remove_if(
-                assets.begin(),
-                assets.end(),
-                [assetId](const GHGuildAsset& a)
-                {
-                    return a.AssetId == assetId;
-                }),
-            assets.end());
-    }
-
-
-
-    return true;
-}
-
-
-
-
-
-// =====================================================
-// Startup Script
-// =====================================================
-
-class GuildHouseWorldScript :
-    public WorldScript
-{
-public:
-
-    GuildHouseWorldScript()
-        : WorldScript(
-            "GuildHouseWorldScript")
-    {
-    }
-
-
-
-    void OnStartup() override
-    {
-        sGuildHousePhaseMgr.Load();
-
-        sGuildHouseCatalogMgr.Load();
-
-        sGuildHouseMgr.Load();
-
-        sGuildHouseSpawner.LoadPlacedAssets();
-    }
-};
-
-
-
-
-
-void AddSC_GuildHouseMgr()
-{
-    new GuildHouseWorldScript();
 }
