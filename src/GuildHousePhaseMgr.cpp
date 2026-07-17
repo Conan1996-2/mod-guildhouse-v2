@@ -235,7 +235,7 @@ bool GuildHousePhaseMgr::IsMember(Player* player) const
 // =====================================================
 uint32_t GuildHousePhaseMgr::GeneratePhaseMask()
 {
-    static uint32_t nextMask = 1;
+    static uint32_t nextMask = 2;
 
     while(nextMask && nextMask <= (1 << 30))
     {
