@@ -27,7 +27,7 @@ public:
 
     bool RemoveInstanceById(uint32_t instanceId);
 
-    bool EnterInstance(Player* player, uint32_t guildId, uint32_t mapId);
+    bool GuildHouseInstanceMgr::EnterInstance(Player* player, uint32_t guildId, uint32_t instanceId, uint32_t mapId, float x, float y, float z, float o);
 
     /*
         Lookup
