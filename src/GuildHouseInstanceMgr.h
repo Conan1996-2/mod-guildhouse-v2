@@ -27,7 +27,7 @@ public:
 
     bool RemoveInstanceById(uint32_t instanceId);
 
-    bool EnterInstance(Player* player, uint32_t guildId, float x, float y, float z, float o);
+    bool EnterInstance(Player* player, uint32_t guildId, uint32_t mapId);
 
     /*
         Lookup
