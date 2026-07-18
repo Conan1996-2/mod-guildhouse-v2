@@ -153,7 +153,7 @@ bool GuildHouseSalesman::OnGossipSelect(Player* player, Creature* creature, uint
     if (action >= ACTION_CATALOG_START)
     {
         uint32 Id = action - ACTION_CATALOG_START;
-        if (!sGuildHouseMgr.PurchaseItem(player, Id))
+        if (!sGuildHouseMgr.PurchaseCatalogItem(player, Id))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Unable to purchase item.");
         }
