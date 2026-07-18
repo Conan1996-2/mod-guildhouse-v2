@@ -150,10 +150,10 @@ bool GuildHouseSalesman::OnGossipSelect(Player* player, Creature* creature, uint
         return true;
     }
 
-    if (action >= ACTION_CATALOG_START)
+    if (action >= ACTION__START)
     {
-        uint32 catalogId = action - ACTION_CATALOG_START;
-        if (!sGuildHouseMgr.PurchaseCatalogItem(player, catalogId))
+        uint32 Id = action - ACTION__START;
+        if (!sGuildHouseMgr.PurchaseItem(player, Id))
         {
             ChatHandler(player->GetSession()).PSendSysMessage("Unable to purchase item.");
         }
@@ -175,7 +175,7 @@ void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, ui
     //
     // Child categories
     //
-    auto children = sGuildHouseCatalogMgr.GetChildCategories( categoryId);
+    auto children = sGuildHouseMgr.GetChildCategories( categoryId);
 
     for (const GHCategory* child : children)
     {
@@ -186,9 +186,9 @@ void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, ui
     }
 
     //
-    // Catalog items
+    //  items
     //
-    auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId);
+    auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player()->GetTeamId());
     for (const GHCatalog* catalog : catalogs)
     {
         if (!catalog)
