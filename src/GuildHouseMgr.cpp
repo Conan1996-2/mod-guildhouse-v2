@@ -84,7 +84,7 @@ const GHLocation* GuildHouseMgr::GetGuildLocation(uint32_t guildId) const
 // =====================================================
 // Create Guild House
 // =====================================================
-bool GuildHouseMgr::CreateGuildHouse(Player* player, uint32_t guildId, uint32_t ownerGuid, uint32_t locationId)
+bool GuildHouseMgr::CreateGuildHouse(Player* /*player*/, uint32_t guildId, uint32_t ownerGuid, uint32_t locationId)
 {
     if (HasGuildHouse(guildId))
         return false;
@@ -330,7 +330,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     return sGuildHouseSpawner.SpawnAsset(guildId, assetId);
 }
 
-bool GuildHouseMgr::MoveAsset(Player* player, uint32_t assetId)
+bool GuildHouseMgr::MoveAsset(Player* player, uint32_t /*assetId*/)
 {
     if (!player)
         return false;
