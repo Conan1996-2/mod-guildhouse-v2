@@ -88,7 +88,7 @@ INSERT INTO `guildhouse_category` (`categoryId`, `parentId`, `name`, `sortOrder`
     (104, 100, "Vendors", 0, 1),
     (301, 300, "Chairs", 0, 1),
     (302, 300, "Tables", 0, 1),
-    (303, 300, "Chests", 0, 1;
+    (303, 300, "Chests", 0, 1);
     
 INSERT INTO `guildhouse_category` (`catalogId`, `categoryId`, `name`, `price`, `spawnFlags`, `behaviorFlags`, `enabled`) VALUES
     (1, 101, "Death Knight Trainer", 500000, 1, 4, 1),
