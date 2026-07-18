@@ -413,6 +413,10 @@ bool GuildHouseCommandScript::HandleListCategories(ChatHandler* handler, char co
 // =====================================================
 bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const* args)
 {
+    Player* player = handler->GetSession()->GetPlayer();
+    if (!player)
+        return false;
+    
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh shop list <categoryId>");
@@ -426,11 +430,7 @@ bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const
         return false;
     }
 
-    Player* player = handler->GetSession()->GetPlayer();
-    if (!player)
-        return false;
-
-    std::vector<const GHCatalog*> catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player()->GetTeamId());
+    std::vector<const GHCatalog*> catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player->GetTeamId());
 
     if (catalogs.empty())
     {
