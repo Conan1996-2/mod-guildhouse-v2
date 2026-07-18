@@ -426,7 +426,7 @@ bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const
         return false;
     }
 
-    std::vector<const GHCatalog*> catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId);
+    std::vector<const GHCatalog*> catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player()->GetTeamId());
 
     if (catalogs.empty())
     {
