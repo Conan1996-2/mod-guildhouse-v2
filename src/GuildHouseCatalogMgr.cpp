@@ -123,8 +123,8 @@ void GuildHouseCatalogMgr::Load()
         } while (result->NextRow());
     }
 
-    LOG_INFO("module","GuildHouseCatalogMgr loaded {} categories, {} catalogs, {} components", _categories.size(), _catalogs.size(), _assets.size());
-    LOG_INFO("server.loading","GuildHouseCatalogMgr loaded {} categories, {} catalogs, {} components", _categories.size(), _catalogs.size(), _assets.size());
+    LOG_INFO("module","  >>>  GuildHouseCatalogMgr loaded {} categories, {} catalogs, {} components", _categories.size(), _catalogs.size(), _assets.size());
+    LOG_INFO("server.loading","   >>>   GuildHouseCatalogMgr loaded {} categories, {} catalogs, {} components", _categories.size(), _catalogs.size(), _assets.size());
 }
 
 const GHCatalog* GuildHouseCatalogMgr::GetCatalog(uint32_t catalogId) const
