@@ -188,7 +188,7 @@ void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, ui
     //
     //  items
     //
-    auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player()->GetTeamId());
+    auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player->GetTeamId());
     for (const GHCatalog* catalog : catalogs)
     {
         if (!catalog)
