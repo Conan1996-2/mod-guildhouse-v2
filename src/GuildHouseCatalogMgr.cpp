@@ -203,16 +203,22 @@ std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t
 // =====================================================
 // Catalog list by category
 // =====================================================
-std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId) const
+std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categoryId, TeamId team) const
 {
     std::vector<const GHCatalog*> result;
 
     for (auto const& [id, catalog] : _catalogs)
     {
-        if (catalog.CategoryId == categoryId && catalog.Enabled)
-        {
-            result.push_back(&catalog);
-        }
+        if (!catalog.Enabled || catalog.CategoryId != categoryId)
+            continue;
+
+        if (GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_NEUTRAL) ||
+            (team == TEAM_ALLIANCE && GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_ALLIANCE)) ||
+            (team == TEAM_HORDE && GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_HORDE)))
+                result.push_back(&catalog);
+
+//        if (catalog.CategoryId == categoryId && catalog.Enabled)
+//            result.push_back(&catalog);
     }
 
     std::sort(result.begin(), result.end(), [](const GHCatalog* a, const GHCatalog* b)
@@ -226,14 +232,19 @@ std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetCatalogs(uint32_t categor
 // =====================================================
 // All catalogs
 // =====================================================
-std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetAllCatalogs() const
+std::vector<const GHCatalog*> GuildHouseCatalogMgr::GetAllCatalogs(TeamId team) const
 {
     std::vector<const GHCatalog*> result;
 
     for (auto const& [id, catalog] : _catalogs)
     {
-        if (catalog.Enabled)
-            result.push_back(&catalog);
+        if (!catalog.Enabled)
+            continue;        
+ 
+        if (GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_NEUTRAL) ||
+            (team == TEAM_ALLIANCE && GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_ALLIANCE)) ||
+            (team == TEAM_HORDE && GuildHouseUtil::HasFlag(catalog.BehaviorFlags, GH_FACTION_HORDE)))
+                result.push_back(&catalog);
     }
 
     std::sort(result.begin(), result.end(), [](const GHCatalog* a, const GHCatalog* b)
