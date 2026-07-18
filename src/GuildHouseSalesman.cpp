@@ -175,7 +175,7 @@ void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, ui
     //
     // Child categories
     //
-    auto children = sGuildHouseMgr.GetChildCategories( categoryId);
+    auto children = sGuildHouseCatalogMgr.GetChildCategories( categoryId);
 
     for (const GHCategory* child : children)
     {
