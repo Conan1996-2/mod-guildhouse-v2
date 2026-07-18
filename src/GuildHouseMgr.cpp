@@ -492,6 +492,9 @@ public:
 
     void OnStartup() override
     {
+
+        sGuildHouseCatalogMgr.Load();
+        
         sGuildHousePhaseMgr.Load();
 
         sGuildHouseMgr.Load();
