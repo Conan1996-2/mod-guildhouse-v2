@@ -90,7 +90,7 @@ INSERT INTO `guildhouse_category` (`categoryId`, `parentId`, `name`, `sortOrder`
     (302, 300, "Tables", 0, 1),
     (303, 300, "Chests", 0, 1);
     
-INSERT INTO `guildhouse_category` (`catalogId`, `categoryId`, `name`, `price`, `spawnFlags`, `behaviorFlags`, `enabled`) VALUES
+INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `spawnFlags`, `behaviorFlags`, `enabled`) VALUES
     (1, 101, "Death Knight Trainer", 500000, 1, 4, 1),
     (2, 101, "Druid Trainer", 500000, 1, 1, 1),
     (3, 101, "Druid Trainer", 500000, 1, 2, 1),
