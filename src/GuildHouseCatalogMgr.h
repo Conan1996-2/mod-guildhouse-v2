@@ -26,8 +26,8 @@ public:
     // =====================================================
     std::vector<const GHCategory*> GetRootCategories() const;
     std::vector<const GHCategory*> GetChildCategories(uint32_t parentId) const;
-    std::vector<const GHCatalog*> GetCatalogs(uint32_t categoryId) const;
-    std::vector<const GHCatalog*> GetAllCatalogs() const;
+    std::vector<const GHCatalog*> GetCatalogs(uint32_t categoryId, TeamId team) const;
+    std::vector<const GHCatalog*> GetAllCatalogs(TeamId team) const;
 
 private:
 
