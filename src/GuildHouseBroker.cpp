@@ -90,7 +90,7 @@ bool GuildHouseBroker::OnGossipHello(Player* player, Creature* creature)
     return true;
 }
 
-bool GuildHouseBroker::OnGossipSelect(Player* /*player*/, Creature* creature, uint32, uint32 action)
+bool GuildHouseBroker::OnGossipSelect(Player* player, Creature* /*creature*/, uint32, uint32 action)
 {
     ClearGossipMenuFor(player);
 
