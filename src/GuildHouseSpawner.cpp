@@ -109,14 +109,36 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o)
 {
-    uint32 guid = sObjectMgr->GenerateCreatureSpawnId();
+   Map* map = sMapMgr->CreateBaseMap(mapId);
 
-    WorldDatabase.Execute("INSERT INTO creature (guid,id,map,phaseMask,position_x,position_y,position_z,orientation) VALUES ({},{},{},{},{},{},{},{})", guid, entry, mapId, phaseMask, x, y, z, o);
+    if (!map)
+        return false;
+    
+    Creature* creature = new Creature();
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, phaseMask, entry, 0, x, y, z, o))
+    {
+        delete creature;
+        return false;
+    }
 
-    //CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,positionX,positionY,positionZ,orientation) "
-    //    "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 0, mapId, phaseMask, x, y, z, o);
+    creature->SaveToDB(mapId, (1 << player->GetMap()->GetSpawnMode()), phaseMask);
+
+    uint32 spawnId = creature->GetSpawnId();
+
+    creature->CleanupsBeforeDelete();
+    delete creature;
+
+    creature = new Creature();
+    if (!creature->LoadCreatureFromDB(spawnId, map))
+    {
+        delete creature;
+        return false;
+    }
+
+    sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
+    
     CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) "
-        "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 0, mapId, phaseMask, x, y, z, o);
+        "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, spawnId, 0, mapId, phaseMask, x, y, z, o);
 
     return true;
 }
