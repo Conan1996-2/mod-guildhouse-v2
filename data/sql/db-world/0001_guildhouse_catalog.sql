@@ -111,3 +111,6 @@ INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `s
     (18, 101, "Warlock Trainer", 500000, 1, 1, 1),
     (19, 101, "Warlock Trainer", 500000, 1, 2, 1);
 
+INSERT INTO `guildhouse_catalog_asset`
+    (`componentId`,`catalogId`,`spawnFlags`,`behaviorFlags`,`entryId`,`displayId`,`scale`,`scriptType`,`scriptData`,`xOffset`,`yOffset`,`zOffset`,`oOffset`,`targetMapId`,`targetX`,`targetY`,`targetZ`,`targetO`,`childCatalogId`,`sortOrder`) VALUES
+    (1, 1, 1, 4, 1, );
