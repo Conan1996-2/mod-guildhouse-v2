@@ -122,7 +122,7 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
         return false;
     }
 
-    creature->SaveToDB(mapId, (1 << player->GetMap()->GetSpawnMode()), phaseMask);
+    creature->SaveToDB(mapId, (1 << map->GetSpawnMode()), phaseMask);
 
     uint32 spawnId = creature->GetSpawnId();
 
