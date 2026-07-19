@@ -52,7 +52,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 // Spawn Asset
 // =====================================================
-bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
+bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId, float px = 0, float py = 0, floato pz = 0, float po = 0)
 {
     const GHPhaseRecord* phase = sGuildHousePhaseMgr.GetPhase(guildId);
     if(!phase)
@@ -75,10 +75,10 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
     }
 
     uint32 catalogId = fields[0].Get<uint32>();
-    float x = fields[2].Get<float>();
-    float y = fields[3].Get<float>();
-    float z = fields[4].Get<float>();
-    float o = fields[5].Get<float>();
+    float x = fields[2].Get<float>() + px;
+    float y = fields[3].Get<float>() + py;
+    float z = fields[4].Get<float>() + pz;
+    float o = fields[5].Get<float>() + po;
 
     const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
     if(!catalog)
