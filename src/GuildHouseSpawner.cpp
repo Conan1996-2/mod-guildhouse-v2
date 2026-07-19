@@ -5,6 +5,7 @@
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseTypes.h"
 
+#include "MapMgr.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Log.h"
