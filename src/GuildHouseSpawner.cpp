@@ -54,25 +54,20 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
 {
+    if(HasExistingSpawn(guildId, assetId))
+        return false;
+
     const GHPhaseRecord* phase = sGuildHousePhaseMgr.GetPhase(guildId);
     if(!phase)
         return false;
-
-    if(HasExistingSpawn(guildId, assetId))
-    {
-        return true;
-    }
 
     QueryResult result = CharacterDatabase.Query("SELECT catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE guildId={} AND assetId={}", guildId, assetId);
     if(!result)
         return false;
 
     Field* fields = result->Fetch();
-    if(fields[1].Get<uint8>()
-        != GH_ASSET_PLACED)
-    {
+    if(fields[1].Get<uint8>() != GH_ASSET_PLACED)
         return false;
-    }
 
     uint32 catalogId = fields[0].Get<uint32>();
     float x = fields[2].Get<float>();
@@ -92,14 +87,10 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
         float co = o + component.OOffset;
 
         if(GuildHouseUtil::HasFlag(component.SpawnFlags, GH_SPAWN_CREATURE))
-        {
             SpawnCreature(guildId, assetId, phase->PhaseMask, phase->MapId, component.Entry, cx, cy, cz, co);
-        }
 
         if(GuildHouseUtil::HasFlag(component.SpawnFlags, GH_SPAWN_GAMEOBJECT))
-        {
             SpawnGameObject(guildId, assetId, phase->PhaseMask, phase->MapId, component.Entry, cx, cy, cz, co);
-        }
     }
 
     return true;
