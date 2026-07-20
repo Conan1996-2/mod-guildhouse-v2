@@ -54,20 +54,30 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
 {
+    LOG_INFO("server.loading", "In SpawnAsset");
+    
     if(HasExistingSpawn(guildId, assetId))
         return false;
 
+    LOG_INFO("server.loading", "No Duplicate");
+    
     const GHPhaseRecord* phase = sGuildHousePhaseMgr.GetPhase(guildId);
     if(!phase)
         return false;
+
+    LOG_INFO("server.loading", "In correct Phase");
 
     QueryResult result = CharacterDatabase.Query("SELECT catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE guildId={} AND assetId={}", guildId, assetId);
     if(!result)
         return false;
 
+    LOG_INFO("server.loading", "Database query good");
+
     Field* fields = result->Fetch();
     if(fields[1].Get<uint8>() != GH_ASSET_PLACED)
         return false;
+
+    LOG_INFO("server.loading", "GH_ASSET_PLACED?");
 
     uint32 catalogId = fields[0].Get<uint32>();
     float x = fields[2].Get<float>();
@@ -78,6 +88,8 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
     const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
     if(!catalog)
         return false;
+
+    LOG_INFO("server.loading", "Have Catalog: Spawning");
 
     for(auto const& component : catalog->Components)
     {
@@ -102,16 +114,19 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
 bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o)
 {
    Map* map = sMapMgr->CreateBaseMap(mapId);
-
     if (!map)
         return false;
     
+    LOG_INFO("server.loading", "Have Map");
+
     Creature* creature = new Creature();
     if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, phaseMask, entry, 0, x, y, z, o))
     {
         delete creature;
         return false;
     }
+
+    LOG_INFO("server.loading", "Created first creature");
 
     creature->SaveToDB(mapId, (1 << map->GetSpawnMode()), phaseMask);
 
@@ -126,6 +141,8 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
         delete creature;
         return false;
     }
+
+    LOG_INFO("server.loading", "Can load creature from DB, saving to guildhouse_spawn");
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
     
