@@ -74,6 +74,19 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
     LOG_INFO("server.loading", "Database query good");
 
     Field* fields = result->Fetch();
+
+    uint32 catalogId = fields[0].Get<uint32>();
+    uint8 status = fields[1].Get<uint8>();
+    LOG_INFO(
+        "module",
+        "SpawnAsset: assetId={} guildId={} catalogId={} status={} expected={}",
+        assetId,
+        guildId,
+        catalogId,
+        uint32(status),
+        uint32(GH_ASSET_PLACED));    
+
+    
     if(fields[1].Get<uint8>() != GH_ASSET_PLACED)
         return false;
 
