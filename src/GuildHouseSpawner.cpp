@@ -92,7 +92,7 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
 
     LOG_INFO("server.loading", "GH_ASSET_PLACED?");
 
-    uint32 catalogId = fields[0].Get<uint32>();
+//    uint32 catalogId = fields[0].Get<uint32>();
     float x = fields[2].Get<float>();
     float y = fields[3].Get<float>();
     float z = fields[4].Get<float>();
