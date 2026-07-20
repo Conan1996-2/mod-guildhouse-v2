@@ -328,20 +328,6 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
         GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
 
-    QueryResult result = CharacterDatabase.Query("SELECT catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE guildId={} AND assetId={}", guildId, assetId);
-    Field* fields = result->Fetch();
-
-    uint32 catalogId = fields[0].Get<uint32>();
-    uint8 status = fields[1].Get<uint8>();
-    LOG_INFO(
-        "module",
-        "SpawnAsset: assetId={} guildId={} catalogId={} status={} expected={}",
-        assetId,
-        guildId,
-        catalogId,
-        uint32(status),
-        uint32(GH_ASSET_PLACED));    
-
     return sGuildHouseSpawner.SpawnAsset(guildId, assetId);
 }
 
