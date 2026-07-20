@@ -325,8 +325,8 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     if (!sGuildHousePhaseMgr.IsMember(player))
         return false;
     
-        CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
-            GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
+    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
+        GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
     
 //    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={} WHERE guildId={} AND assetId={}", GH_ASSET_PLACED, guildId, assetId);
 
