@@ -6,6 +6,8 @@
 class Player;
 class Creature;
 
+// all Salesman will be listed in table characters.guildhouse_spawns with guildId=guild and assetId=0
+
 class GuildHouseSalesman : public CreatureScript
 {
 public:
