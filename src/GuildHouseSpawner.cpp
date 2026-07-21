@@ -25,14 +25,14 @@ void GuildHouseSpawner::LoadPlacedAssets()
 {
     LOG_INFO("server.loading", "Loading Guild House phase spawns");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guildId,assetId FROM guildhouse_asset WHERE status={}", GH_ASSET_PLACED);
+    QueryResult result = CharacterDatabase.Query("SELECT guildId,assetId,catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE status={}", GH_ASSET_PLACED);
     if(!result)
         return;
 
     do
     {
         Field* fields = result->Fetch();
-        SpawnAsset(fields[0].Get<uint32>(), fields[1].Get<uint32>());
+        SpawnAsset(fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[4].Get<float>(), fields[5].Get<float>(), fields[6].Get<float>(), fields[7].Get<float>());
     } while(result->NextRow());
 }
 
@@ -52,7 +52,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 // Spawn Asset
 // =====================================================
-bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
+bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o)
 {
     LOG_INFO("server.loading", "In SpawnAsset");
     
@@ -66,38 +66,7 @@ bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId)
         return false;
 
     LOG_INFO("server.loading", "In correct Phase");
-
-    QueryResult result = CharacterDatabase.Query("SELECT catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE guildId={} AND assetId={}", guildId, assetId);
-    if(!result)
-        return false;
-
-    LOG_INFO("server.loading", "Database query good");
-
-    Field* fields = result->Fetch();
-
-    uint32 catalogId = fields[0].Get<uint32>();
-    uint8 status = fields[1].Get<uint8>();
-    LOG_INFO(
-        "module",
-        "SpawnAsset: assetId={} guildId={} catalogId={} status={} expected={}",
-        assetId,
-        guildId,
-        catalogId,
-        uint32(status),
-        uint32(GH_ASSET_PLACED));    
-
     
-    if(fields[1].Get<uint8>() != GH_ASSET_PLACED)
-        return false;
-
-    LOG_INFO("server.loading", "GH_ASSET_PLACED?");
-
-//    uint32 catalogId = fields[0].Get<uint32>();
-    float x = fields[2].Get<float>();
-    float y = fields[3].Get<float>();
-    float z = fields[4].Get<float>();
-    float o = fields[5].Get<float>();
-
     const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
     if(!catalog)
         return false;
