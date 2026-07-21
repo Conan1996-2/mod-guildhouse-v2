@@ -206,20 +206,26 @@ bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
     if (!data)
         return false;
 
-    Map* map = sMapMgr->FindBaseMap(data->mapid);
-    if (!map)
-        return false;
+    if (Map* map = sMapMgr->FindBaseMap(data->mapid))
+    {
+        auto const& store = map->GetCreatureBySpawnIdStore();
 
-    Creature* creature = map->GetCreatureBySpawnId(guid);
-    if (!creature)
-        return false;
+        auto itr = store.find(spawnGuid);
+        if (itr != store.end())
+        {
+            Creature* creature = itr->second;
+            if (creature)
+            {
+                creature->CombatStop();
+                creature->DeleteFromDB();
+                creature->AddObjectToRemoveList();
 
-    // Delete the creature
-    creature->CombatStop();
-    creature->DeleteFromDB();
-    creature->AddObjectToRemoveList();
+                return true;
+            }
+        }
+    }
 
-    return true;
+    return false;
 }
 
 bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32 guid)
