@@ -206,7 +206,7 @@ bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
     if (!data)
         return false;
 
-    Map* map = sMapMgr->FindBaseMap(data->mapId);
+    Map* map = sMapMgr->FindBaseMap(data->mapid);
     if (!map)
         return false;
 
