@@ -22,7 +22,7 @@ public:
     // =====================================================
     // Asset spawning
     // =====================================================
-    bool SpawnAsset(uint32_t guildId, uint32_t assetId);
+    bool SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o);
 
     // =====================================================
     // Removal
