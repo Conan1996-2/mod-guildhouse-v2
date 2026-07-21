@@ -131,14 +131,14 @@ bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
     if (!GuildHouseUtil::CanManageGuildHouse(player))
     {
         handler->PSendSysMessage("Only the Guild Master may place the Guild House salesman.");
-        return false;
+        return true;
     }
 
     uint32 entry = player->GetTeamId() == TEAM_ALLIANCE ? 900002 : 900003;
     if (!sGuildHouseMgr.CreatePermanentSalesman(player, entry))
     {
         handler->PSendSysMessage("Failed creating Guild House salesman.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House salesman created.");
