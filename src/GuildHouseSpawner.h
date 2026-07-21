@@ -23,6 +23,7 @@ public:
     // Asset spawning
     // =====================================================
     bool SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o);
+    bool SpawnCreature(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o);
 
     // =====================================================
     // Removal
@@ -35,11 +36,11 @@ public:
     // =====================================================
     bool MoveAsset(uint32_t guildId, uint32_t assetId, float deltaX, float deltaY, float deltaZ, float orientation);
 
+
 private:
 
     GuildHouseSpawner() = default;
 
-    bool SpawnCreature(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o);
     bool SpawnGameObject(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o);
     bool RemoveCreatureSpawn(uint32_t guid);
     bool RemoveGameObjectSpawn(uint32_t guid);
