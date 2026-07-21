@@ -330,7 +330,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
 
     QueryResult result = CharacterDatabase.Query("SELECT catalogId FROM guildhouse_asset WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
     if(!result)
-        return;
+        return false;
 
     return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->fetch()[0].get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 }
