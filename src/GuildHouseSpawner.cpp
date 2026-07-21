@@ -32,7 +32,8 @@ void GuildHouseSpawner::LoadPlacedAssets()
     do
     {
         Field* fields = result->Fetch();
-        SpawnAsset(fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[4].Get<float>(), fields[5].Get<float>(), fields[6].Get<float>(), fields[7].Get<float>());
+        if(fields[3].Get<uint8_t>() == GH_ASSET_PLACED)
+            SpawnAsset(fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[4].Get<float>(), fields[5].Get<float>(), fields[6].Get<float>(), fields[7].Get<float>());
     } while(result->NextRow());
 }
 
