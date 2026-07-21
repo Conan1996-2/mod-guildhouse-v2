@@ -6,6 +6,8 @@
 class Player;
 class Creature;
 
+// all Brokers will be unowned and listed in table characters.guildhouse_spawns with guildId=0 and assetId=0
+
 class GuildHouseBroker : public CreatureScript
 {
 public:
