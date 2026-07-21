@@ -107,22 +107,3 @@ DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS guildhouse_salesman;
-CREATE TABLE guildhouse_salesman
-(
-    guildId INT UNSIGNED NOT NULL,
-    spawnGuid INT UNSIGNED NOT NULL,
-    phaseMask INT UNSIGNED NOT NULL,
-    mapId INT UNSIGNED NOT NULL,
-
-    positionX FLOAT NOT NULL,
-    positionY FLOAT NOT NULL,
-    positionZ FLOAT NOT NULL,
-    orientation FLOAT NOT NULL,
-
-    PRIMARY KEY(guildId),
-
-    KEY idx_phase(phaseMask),
-    KEY idx_spawnGuid(spawnGuid)
-) ENGINE=InnoDB
-DEFAULT CHARSET=utf8mb4
-COLLATE=utf8mb4_unicode_ci;
