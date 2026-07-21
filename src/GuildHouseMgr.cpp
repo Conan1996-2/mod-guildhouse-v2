@@ -427,7 +427,8 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 // =====================================================
 bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 {
-    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId={}", guildId);
+//    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId={}", guildId);
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId=0", guildId);
     if(!result)
         return false;
 
@@ -438,7 +439,6 @@ void GuildHouseMgr::RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint
 {
 //    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,spawnGuid,mapId,phaseMask,positionX,positionY,positionZ,orientation)"
 //        "VALUES ({},{},{},{},{},{},{},{})", guildId, spawnId, mapId, phaseMask, x, y, z, o);
-    sGuildHouseSpawner.SpawnCreature(guildId, 0, phaseMask, mapId, spawnId, x, y, z, o);
 }
 
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
@@ -454,9 +454,7 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     if(!phaseMask)
         return false;
 
-    //WorldDatabase.Execute("INSERT INTO creature (id,map,phaseMask,position_x,position_y,position_z,orientation)"
-    //    "VALUES ({},{},{},{},{},{},{})", entry, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-
+/*
     Creature* creature = new Creature();
     if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), phaseMask, entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
     {
@@ -478,10 +476,9 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     }
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
-
-    RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-
-    return true;
+*/
+    //RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+    return (sGuildHouseSpawner.SpawnCreature(guildId, 0, phaseMask, player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()));
 }
 
 // =====================================================
