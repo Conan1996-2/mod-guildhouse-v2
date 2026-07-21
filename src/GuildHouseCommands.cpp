@@ -83,7 +83,7 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 
     uint32 entry = player->GetTeamId() == TEAM_ALLIANCE ? 900000 : 900001;
 
-    if(sGuildHouseSpawner.SpawnAsset (0, 0,  player->GetPhaseMaskForSpawn(), player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+    if(sGuildHouseSpawner.SpawnCreature (0, 0,  player->GetPhaseMaskForSpawn(), player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
         handler->PSendSysMessage("Guild House Broker permanently spawned.");
     else
         handler->PSendSysMessage("Unable to spawn Guild House Broker");
