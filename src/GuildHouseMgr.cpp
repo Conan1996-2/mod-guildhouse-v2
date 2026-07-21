@@ -332,7 +332,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     if(!result)
         return false;
 
-    return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+    return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 }
 
 bool GuildHouseMgr::MoveAsset(Player* player, uint32_t /*assetId*/)
