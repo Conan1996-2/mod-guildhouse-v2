@@ -158,7 +158,6 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
 // =====================================================
 bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
 {
-    //QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
     QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId={} AND assetId={}", guildId, assetId);
     if(!result)
         return false;
@@ -203,7 +202,23 @@ bool GuildHouseSpawner::RemoveAllAssets(uint32_t guildId)
 // =====================================================
 bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
 {
-    WorldDatabase.Execute("DELETE FROM creature WHERE guid={}", guid);
+    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+    if (!data)
+        return false;
+
+    Map* map = sMapMgr->FindBaseMap(data->mapId);
+    if (!map)
+        return false;
+
+    Creature* creature = map->GetCreatureBySpawnId(guid);
+    if (!creature)
+        return false;
+
+    // Delete the creature
+    creature->CombatStop();
+    creature->DeleteFromDB();
+    creature->AddObjectToRemoveList();
+
     return true;
 }
 
