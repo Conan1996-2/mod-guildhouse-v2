@@ -427,18 +427,11 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 // =====================================================
 bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 {
-//    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_salesman WHERE guildId={}", guildId);
     QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId=0", guildId);
     if(!result)
         return false;
 
     return result->Fetch()[0].Get<uint32>() > 0;
-}
-
-void GuildHouseMgr::RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t phaseMask, float x, float y, float z, float o)
-{
-//    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,spawnGuid,mapId,phaseMask,positionX,positionY,positionZ,orientation)"
-//        "VALUES ({},{},{},{},{},{},{},{})", guildId, spawnId, mapId, phaseMask, x, y, z, o);
 }
 
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
@@ -454,30 +447,6 @@ bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
     if(!phaseMask)
         return false;
 
-/*
-    Creature* creature = new Creature();
-    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), phaseMask, entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
-    {
-        delete creature;
-        return false;
-    }
-
-   creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), phaseMask);
-    
-    uint32 spawnId = creature->GetSpawnId();
-    creature->CleanupsBeforeDelete();
-    delete creature;
-
-    creature = new Creature();
-    if (!creature->LoadCreatureFromDB(spawnId, player->GetMap()))
-    {
-        delete creature;
-        return false;
-    }
-
-    sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
-*/
-    //RecordSalesmanSpawn(guildId, spawnId, player->GetMapId(), phaseMask, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
     return (sGuildHouseSpawner.SpawnCreature(guildId, 0, phaseMask, player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()));
 }
 
@@ -495,13 +464,9 @@ public:
 
     void OnStartup() override
     {
-
         sGuildHouseCatalogMgr.Load();
-        
         sGuildHousePhaseMgr.Load();
-
         sGuildHouseMgr.Load();
-
         sGuildHouseSpawner.LoadPlacedAssets();
     }
 };
