@@ -82,37 +82,10 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
         return false;
 
     uint32 entry = player->GetTeamId() == TEAM_ALLIANCE ? 900000 : 900001;
-
     if(sGuildHouseSpawner.SpawnCreature (0, 0,  player->GetPhaseMaskForSpawn(), player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
         handler->PSendSysMessage("Guild House Broker permanently spawned.");
     else
         handler->PSendSysMessage("Unable to spawn Guild House Broker");
-/*
-    Creature* creature = new Creature();
-    if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), player->GetPhaseMaskForSpawn(), entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
-    {
-        handler->PSendSysMessage("Unable to spawn Guild House Broker");
-        delete creature;
-        return true;
-    }
-
-    creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), player->GetPhaseMaskForSpawn());
-
-    uint32 spawnId = creature->GetSpawnId();
-
-    creature->CleanupsBeforeDelete();
-    delete creature;
-
-    creature = new Creature();
-    if (!creature->LoadCreatureFromDB(spawnId, player->GetMap()))
-    {
-        handler->PSendSysMessage("Unable to spawn Guild House Broker");
-        delete creature;
-        return true;
-    }
-
-    sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
-*/
 
     return true;
 }
@@ -136,12 +109,9 @@ bool GuildHouseCommandScript::HandleAddSalesman(ChatHandler* handler)
 
     uint32 entry = player->GetTeamId() == TEAM_ALLIANCE ? 900002 : 900003;
     if (!sGuildHouseMgr.CreatePermanentSalesman(player, entry))
-    {
         handler->PSendSysMessage("Failed creating Guild House salesman.");
-        return true;
-    }
-
-    handler->PSendSysMessage("Guild House salesman created.");
+    else
+        handler->PSendSysMessage("Guild House salesman created.");
 
     return true;
 }
