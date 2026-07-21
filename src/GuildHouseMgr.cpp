@@ -436,8 +436,9 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 
 void GuildHouseMgr::RecordSalesmanSpawn(uint32_t guildId, uint32_t spawnId, uint32_t mapId, uint32_t phaseMask, float x, float y, float z, float o)
 {
-    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,spawnGuid,mapId,phaseMask,positionX,positionY,positionZ,orientation)"
-        "VALUES ({},{},{},{},{},{},{},{})", guildId, spawnId, mapId, phaseMask, x, y, z, o);
+//    CharacterDatabase.Execute("INSERT INTO guildhouse_salesman (guildId,spawnGuid,mapId,phaseMask,positionX,positionY,positionZ,orientation)"
+//        "VALUES ({},{},{},{},{},{},{},{})", guildId, spawnId, mapId, phaseMask, x, y, z, o);
+    sGuildHouseSpawner.SpawnCreature(guildId, 0, phaseMask, mapId, spawnId, x, y, z, o);
 }
 
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
