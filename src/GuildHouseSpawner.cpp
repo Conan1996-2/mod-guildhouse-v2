@@ -210,7 +210,7 @@ bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
     {
         auto const& store = map->GetCreatureBySpawnIdStore();
 
-        auto itr = store.find(spawnGuid);
+        auto itr = store.find(guid);
         if (itr != store.end())
         {
             Creature* creature = itr->second;
