@@ -157,18 +157,21 @@ bool GuildHouseCommandScript::HandleSellGuildHouse(ChatHandler* handler, char co
 
     uint32 guildId = player->GetGuildId();
     if (!guildId)
-        return false;
+    {
+        handler->PSendSysMessage("You must belong to a guild.");
+        return true;
+    }
 
     if (!GuildHouseUtil::IsGuildMaster(player))
     {
         handler->PSendSysMessage("Only the Guild Master may sell the Guild House.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.SellGuildHouse(guildId))
     {
         handler->PSendSysMessage("Failed selling Guild House.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House sold.");
@@ -188,7 +191,7 @@ bool GuildHouseCommandScript::HandleTeleportGuildHouse(ChatHandler* handler, cha
     if (!sGuildHouseMgr.TeleportToGuildHouse(player))
     {
         handler->PSendSysMessage("Unable to teleport to Guild House.");
-        return false;
+        return true;
     }
 
     return true;
@@ -207,14 +210,14 @@ bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*
     if (!guildId)
     {
         handler->PSendSysMessage("You must belong to a guild.");
-        return false;
+        return true;
     }
 /*
     const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
     if (!house)
     {
         handler->PSendSysMessage("Your guild does not own a Guild House.");
-        return false;
+        return true;
     }
 */
     handler->PSendSysMessage("==== Guild House Assets ====");
@@ -293,20 +296,20 @@ bool GuildHouseCommandScript::HandlePlaceAsset(ChatHandler* handler, char const*
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh asset place <assetId>");
-        return false;
+        return true;
     }
 
     uint32 assetId = atoi(args);
     if (!assetId)
     {
         handler->PSendSysMessage("Invalid asset id.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.PlaceAsset(player, assetId))
     {
         handler->PSendSysMessage("Failed placing Guild House asset.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House asset {} placed.", assetId);
@@ -326,20 +329,20 @@ bool GuildHouseCommandScript::HandleMoveAsset(ChatHandler* handler, char const* 
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh asset move <assetId>");
-        return false;
+        return true;
     }
 
     uint32 assetId = atoi(args);
     if (!assetId)
     {
         handler->PSendSysMessage("Invalid asset id.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.MoveAsset(player, assetId))
     {
         handler->PSendSysMessage("Failed moving Guild House asset.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House asset {} moved.", assetId);
@@ -361,20 +364,20 @@ bool GuildHouseCommandScript::HandleStoreAsset(ChatHandler* handler, char const*
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh asset store <assetId>");
-        return false;
+        return true;
     }
 
     uint32 assetId = atoi(args);
     if (!assetId)
     {
         handler->PSendSysMessage("Invalid asset id.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.StoreAsset(player, assetId))
     {
         handler->PSendSysMessage("Failed storing Guild House asset.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House asset {} stored.", assetId);
@@ -396,20 +399,20 @@ bool GuildHouseCommandScript::HandleSellAsset(ChatHandler* handler, char const* 
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh asset sell <assetId>");
-        return false;
+        return true;
     }
 
     uint32 assetId = atoi(args);
     if (!assetId)
     {
         handler->PSendSysMessage("Invalid asset id.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.SellAsset(player, assetId))
     {
         handler->PSendSysMessage("Failed selling Guild House asset.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House asset {} sold.", assetId);
@@ -426,7 +429,7 @@ bool GuildHouseCommandScript::HandleListCategories(ChatHandler* handler, char co
     if (categories.empty())
     {
         handler->PSendSysMessage("No Guild House categories available.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("==== Guild House Categories ====");
@@ -457,14 +460,14 @@ bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh shop list <categoryId>");
-        return false;
+        return true;
     }
 
     uint32 categoryId = atoi(args);
     if (!categoryId)
     {
         handler->PSendSysMessage("Invalid category id.");
-        return false;
+        return true;
     }
 
     std::vector<const GHCatalog*> catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player->GetTeamId());
@@ -472,7 +475,7 @@ bool GuildHouseCommandScript::HandleListCatalog(ChatHandler* handler, char const
     if (catalogs.empty())
     {
         handler->PSendSysMessage("No Guild House items found.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("==== Guild House Catalog ====");
@@ -505,20 +508,20 @@ bool GuildHouseCommandScript::HandlePurchaseCatalog(ChatHandler* handler, char c
     if (!args || !*args)
     {
         handler->PSendSysMessage("Usage: .gh shop buy <catalogId>");
-        return false;
+        return true;
     }
 
     uint32 catalogId = atoi(args);
     if (!catalogId)
     {
         handler->PSendSysMessage("Invalid catalog id.");
-        return false;
+        return true;
     }
 
     if (!sGuildHouseMgr.PurchaseCatalogItem(player, catalogId))
     {
         handler->PSendSysMessage("Failed purchasing Guild House item.");
-        return false;
+        return true;
     }
 
     handler->PSendSysMessage("Guild House item purchased.");
