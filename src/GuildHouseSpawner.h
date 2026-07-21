@@ -31,12 +31,6 @@ public:
     bool RemoveAsset(uint32_t guildId, uint32_t assetId);
     bool RemoveAllAssets(uint32_t guildId);
 
-    // =====================================================
-    // Movement
-    // =====================================================
-    bool MoveAsset(uint32_t guildId, uint32_t assetId, float deltaX, float deltaY, float deltaZ, float orientation);
-
-
 private:
 
     GuildHouseSpawner() = default;
