@@ -212,15 +212,3 @@ bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32 guid)
     WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", guid);
     return true;
 }
-
-// =====================================================
-// Move Asset
-// =====================================================
-bool GuildHouseSpawner::MoveAsset(uint32_t guildId, uint32_t assetId, float deltaX, float deltaY, float deltaZ, float orientation)
-{
-    //CharacterDatabase.Execute("UPDATE guildhouse_spawn SET positionX=positionX+{},positionY=positionY+{},positionZ=positionZ+{},orientation={} "
-    CharacterDatabase.Execute("UPDATE guildhouse_spawn SET x=x+{},y=y+{},z=z+{},o={} "
-        "WHERE guildId={} AND assetId={} AND enabled=1", deltaX, deltaY, deltaZ, orientation, guildId, assetId);
-
-    return true;
-}
