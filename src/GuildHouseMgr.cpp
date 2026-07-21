@@ -328,7 +328,11 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
         GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
 
-    return sGuildHouseSpawner.SpawnAsset(guildId, assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT catalogId FROM guildhouse_asset WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
+    if(!result)
+        return;
+
+    return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->fetch()[0].get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 }
 
 bool GuildHouseMgr::MoveAsset(Player* player, uint32_t /*assetId*/)
