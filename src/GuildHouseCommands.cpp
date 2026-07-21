@@ -4,6 +4,7 @@
 #include "GuildHouseCatalogMgr.h"
 #include "GuildHouseDefines.h"
 #include "GuildHouseTypes.h"
+#include "GuildHouseSpawner.h"
 
 #include "Chat.h"
 #include "Player.h"
@@ -77,17 +78,22 @@ ChatCommandTable GuildHouseCommandScript::GetCommands() const
 bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
 {
     Player* player = handler->GetSession()->GetPlayer();
-
     if (!player)
         return false;
 
     uint32 entry = player->GetTeamId() == TEAM_ALLIANCE ? 900000 : 900001;
 
+    if(sGuildHouseSpawner.SpawnAsset (0, 0,  player->GetPhaseMaskForSpawn(), player->GetMapId(), entry, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+        handler->PSendSysMessage("Guild House Broker permanently spawned.");
+    else
+        handler->PSendSysMessage("Unable to spawn Guild House Broker");
+/*
     Creature* creature = new Creature();
     if (!creature->Create(player->GetMap()->GenerateLowGuid<HighGuid::Unit>(), player->GetMap(), player->GetPhaseMaskForSpawn(), entry, 0, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
     {
+        handler->PSendSysMessage("Unable to spawn Guild House Broker");
         delete creature;
-        return false;
+        return true;
     }
 
     creature->SaveToDB(player->GetMapId(), (1 << player->GetMap()->GetSpawnMode()), player->GetPhaseMaskForSpawn());
@@ -102,12 +108,11 @@ bool GuildHouseCommandScript::HandleAddBroker(ChatHandler* handler)
     {
         handler->PSendSysMessage("Unable to spawn Guild House Broker");
         delete creature;
-        return false;
+        return true;
     }
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
-
-    handler->PSendSysMessage("Guild House Broker permanently spawned. Spawn ID: {}", spawnId);
+*/
 
     return true;
 }
