@@ -319,18 +319,21 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     if (!house)
         return false;
 
-    //
-    // Must be inside guild phase
-    //
     if (!sGuildHousePhaseMgr.IsMember(player))
         return false;
-    
+
+    LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset update guildhouse_asset status={}", GH_ASSET_PLACED);
+
     CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
         GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
+
+    LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset get catalogId from guildhouse_asset");
 
     QueryResult result = CharacterDatabase.Query("SELECT catalogId FROM guildhouse_asset WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
     if(!result)
         return false;
+
+    LOG_INFO("server.loading", "GuildHouseMgr call SpawnAsset");
 
     return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 }
