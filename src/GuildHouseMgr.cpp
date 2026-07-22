@@ -335,26 +335,6 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 }
 
-bool GuildHouseMgr::MoveAsset(Player* player, uint32_t /*assetId*/)
-{
-    if (!player)
-        return false;
-
-    uint32 guildId = player->GetGuildId();
-    if (!guildId)
-        return false;
-
-    if (!sGuildHousePhaseMgr.IsMember(player))
-        return false;
-
-    //
-    // Later we can add mover mode:
-    // target position capture
-    //
-
-    return true;
-}
-
 bool GuildHouseMgr::StoreAsset(Player* player, uint32_t assetId)
 {
     if (!player)
@@ -367,11 +347,21 @@ bool GuildHouseMgr::StoreAsset(Player* player, uint32_t assetId)
     if (!sGuildHousePhaseMgr.IsMember(player))
         return false;
 
-    sGuildHouseSpawner.RemoveAsset(guildId, assetId);
+    if (sGuildHouseSpawner.RemoveAsset(guildId, assetId))
+    {
+        CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={} WHERE guildId={} AND assetId={}", GH_ASSET_STORED, guildId, assetId);
+        return true;
+    }
+    
+    return false;
+}
 
-    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={} WHERE guildId={} AND assetId={}", GH_ASSET_STORED, guildId, assetId);
+bool GuildHouseMgr::MoveAsset(Player* player, uint32_t assetId)
+{
+    if(StoreAsset(player, assetId))
+        return PlaceAsset(player, assetId);
 
-    return true;
+    return false;
 }
 
 bool GuildHouseMgr::SellAsset(Player* player, uint32_t assetId)
