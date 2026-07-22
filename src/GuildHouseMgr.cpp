@@ -306,7 +306,7 @@ void GuildHouseMgr::Load()
     LOG_INFO("server.loading", "GuildHouseMgr loaded {} houses and {} locations", _houses.size(), _locations.size());
 }
 
-bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
+bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExists = true)
 {
     if (!player)
         return false;
@@ -330,7 +330,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
 
     LOG_INFO("server.loading", "GuildHouseMgr call SpawnAsset");
 
-    if (sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+    if (sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), checkExists))
     {
         LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset update guildhouse_asset status={}", GH_ASSET_PLACED);
     
@@ -367,7 +367,7 @@ bool GuildHouseMgr::StoreAsset(Player* player, uint32_t assetId)
 bool GuildHouseMgr::MoveAsset(Player* player, uint32_t assetId)
 {
     if(StoreAsset(player, assetId))
-        return PlaceAsset(player, assetId);
+        return PlaceAsset(player, assetId, false);
 
     return false;
 }
