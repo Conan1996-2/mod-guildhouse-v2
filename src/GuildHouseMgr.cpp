@@ -306,7 +306,7 @@ void GuildHouseMgr::Load()
     LOG_INFO("server.loading", "GuildHouseMgr loaded {} houses and {} locations", _houses.size(), _locations.size());
 }
 
-bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExists = true)
+bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExists)
 {
     if (!player)
         return false;
