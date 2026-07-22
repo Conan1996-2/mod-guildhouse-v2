@@ -52,7 +52,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 // Spawn Asset
 // =====================================================
-bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o, bool checkExists = true)
+bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o, bool checkExists)
 {
     LOG_INFO("server.loading", "In SpawnAsset {}, {}", guildId, assetId);
     
