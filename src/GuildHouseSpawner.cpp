@@ -42,8 +42,7 @@ void GuildHouseSpawner::LoadPlacedAssets()
 // =====================================================
 bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 {
-   // QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
-     QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId={}", guildId, assetId);
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId={}", guildId, assetId);
     if(!result)
         return false;
 
@@ -55,7 +54,7 @@ bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::SpawnAsset(uint32_t guildId, uint32_t assetId, uint32_t catalogId, float x, float y, float z, float o)
 {
-    LOG_INFO("server.loading", "In SpawnAsset");
+    LOG_INFO("server.loading", "In SpawnAsset {}, {}", guildId, assetId);
     
     if(HasExistingSpawn(guildId, assetId))
         return false;
