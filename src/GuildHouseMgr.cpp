@@ -322,11 +322,6 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
     if (!sGuildHousePhaseMgr.IsMember(player))
         return false;
 
-    LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset update guildhouse_asset status={}", GH_ASSET_PLACED);
-
-    CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
-        GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
-
     LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset get catalogId from guildhouse_asset");
 
     QueryResult result = CharacterDatabase.Query("SELECT catalogId FROM guildhouse_asset WHERE guildId={} AND assetId={} AND enabled=1", guildId, assetId);
@@ -335,7 +330,17 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
 
     LOG_INFO("server.loading", "GuildHouseMgr call SpawnAsset");
 
-    return sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+    if (sGuildHouseSpawner.SpawnAsset(guildId, assetId, result->Fetch()[0].Get<uint32>(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+    {
+        LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset update guildhouse_asset status={}", GH_ASSET_PLACED);
+    
+        CharacterDatabase.Execute("UPDATE guildhouse_asset SET status={}, positionX={}, positionY={}, positionZ={}, orientation={} WHERE assetId={} AND guildId={}", 
+            GH_ASSET_PLACED, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), assetId, guildId);
+
+        return true;
+    }
+    
+    return false;
 }
 
 bool GuildHouseMgr::StoreAsset(Player* player, uint32_t assetId)
