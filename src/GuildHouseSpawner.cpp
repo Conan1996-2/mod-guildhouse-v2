@@ -169,12 +169,12 @@ bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
         uint8 type = fields[1].Get<uint8>();
 
         if(type == 0)
-            RemoveCreatureSpawn(guid);
+            if(RemoveCreatureSpawn(guid))
+                CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
         else
-            RemoveGameObjectSpawn(guid);
+            if(RemoveGameObjectSpawn(guid))
+                CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
     }while(result->NextRow());
-
-    //CharacterDatabase.Execute("UPDATE guildhouse_spawn SET enabled=0 WHERE guildId={} AND assetId={}", guildId, assetId);
 
     return true;
 }
@@ -184,7 +184,6 @@ bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::RemoveAllAssets(uint32_t guildId)
 {
-    //QueryResult result = CharacterDatabase.Query("SELECT DISTINCT assetId FROM guildhouse_spawn WHERE guildId={} AND enabled=1", guildId);
     QueryResult result = CharacterDatabase.Query("SELECT DISTINCT assetId FROM guildhouse_spawn WHERE guildId={}", guildId);
     if(!result)
         return false;
