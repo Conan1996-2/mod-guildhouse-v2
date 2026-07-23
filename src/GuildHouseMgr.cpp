@@ -93,26 +93,23 @@ bool GuildHouseMgr::CreateGuildHouse(Player* /*player*/, uint32_t guildId, uint3
     if (!location)
         return false;
 
-    GHGuildHouse house;
-    house.GuildId = guildId;
-    house.OwnerGuid = ownerGuid;
-    house.LocationId = locationId;
-    house.PhaseMask = 0;
-
-    _houses.emplace(guildId, house);
-
     CharacterDatabase.Execute("INSERT INTO guildhouse (guildId,ownerGuid,locationId,purchaseDate) "
-        "VALUES ({},{},{}, (NOW()))", guildId, ownerGuid, locationId);
+    "VALUES ({},{},{}, (NOW()))", guildId, ownerGuid, locationId);
 
     uint32_t phaseMask = CreatePhase( guildId, locationId);
     if (!phaseMask)
     {
         CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}", guildId);
-        _houses.erase(guildId);
         return false;
     }
 
-    _houses[guildId].PhaseMask = phaseMask;
+    GHGuildHouse house;
+    house.GuildId = guildId;
+    house.OwnerGuid = ownerGuid;
+    house.LocationId = locationId;
+    house.PhaseMask = phaseMask;
+
+    _houses.emplace(guildId, house);
 
     return true;
 }
@@ -126,13 +123,10 @@ bool GuildHouseMgr::SellGuildHouse(uint32_t guildId)
     if (itr == _houses.end())
         return false;
 
-    uint32_t phaseMask = GetPhaseMask(guildId);
-    if (phaseMask)
-        sGuildHouseSpawner.RemoveAllAssets(guildId);
+    sGuildHouseSpawner.RemoveAllAssets(guildId);
 
     CharacterDatabase.Execute("DELETE FROM guildhouse WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_asset WHERE guildId={}", guildId);
-    CharacterDatabase.Execute("DELETE FROM guildhouse_salesman WHERE guildId={}", guildId);
     CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={}", guildId);
 
     RemovePhase(guildId);
@@ -300,6 +294,38 @@ void GuildHouseMgr::Load()
             asset.O = fields[7].Get<float>();
 
             itr->second.Assets.push_back(asset);
+        }while(result->NextRow());
+    }
+
+    // -------------------------------------------------
+    // Spawns
+    // -------------------------------------------------
+    if(QueryResult result = CharacterDatabase.Query("SELECT spawnId,guildId,assetId,phaseMask,spawnGuid,spawnType,mapId,x,y,z,o FROM guildhouse_spawn"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[1].Get<uint32>();
+
+            auto itr = _houses.find(guildId);
+            if(itr == _houses.end())
+                continue;
+
+            GHGuildSpawn spawn;
+            spawn.SpawnId = fields[0].Get<uint32>();
+            spawn.GuildId = fields[1].Get<uint32>();
+            spawn.AssetId = fields[2].Get<uint32>();
+            spawn.PhaseMask = fields[3].Get<uint32>();
+            spawn.SpawnGuid = fields[4].Get<uint32>();
+            spawn.SpawnType = fields[5].Get<uint8>();
+
+            spawn.MapId = fields[6].Get<uint32>();
+            spawn.X = fields[7].Get<float>();
+            spawn.Y = fields[8].Get<float>();
+            spawn.Z = fields[9].Get<float>();
+            spawn.O = fields[10].Get<float>();
+
+            itr->second.Spawns.push_back(spawn);
         }while(result->NextRow());
     }
 
@@ -508,7 +534,7 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
 }
 
 // =====================================================
-// Salesman
+// Does the Salesman exist
 // =====================================================
 bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
 {
@@ -525,17 +551,9 @@ bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
     return false;
 }
 
-/*
-bool GuildHouseMgr::HasSalesman(uint32_t guildId) const
-{
-    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId=0", guildId);
-    if(!result)
-        return false;
-
-    return result->Fetch()[0].Get<uint32>() > 0;
-}
-*/
-
+// =====================================================
+// Create the Salesman
+// =====================================================
 bool GuildHouseMgr::CreatePermanentSalesman(Player* player, uint32_t entry)
 {
     if(!player)
