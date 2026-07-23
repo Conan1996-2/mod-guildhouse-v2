@@ -515,13 +515,17 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
     if (!catalog || !catalog->Enabled)
         return false;
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy) VALUES ({},{},{},0,0,0,0,{})",
-        guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
-
-    uint32_t assetId = CharacterDatabase.GetLastInsertId();
-
-    if (!assetId)
+    if(!CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy) VALUES ({},{},{},0,0,0,0,{})",
+        guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter()))
+    {
         return false;
+    }
+
+    QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
+    if (!result)
+        return false;
+
+    uint32_t assetId = result->Fetch()[0].Get<uint32>();
 
     GHGuildAsset asset;
     asset.AssetId = assetId;
