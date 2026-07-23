@@ -393,7 +393,7 @@ std::vector<const GHGuildAsset*> GuildHouseMgr::GetPurchasedAssets(uint32_t guil
     return result;
 }
 
-bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExists)
+bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId)
 {
     if (!player)
         return false;
@@ -415,7 +415,7 @@ bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExist
 
     LOG_INFO("server.loading", "GuildHouseMgr PlaceAsset spawning asset {}", assetId);
 
-    if (!sGuildHouseSpawner.SpawnAsset(guildId, asset->AssetId, asset->CatalogId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), checkExists))
+    if (!sGuildHouseSpawner.SpawnAsset(guildId, asset->AssetId, asset->CatalogId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
         return false;
 
     asset->Status = GH_ASSET_PLACED;
