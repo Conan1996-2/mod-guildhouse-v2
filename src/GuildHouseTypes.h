@@ -186,8 +186,10 @@ struct GHGuildHouse
     uint32_t OwnerGuid = 0;
     uint32_t LocationId = 0;
     uint32_t PhaseMask = 0;
-    std::vector<GHGuildAsset> Assets;
-    std::vector<GHGuildSpawn> Spawns;
+    std::unordered_map<uint32_t, GHGuildAsset> Assets;
+    std::unordered_map<uint32_t, GHGuildSpawn> Spawns;
+    //std::vector<GHGuildAsset> Assets;
+    //std::vector<GHGuildSpawn> Spawns;
 };
 
 // =====================================================
