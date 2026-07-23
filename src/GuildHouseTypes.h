@@ -111,7 +111,7 @@ struct GHGuildSpawn
     uint32_t SpawnGuid = 0;
     uint8_t SpawnType = 0;
 
-    int32_t MapId = 0;
+    uint32_t MapId = 0;
     float X = 0.0f;
     float Y = 0.0f;
     float Z = 0.0f;
