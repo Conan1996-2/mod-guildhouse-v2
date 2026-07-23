@@ -25,16 +25,16 @@ void GuildHouseSpawner::LoadPlacedAssets()
 {
     LOG_INFO("server.loading", "Loading Guild House phase spawns");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guildId,assetId,catalogId,status,positionX,positionY,positionZ,orientation FROM guildhouse_asset WHERE status={}", GH_ASSET_PLACED);
-    if(!result)
-        return;
-
-    do
+    for (auto const& [guildId, house] : sGuildHouseMgr.GetHouses())
     {
-        Field* fields = result->Fetch();
-        if(fields[3].Get<uint8_t>() == GH_ASSET_PLACED)
-            SpawnAsset(fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[4].Get<float>(), fields[5].Get<float>(), fields[6].Get<float>(), fields[7].Get<float>());
-    } while(result->NextRow());
+        for (auto const& [assetId, asset] : house.Assets)
+        {
+            if (asset.Status != GH_ASSET_PLACED)
+                continue;
+
+            SpawnAsset(guildId, asset.AssetId, asset.CatalogId, asset.X, asset.Y, asset.Z, asset.O);
+        }
+    }
 }
 
 // =====================================================
@@ -42,11 +42,18 @@ void GuildHouseSpawner::LoadPlacedAssets()
 // =====================================================
 bool GuildHouseSpawner::HasExistingSpawn(uint32_t guildId, uint32_t assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM guildhouse_spawn WHERE guildId={} AND assetId={}", guildId, assetId);
-    if(!result)
+    GHGuildHouse const* house = sGuildHouseMgr.GetGuildHouse(guildId);
+
+    if (!house)
         return false;
 
-    return result->Fetch()[0].Get<uint32>() > 0;
+    for (GHGuildSpawn const& spawn : house->Spawns)
+    {
+        if (spawn.AssetId == assetId && spawn.SpawnGuid != 0)
+            return true;
+    }
+
+    return false;
 }
 
 // =====================================================
@@ -127,10 +134,29 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
     LOG_INFO("server.loading", "Can load creature from DB, saving to guildhouse_spawn");
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
-    
-    CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) "
-        "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, spawnId, 0, mapId, phaseMask, x, y, z, o);
 
+    CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) "
+        "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, spawnId, GH_SPAWN_CREATURE, mapId, phaseMask, x, y, z, o);
+
+    GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
+    if (house)
+    {
+        GHGuildSpawn spawn;
+        spawn.GuildId = guildId;
+        spawn.AssetId = assetId;
+        spawn.SpawnGuid = spawnId;
+        spawn.SpawnType = GH_SPAWN_CREATURE;
+        spawn.PhaseMask = phaseMask;
+
+        spawn.MapId = mapId;
+        spawn.X = x;
+        spawn.Y = y;
+        spawn.Z = z;
+        spawn.O = o;
+
+        house->Spawns.push_back(std::move(spawn));
+    }
+    
     return true;
 }
 
@@ -144,8 +170,6 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
     WorldDatabase.Execute("INSERT INTO gameobject (guid,id,map,phaseMask,position_x,position_y,position_z,orientation)"
         "VALUES ({},{},{},{},{},{},{},{})", guid, entry, mapId, phaseMask, x, y, z, o);
 
-    //CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,positionX,positionY,positionZ,orientation)"
-    //    "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 1, mapId, phaseMask, x, y, z, o);
     CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) "
         "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 1, mapId, phaseMask, x, y, z, o);
 
@@ -157,29 +181,47 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
 // =====================================================
 bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT spawnGuid,spawnType FROM guildhouse_spawn WHERE guildId={} AND assetId={}", guildId, assetId);
-    if(!result)
+    GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
+    if (!house)
         return false;
 
-    do
+    bool removed = false;
+    for (auto itr = house->Spawns.begin(); itr != house->Spawns.end(); )
     {
-        Field* fields = result->Fetch();
-        uint32 guid = fields[0].Get<uint32>();
-        uint8 type = fields[1].Get<uint8>();
-
-        if(type == 0)
+        if (itr->AssetId != assetId)
         {
-            if(RemoveCreatureSpawn(guid))
-                CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
+            ++itr;
+            continue;
+        }
+
+        uint32_t spawnGuid = itr->SpawnGuid;
+        bool success = false;
+
+        switch (itr->SpawnType)
+        {
+            case GH_SPAWN_CREATURE:
+                success = RemoveCreatureSpawn(spawnGuid);
+                break;
+            case GH_SPAWN_GAMEOBJECT:
+                success = RemoveGameObjectSpawn(spawnGuid);
+                break;
+            default:
+                break;
+        }
+
+        if (success)
+        {
+            CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, spawnGuid);
+            itr = house->Spawns.erase(itr);
+            removed = true;
         }
         else
         {
-            if(RemoveGameObjectSpawn(guid))
-                CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
+            ++itr;
         }
-    }while(result->NextRow());
+    }
 
-    return true;
+    return removed;
 }
 
 // =====================================================
@@ -187,51 +229,18 @@ bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
 // =====================================================
 bool GuildHouseSpawner::RemoveAllAssets(uint32_t guildId)
 {
-    QueryResult result = CharacterDatabase.Query("SELECT DISTINCT assetId FROM guildhouse_spawn WHERE guildId={}", guildId);
-    if(!result)
+    GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
+    if (!house)
         return false;
 
-    do
-    {
-        RemoveAsset(guildId, result->Fetch()[0].Get<uint32>());
-    }while(result->NextRow());
+    std::unordered_set<uint32_t> assetIds;
+
+    for (GHGuildSpawn const& spawn : house->Spawns)
+        assetIds.insert(spawn.AssetId);
+
+    for (uint32_t assetId : assetIds)
+        RemoveAsset(guildId, assetId);
 
     return true;
 }
 
-// =====================================================
-// World removal
-// =====================================================
-bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
-{
-    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
-    if (!data)
-        return false;
-
-    if (Map* map = sMapMgr->FindBaseMap(data->mapid))
-    {
-        auto const& store = map->GetCreatureBySpawnIdStore();
-
-        auto itr = store.find(guid);
-        if (itr != store.end())
-        {
-            Creature* creature = itr->second;
-            if (creature)
-            {
-                creature->CombatStop();
-                creature->DeleteFromDB();
-                creature->AddObjectToRemoveList();
-
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32 guid)
-{
-    WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", guid);
-    return true;
-}
