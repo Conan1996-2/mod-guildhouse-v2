@@ -182,75 +182,38 @@ bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*
         handler->PSendSysMessage("You must belong to a guild.");
         return true;
     }
-/*
+
     const GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId);
     if (!house)
     {
         handler->PSendSysMessage("Your guild does not own a Guild House.");
         return true;
     }
-*/
+
     handler->PSendSysMessage("==== Guild House Assets ====");
 
-    QueryResult result = CharacterDatabase.Query("SELECT assetId, catalogId, status FROM guildhouse_asset WHERE guildId={}", guildId);
-    if (!result)
+    if (house->Assets.empty())
     {
         handler->PSendSysMessage("No guild assets.");
         return true;
     }
     
-    do
-    {
-        Field* fields = result->Fetch();
-    
-        uint32 assetId   = fields[0].Get<uint32>();
-        uint32 catalogId = fields[1].Get<uint32>();
-        uint8 status     = fields[2].Get<uint8>();
-    
-        const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(catalogId);
-        char const* statusText = "Unknown";
-
-        switch (status)
-        {
-            case GH_ASSET_PURCHASED: statusText = "Purchased"; break;
-            case GH_ASSET_PLACED:    statusText = "Placed";    break;
-            case GH_ASSET_STORED:    statusText = "Stored";    break;
-            case GH_ASSET_DISABLED:  statusText = "Disabled";  break;
-        }
-    
-        handler->PSendSysMessage("Asset {} | {} | {}", assetId, catalog ? catalog->Name.c_str() : "Unknown", statusText);
-    
-    } while (result->NextRow());
-    
-/*
-    for (const GHGuildAsset& asset : house->Assets)
+    for (auto const& [assetId, asset] : house->Assets)
     {
         const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(asset.CatalogId);
 
-        char const* status = "Unknown";
+        char const* statusText = "Unknown";
         switch (asset.Status)
         {
-            case GH_ASSET_PURCHASED:
-                status = "Purchased";
-                break;
-
-            case GH_ASSET_PLACED:
-                status = "Placed";
-                break;
-
-            case GH_ASSET_STORED:
-                status = "Stored";
-                break;
-
-            case GH_ASSET_DISABLED:
-                status = "Disabled";
-                break;
+            case GH_ASSET_PURCHASED:  statusText = "Purchased"; break;
+            case GH_ASSET_PLACED:     statusText = "Placed";    break;
+            case GH_ASSET_STORED:     statusText = "Stored";    break;
+            case GH_ASSET_DISABLED:   statusText = "Disabled";  break;
         }
 
-        handler->PSendSysMessage("Asset {} | {} | {}", asset.AssetId, catalog ? catalog->Name.c_str() : "Unknown", status);
+        handler->PSendSysMessage("Asset {} | {} | {}", assetId, catalog ? catalog->Name.c_str() : "Unknown", statusText);
     }
-*/
-
+    
     return true;
 }
 
