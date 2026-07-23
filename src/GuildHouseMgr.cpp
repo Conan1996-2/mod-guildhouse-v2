@@ -348,13 +348,11 @@ GHGuildAsset* GuildHouseMgr::GetAsset(uint32_t guildId, uint32_t assetId)
     if (houseItr == _houses.end())
         return nullptr;
 
-    for (GHGuildAsset& asset : houseItr->second.Assets)
-    {
-        if (asset.AssetId == assetId)
-            return &asset;
-    }
-
-    return nullptr;
+    auto itr = houseItr->second.Assets.find(assetId);
+    if (itr == houseItr->second.Assets.end())
+        return nullptr;
+    
+    return &itr->second;
 }
 
 const GHGuildAsset* GuildHouseMgr::GetAsset(uint32_t guildId, uint32_t assetId) const
@@ -363,13 +361,12 @@ const GHGuildAsset* GuildHouseMgr::GetAsset(uint32_t guildId, uint32_t assetId) 
     if (houseItr == _houses.end())
         return nullptr;
 
-    for (GHGuildAsset const& asset : houseItr->second.Assets)
-    {
-        if (asset.AssetId == assetId)
-            return &asset;
-    }
+    auto itr = houseItr->second.Assets.find(assetId);
+    if (itr == houseItr->second.Assets.end())
+        return nullptr;
+    
+    return &itr->second;
 
-    return nullptr;
 }
 
 std::vector<const GHGuildAsset*> GuildHouseMgr::GetPurchasedAssets(uint32_t guildId) const
