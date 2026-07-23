@@ -247,7 +247,7 @@ bool GuildHouseSpawner::RemoveAllAssets(uint32_t guildId)
 // =====================================================
 // World removal
 // =====================================================
-bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
+bool GuildHouseSpawner::RemoveCreatureSpawn(uint32_t guid)
 {
     CreatureData const* data = sObjectMgr->GetCreatureData(guid);
     if (!data)
@@ -275,7 +275,7 @@ bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
     return false;
 }
 
-bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32 guid)
+bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32_t guid)
 {
     WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", guid);
     return true;
