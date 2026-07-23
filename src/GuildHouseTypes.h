@@ -96,6 +96,29 @@ struct GHGuildAsset
 };
 
 // =====================================================
+// Existing Spawns
+//
+// Stored in guildhouse_spawn
+//
+// Phase based.
+// =====================================================
+struct GHGuildSpawn
+{
+    uint32_t SpawnId = 0;
+    uint32_t GuildId = 0;
+    uint32_t AssetId = 0;
+    uint32_t PhaseMask = 0;
+    uint32_t SpawnGuid = 0;
+    uint8_t SpawnType = 0;
+
+    int32_t MapId = 0;
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    float O = 0.0f;
+}
+
+// =====================================================
 // Guild Phase Record
 //
 // Replaces Guild Instance.
