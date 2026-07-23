@@ -306,6 +306,57 @@ void GuildHouseMgr::Load()
     LOG_INFO("server.loading", "GuildHouseMgr loaded {} houses and {} locations", _houses.size(), _locations.size());
 }
 
+GHGuildAsset* GuildHouseMgr::GetAsset(uint32_t guildId, uint32_t assetId)
+{
+    auto houseItr = _houses.find(guildId);
+    if (houseItr == _houses.end())
+        return nullptr;
+
+    for (GHGuildAsset& asset : houseItr->second.Assets)
+    {
+        if (asset.AssetId == assetId)
+            return &asset;
+    }
+
+    return nullptr;
+}
+
+const GHGuildAsset* GuildHouseMgr::GetAsset(uint32_t guildId, uint32_t assetId) const
+{
+    auto houseItr = _houses.find(guildId);
+    if (houseItr == _houses.end())
+        return nullptr;
+
+    for (GHGuildAsset const& asset : houseItr->second.Assets)
+    {
+        if (asset.AssetId == assetId)
+            return &asset;
+    }
+
+    return nullptr;
+}
+
+std::vector<const GHGuildAsset*> GuildHouseMgr::GetPurchasedAssets(uint32_t guildId) const
+{
+    std::vector<const GHGuildAsset*> result;
+
+    auto houseItr = _houses.find(guildId);
+    if (houseItr == _houses.end())
+        return result;
+
+    for (GHGuildAsset const& asset : houseItr->second.Assets)
+    {
+        if (asset.Status == GH_ASSET_PURCHASED ||
+            asset.Status == GH_ASSET_PLACED ||
+            asset.Status == GH_ASSET_STORED)
+        {
+            result.push_back(&asset);
+        }
+    }
+
+    return result;
+}
+
 bool GuildHouseMgr::PlaceAsset(Player* player, uint32_t assetId, bool checkExists)
 {
     if (!player)
