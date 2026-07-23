@@ -168,11 +168,15 @@ bool GuildHouseSpawner::RemoveAsset(uint32_t guildId, uint32_t assetId)
         uint8 type = fields[1].Get<uint8>();
 
         if(type == 0)
+        {
             if(RemoveCreatureSpawn(guid))
                 CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
+        }
         else
+        {
             if(RemoveGameObjectSpawn(guid))
                 CharacterDatabase.Execute("DELETE FROM guildhouse_spawn WHERE guildId={} AND assetId={} AND spawnGuid={}", guildId, assetId, guid);
+        }
     }while(result->NextRow());
 
     return true;
