@@ -69,8 +69,7 @@ public:
     // =====================================================
     // Assets
     // =====================================================
-    std::vector<const GHGuildAsset*>
-    GetPurchasedAssets(uint32_t guildId) const;
+    std::vector<const GHGuildAsset*> GetPurchasedAssets(uint32_t guildId) const;
     const GHGuildAsset* GetAsset(uint32_t guildId, uint32_t assetId) const;
     GHGuildAsset* GetAsset(uint32_t guildId, uint32_t assetId);
     bool PlaceAsset(Player* player, uint32_t assetId, bool checkExists = true);
