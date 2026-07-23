@@ -302,7 +302,8 @@ void GuildHouseMgr::Load()
             asset.Z = fields[6].Get<float>();
             asset.O = fields[7].Get<float>();
 
-            itr->second.Assets.push_back(asset);
+            //itr->second.Assets.push_back(asset);
+            itr->second.Assets.emplace(asset.AssetId, std::move(asset));
         }while(result->NextRow());
     }
 
