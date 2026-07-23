@@ -31,6 +31,7 @@ public:
     // =====================================================
     bool HasGuildHouse(uint32_t guildId) const;
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
+    GHGuildHouse* GetGuildHouse(uint32_t guildId);
     const GHLocation* GetGuildLocation(uint32_t guildId) const;
     bool CreateGuildHouse(Player* player, uint32_t guildId, uint32_t ownerGuid, uint32_t locationId);
     bool SellGuildHouse(uint32_t guildId);
