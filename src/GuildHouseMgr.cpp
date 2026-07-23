@@ -72,6 +72,15 @@ const GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId) const
     return &itr->second;
 }
 
+GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId)
+{
+    auto itr = _houses.find(guildId);
+    if (itr == _houses.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
 const GHLocation* GuildHouseMgr::GetGuildLocation(uint32_t guildId) const
 {
     const GHGuildHouse* house = GetGuildHouse(guildId);
