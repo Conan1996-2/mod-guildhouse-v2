@@ -459,7 +459,7 @@ bool GuildHouseMgr::StoreAsset(Player* player, uint32_t assetId)
 bool GuildHouseMgr::MoveAsset(Player* player, uint32_t assetId)
 {
     if(StoreAsset(player, assetId))
-        return PlaceAsset(player, assetId, false);
+        return PlaceAsset(player, assetId);
 
     return false;
 }
