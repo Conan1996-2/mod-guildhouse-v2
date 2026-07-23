@@ -30,6 +30,7 @@ public:
     // Ownership
     // =====================================================
     bool HasGuildHouse(uint32_t guildId) const;
+    const std::unordered_map<uint32_t, GHGuildHouse>& GetHouses() const;
     const GHGuildHouse* GetGuildHouse(uint32_t guildId) const;
     GHGuildHouse* GetGuildHouse(uint32_t guildId);
     const GHLocation* GetGuildLocation(uint32_t guildId) const;
