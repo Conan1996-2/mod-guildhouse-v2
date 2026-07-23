@@ -244,3 +244,40 @@ bool GuildHouseSpawner::RemoveAllAssets(uint32_t guildId)
     return true;
 }
 
+// =====================================================
+// World removal
+// =====================================================
+bool GuildHouseSpawner::RemoveCreatureSpawn(uint32 guid)
+{
+    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+    if (!data)
+        return false;
+
+    if (Map* map = sMapMgr->FindBaseMap(data->mapid))
+    {
+        auto const& store = map->GetCreatureBySpawnIdStore();
+
+        auto itr = store.find(guid);
+        if (itr != store.end())
+        {
+            Creature* creature = itr->second;
+            if (creature)
+            {
+                creature->CombatStop();
+                creature->DeleteFromDB();
+                creature->AddObjectToRemoveList();
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32 guid)
+{
+    WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", guid);
+    return true;
+}
+
