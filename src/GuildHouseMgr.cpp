@@ -377,14 +377,12 @@ std::vector<const GHGuildAsset*> GuildHouseMgr::GetPurchasedAssets(uint32_t guil
     if (houseItr == _houses.end())
         return result;
 
-    for (GHGuildAsset const& asset : houseItr->second.Assets)
+    for (auto const& entry : houseItr->second.Assets)
     {
-        if (asset.Status == GH_ASSET_PURCHASED ||
-            asset.Status == GH_ASSET_PLACED ||
-            asset.Status == GH_ASSET_STORED)
-        {
+        GHGuildAsset const& asset = entry.second;
+    
+        if (asset.Status == GH_ASSET_PURCHASED || asset.Status == GH_ASSET_PLACED || asset.Status == GH_ASSET_STORED)
             result.push_back(&asset);
-        }
     }
 
     return result;
