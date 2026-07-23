@@ -116,7 +116,7 @@ struct GHGuildSpawn
     float Y = 0.0f;
     float Z = 0.0f;
     float O = 0.0f;
-}
+};
 
 // =====================================================
 // Guild Phase Record
