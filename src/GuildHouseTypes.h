@@ -164,6 +164,7 @@ struct GHGuildHouse
     uint32_t LocationId = 0;
     uint32_t PhaseMask = 0;
     std::vector<GHGuildAsset> Assets;
+    std::vector<GHGuildSpawn> Spawns;
 };
 
 // =====================================================
