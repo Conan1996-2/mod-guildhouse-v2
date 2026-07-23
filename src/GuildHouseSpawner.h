@@ -36,8 +36,7 @@ private:
     GuildHouseSpawner() = default;
 
     bool SpawnGameObject(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o);
-    bool RemoveCreatureSpawn(uint32_t guid);
-    bool RemoveGameObjectSpawn(uint32_t guid);
+
 };
 
 #define sGuildHouseSpawner GuildHouseSpawner::Instance()
