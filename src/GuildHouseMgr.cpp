@@ -72,6 +72,11 @@ const GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId) const
     return &itr->second;
 }
 
+const std::unordered_map<uint32_t, GHGuildHouse>& GuildHouseMgr::GetHouses() const
+{
+    return _houses;
+}
+
 GHGuildHouse* GuildHouseMgr::GetGuildHouse(uint32_t guildId)
 {
     auto itr = _houses.find(guildId);
