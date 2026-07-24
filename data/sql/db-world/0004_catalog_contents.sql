@@ -43,7 +43,7 @@ INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `s
     (2103, 2100, "Darnasus Portal", 500000, 3, 1, 1),
     
     (2201, 2200, "Shatrath Portal", 500000, 3, 1, 1),
-    (2202, 2200, "Darnasus Portal", 500000, 3, 1, 1);
+    (2202, 2200, "Dalaran Portal", 500000, 3, 1, 1);
 
 TRUNCATE TABLE `guildhouse_catalog_asset`;
 INSERT INTO `guildhouse_catalog_asset` (`componentId`,`catalogId`,`spawnFlags`,`behaviorFlags`,`entryId`,`displayId`,`scale`,`scriptType`,`scriptData`,`xOffset`,`yOffset`,`zOffset`,`oOffset`,`targetMapId`,`targetX`,`targetY`,`targetZ`,`targetO`,`childCatalogId`,`sortOrder`) VALUES
