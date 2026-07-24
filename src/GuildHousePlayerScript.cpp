@@ -25,7 +25,7 @@ public:
     }
 };
 
-void AddGuildHouseScripts()
+void AddSC_GuildHouseScripts()
 {
     new GuildHousePlayerScript();
 }
