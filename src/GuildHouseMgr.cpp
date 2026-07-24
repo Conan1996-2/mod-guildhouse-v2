@@ -226,7 +226,7 @@ void GuildHouseMgr::Load()
     _houses.clear();
     _locations.clear();
 
-    if(QueryResult result = CharacterDatabase.Query("SELECT SELECT MAX(assetId) FROM guildhouse_asset"))
+    if(QueryResult result = CharacterDatabase.Query("SELECT MAX(assetId) FROM guildhouse_asset"))
     {
         Field* fields = result->Fetch();
     
