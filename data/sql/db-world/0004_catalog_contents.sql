@@ -18,32 +18,34 @@ INSERT INTO `guildhouse_category` (`categoryId`, `parentId`, `name`, `sortOrder`
 
 TRUNCATE TABLE `guildhouse_catalog`;
 INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `spawnFlags`, `behaviorFlags`, `enabled`) VALUES
-    (1101, 1100, "Death Knight Trainer", 500000, 1, 4 + 1024, 1),
-    (1102, 1100, "Druid Trainer", 500000, 1, 1 + 1024, 1),
-    (1103, 1100, "Druid Trainer", 500000, 1, 2 + 1024, 1),
-    (1104, 1100, "Hunter Trainer", 500000, 1, 1 + 1024, 1),
-    (1105, 1100, "Hunter Trainer", 500000, 1, 2 + 1024, 1),
-    (1106, 1100, "Mage Trainer", 500000, 1, 1 + 1024, 1),
-    (1107, 1100, "Mage Trainer", 500000, 1, 2 + 1024, 1),
-    (1108, 1100, "Paladin Trainer", 500000, 1, 1 + 1024, 1),
-    (1109, 1100, "Paladin Trainer", 500000, 1, 2 + 1024, 1),
-    (1110, 1100, "Priest Trainer", 500000, 1, 1 + 1024, 1),
-    (1111, 1100, "Priest Trainer", 500000, 1, 2 + 1024, 1),
-    (1112, 1100, "Rogue Trainer", 500000, 1, 1 + 1024, 1),
-    (1113, 1100, "Rogue Trainer", 500000, 1, 2 + 1024, 1),
-    (1114, 1100, "Shaman Trainer", 500000, 1, 1 + 1024, 1),
-    (1115, 1100, "Shaman Trainer", 500000, 1, 2 + 1024, 1),
-    (1116, 1100, "Warlock Trainer", 500000, 1, 1 + 1024, 1),
-    (1117, 1100, "Warlock Trainer", 500000, 1, 2 + 1024, 1),
-    (1118, 1100, "Warrior Trainer", 500000, 1, 1 + 1024, 1),
-    (1119, 1100, "Warrior Trainer", 500000, 1, 2 + 1024, 1),
+    (1101, 1100, "Death Knight", 500000, 1, 4 + 1024, 1),
+    (1102, 1100, "Druid", 500000, 1, 1 + 1024, 1),
+    (1103, 1100, "Druid", 500000, 1, 2 + 1024, 1),
+    (1104, 1100, "Hunter", 500000, 1, 1 + 1024, 1),
+    (1105, 1100, "Hunter", 500000, 1, 2 + 1024, 1),
+    (1106, 1100, "Mage", 500000, 1, 1 + 1024, 1),
+    (1107, 1100, "Mage", 500000, 1, 2 + 1024, 1),
+    (1108, 1100, "Paladin", 500000, 1, 1 + 1024, 1),
+    (1109, 1100, "Paladin", 500000, 1, 2 + 1024, 1),
+    (1110, 1100, "Priest", 500000, 1, 1 + 1024, 1),
+    (1111, 1100, "Priest", 500000, 1, 2 + 1024, 1),
+    (1112, 1100, "Rogue", 500000, 1, 1 + 1024, 1),
+    (1113, 1100, "Rogue", 500000, 1, 2 + 1024, 1),
+    (1114, 1100, "Shaman", 500000, 1, 1 + 1024, 1),
+    (1115, 1100, "Shaman", 500000, 1, 2 + 1024, 1),
+    (1116, 1100, "Warlock", 500000, 1, 1 + 1024, 1),
+    (1117, 1100, "Warlock", 500000, 1, 2 + 1024, 1),
+    (1118, 1100, "Warrior", 500000, 1, 1 + 1024, 1),
+    (1119, 1100, "Warrior", 500000, 1, 2 + 1024, 1),
 
-    (2101, 2100, "Stormwind Portal", 500000, 3, 1, 1),
-    (2102, 2100, "Ironforge Portal", 500000, 3, 1, 1),
-    (2103, 2100, "Darnasus Portal", 500000, 3, 1, 1),
+    (2101, 2100, "Stormwind", 500000, 3, 1, 1),
+    (2102, 2100, "Ironforge", 500000, 3, 1, 1),
+    (2103, 2100, "Darnasus", 500000, 3, 1, 1),
     
-    (2201, 2200, "Shatrath Portal", 500000, 3, 1, 1),
-    (2202, 2200, "Dalaran Portal", 500000, 3, 1, 1);
+    (2201, 2200, "Shatrath", 500000, 3, 4, 1),
+    (2202, 2200, "Dalaran", 500000, 3, 4, 1),
+    (2203, 2200, "Caverns of Time", 500000, 3, 4, 1),
+    (2204, 2200, "Blasted Lands", 500000, 3, 4, 1),
 
 TRUNCATE TABLE `guildhouse_catalog_asset`;
 INSERT INTO `guildhouse_catalog_asset` (`componentId`,`catalogId`,`spawnFlags`,`behaviorFlags`,`entryId`,`displayId`,`scale`,`scriptType`,`scriptData`,`xOffset`,`yOffset`,`zOffset`,`oOffset`,`targetMapId`,`targetX`,`targetY`,`targetZ`,`targetO`,`childCatalogId`,`sortOrder`) VALUES
@@ -72,5 +74,7 @@ INSERT INTO `guildhouse_catalog_asset` (`componentId`,`catalogId`,`spawnFlags`,`
     (2103, 2103, 3, 1, 176498, 4393, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 
     (2201, 2201, 3, 1, 183384, 7146, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    (2202, 2202, 3, 1, 191164, 8111, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    (2202, 2202, 3, 1, 191164, 8111, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    (2203, 2203, 3, 1, 193604, 8475, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    (2204, 2204, 3, 1, 195142, 8948, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
