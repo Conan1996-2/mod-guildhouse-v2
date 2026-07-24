@@ -171,7 +171,6 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
         return false;
 
     GameObject* object = sObjectMgr->IsGameObjectStaticTransport(objectInfo->entry) ? new StaticTransport() : new GameObject();
-    ObjectGuid::LowType guidLow = player->GetMap()->GenerateLowGuid<HighGuid::GameObject>();
     if (!object->Create(map->GenerateLowGuid<HighGuid::GameObject>(), objectInfo->entry, map, phaseMask, x, y, z, o, G3D::Quat(), 255, GO_STATE_READY))
     {
         delete object;
