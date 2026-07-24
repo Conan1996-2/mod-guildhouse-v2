@@ -182,6 +182,8 @@ std::vector<const GHCategory*> GuildHouseCatalogMgr::GetRootCategories() const
 // =====================================================
 std::vector<const GHCategory*> GuildHouseCatalogMgr::GetChildCategories(uint32_t parentId) const
 {
+    LOG_INFO("server.loading", "GetChildCategories({})", parentId);
+    
     std::vector<const GHCategory*> result;
 
     for (auto const& [id, category] : _categories)
