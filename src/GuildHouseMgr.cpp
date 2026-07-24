@@ -228,7 +228,7 @@ void GuildHouseMgr::Load()
 
     if(QueryResult result = CharacterDatabase.Query("SELECT SELECT MAX(assetId) FROM guildhouse_asset"))
     {
-        Field* valueField = result->Fetch();
+        Field* fields = result->Fetch();
     
         uint32_t maxAssetId = fields[0].Get<unit32>();
         _nextAssetId = maxAssetId + 1;
