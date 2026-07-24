@@ -2,19 +2,19 @@ TRUNCATE TABLE `guildhouse_category`;
 INSERT INTO `guildhouse_category` (`categoryId`, `parentId`, `name`, `sortOrder`, `enabled`) VALUES
     (1000, 0, "NPC", 0, 1),
     (1100, 1000, "Class Trainers", 0, 1),
-    (1200, 1000, "Profession Trainers", 0, 1),
-    (1300, 1000, "Other Trainers", 0, 1),
-    (1400, 1000, "Vendors", 0, 1),
-    (2000, 0, "Portals", 0, 1),
+    (1200, 1000, "Profession Trainers", 1, 1),
+    (1300, 1000, "Other Trainers", 2, 1),
+    (1400, 1000, "Vendors", 3, 1),
+    (2000, 0, "Portals", 1, 1),
     (2100, 2000, "Common Portals", 0, 1),
-    (2200, 2000, "Expansion Portals", 0, 1),
-    (2300, 2000, "Custom Portals", 0, 1),
-    (3000, 0, "Furnature", 0, 1),
+    (2200, 2000, "Expansion Portals", 1, 1),
+    (2300, 2000, "Custom Portals", 2, 1),
+    (3000, 0, "Furnature", 2, 1),
     (3100, 3000, "Chairs", 0, 1),
-    (3200, 3000, "Tables", 0, 1),
-    (3300, 3000, "Chests", 0, 1),
-    (4000, 0, "Indoor Decorations", 0, 1),
-    (5000, 0, "Outdoor Decorations", 0, 1);
+    (3200, 3000, "Tables", 1, 1),
+    (3300, 3000, "Chests", 2, 1),
+    (4000, 0, "Indoor Decorations", 3, 1),
+    (5000, 0, "Outdoor Decorations", 4, 1);
 
 TRUNCATE TABLE `guildhouse_catalog`;
 INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `spawnFlags`, `behaviorFlags`, `enabled`) VALUES
