@@ -165,13 +165,60 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
 // =====================================================
 bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint32_t phaseMask, uint32_t mapId, uint32_t entry, float x, float y, float z, float o)
 {
-    uint32 guid = sObjectMgr->GenerateGameObjectSpawnId();
+    Map* map = sMapMgr->CreateBaseMap(mapId);
+    if (!map)
+        return false;
 
-    WorldDatabase.Execute("INSERT INTO gameobject (guid,id,map,phaseMask,position_x,position_y,position_z,orientation)"
-        "VALUES ({},{},{},{},{},{},{},{})", guid, entry, mapId, phaseMask, x, y, z, o);
+    const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(entry);
+    if (!objectInfo)
+        return false;
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) "
-        "VALUES ({},{},{},{},{},{},{},{},{},{})", guildId, assetId, guid, 1, mapId, phaseMask, x, y, z, o);
+    if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
+        return;
+
+    GameObject* object = sObjectMgr->IsGameObjectStaticTransport(objectInfo->entry) ? new StaticTransport() : new GameObject();
+    ObjectGuid::LowType guidLow = player->GetMap()->GenerateLowGuid<HighGuid::GameObject>();
+    if (!object->Create(map->GenerateLowGuid<HighGuid::GameObject>(), objectInfo->entry, map, phaseMask, x, y, z, o, G3D::Quat(), 255, GO_STATE_READY))
+    {
+        delete object;
+        return;
+    }
+
+    object->SaveToDB(mapId, (1 << map->GetSpawnMode()), phaseMask);
+    uint32 spawnId = object->GetSpawnId();
+    object->CleanupsBeforeDelete();
+    delete object;
+
+    object = sObjectMgr->IsGameObjectStaticTransport(objectInfo->entry) ? new StaticTransport() : new GameObject();
+    if (!object->LoadGameObjectFromDB(spawnId, map, true))
+    {
+        delete object;
+        return;
+    }
+
+    sObjectMgr->AddGameobjectToGrid(spawnId, sObjectMgr->GetGameObjectData(spawnId));
+
+    CharacterDatabase.Execute("INSERT INTO guildhouse_spawn (guildId,assetId,spawnGuid,spawnType,mapId,phaseMask,x,y,z,o) VALUES ({},{},{},{},{},{},{},{},{},{})",
+        guildId, assetId, spawnId, GH_SPAWN_GAMEOBJECT, mapId, phaseMask, x, y, z, o);
+
+    if (GHGuildHouse* house = sGuildHouseMgr.GetGuildHouse(guildId))
+    {
+        GHGuildSpawn spawn;
+
+        spawn.GuildId   = guildId;
+        spawn.AssetId   = assetId;
+        spawn.SpawnGuid = spawnId;
+        spawn.SpawnType = GH_SPAWN_GAMEOBJECT;
+        spawn.PhaseMask = phaseMask;
+
+        spawn.MapId = mapId;
+        spawn.X = x;
+        spawn.Y = y;
+        spawn.Z = z;
+        spawn.O = o;
+
+        house->Spawns.push_back(std::move(spawn));
+    }
 
     return true;
 }
