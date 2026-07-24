@@ -18,6 +18,7 @@ public:
     // Lifecycle
     // =====================================================
     void Load();
+    void update();
     uint32_t CreatePhase(uint32_t guildId, uint32_t locationId);
     bool RemovePhase(uint32_t guildId);
 
