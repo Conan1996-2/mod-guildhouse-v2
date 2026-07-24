@@ -209,9 +209,10 @@ bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*
     for (uint32_t assetId : assetIds)
 //    for (auto const& [assetId, asset] : house->Assets)
     {
+        GHGuildAsset const& asset = house->Assets.at(assetId);
         const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(asset.CatalogId);
-
         char const* statusText = "Unknown";
+        
         switch (asset.Status)
         {
             case GH_ASSET_PURCHASED:  statusText = "Purchased"; break;
