@@ -230,7 +230,7 @@ void GuildHouseMgr::Load()
     {
         Field* fields = result->Fetch();
     
-        uint32_t maxAssetId = fields[0].Get<unit32>();
+        uint32_t maxAssetId = fields[0].Get<uint32>();
         _nextAssetId = maxAssetId + 1;
     }
     
