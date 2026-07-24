@@ -106,8 +106,6 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
     if (!map)
         return false;
     
-    LOG_INFO("server.loading", "Have Map");
-
     Creature* creature = new Creature();
     if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, phaseMask, entry, 0, x, y, z, o))
     {
@@ -115,12 +113,8 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
         return false;
     }
 
-    LOG_INFO("server.loading", "Created first creature");
-
     creature->SaveToDB(mapId, (1 << map->GetSpawnMode()), phaseMask);
-
     uint32 spawnId = creature->GetSpawnId();
-
     creature->CleanupsBeforeDelete();
     delete creature;
 
@@ -130,8 +124,6 @@ bool GuildHouseSpawner::SpawnCreature(uint32_t guildId, uint32_t assetId, uint32
         delete creature;
         return false;
     }
-
-    LOG_INFO("server.loading", "Can load creature from DB, saving to guildhouse_spawn");
 
     sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
 
@@ -174,14 +166,14 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
         return false;
 
     if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
-        return;
+        return false;
 
     GameObject* object = sObjectMgr->IsGameObjectStaticTransport(objectInfo->entry) ? new StaticTransport() : new GameObject();
     ObjectGuid::LowType guidLow = player->GetMap()->GenerateLowGuid<HighGuid::GameObject>();
     if (!object->Create(map->GenerateLowGuid<HighGuid::GameObject>(), objectInfo->entry, map, phaseMask, x, y, z, o, G3D::Quat(), 255, GO_STATE_READY))
     {
         delete object;
-        return;
+        return false;
     }
 
     object->SaveToDB(mapId, (1 << map->GetSpawnMode()), phaseMask);
@@ -193,7 +185,7 @@ bool GuildHouseSpawner::SpawnGameObject(uint32_t guildId, uint32_t assetId, uint
     if (!object->LoadGameObjectFromDB(spawnId, map, true))
     {
         delete object;
-        return;
+        return false;
     }
 
     sObjectMgr->AddGameobjectToGrid(spawnId, sObjectMgr->GetGameObjectData(spawnId));
