@@ -45,7 +45,7 @@ INSERT INTO `guildhouse_catalog` (`catalogId`, `categoryId`, `name`, `price`, `s
     (2201, 2200, "Shatrath", 500000, 3, 4, 1),
     (2202, 2200, "Dalaran", 500000, 3, 4, 1),
     (2203, 2200, "Caverns of Time", 500000, 3, 4, 1),
-    (2204, 2200, "Blasted Lands", 500000, 3, 4, 1),
+    (2204, 2200, "Blasted Lands", 500000, 3, 4, 1);
 
 TRUNCATE TABLE `guildhouse_catalog_asset`;
 INSERT INTO `guildhouse_catalog_asset` (`componentId`,`catalogId`,`spawnFlags`,`behaviorFlags`,`entryId`,`displayId`,`scale`,`scriptType`,`scriptData`,`xOffset`,`yOffset`,`zOffset`,`oOffset`,`targetMapId`,`targetX`,`targetY`,`targetZ`,`targetO`,`childCatalogId`,`sortOrder`) VALUES
