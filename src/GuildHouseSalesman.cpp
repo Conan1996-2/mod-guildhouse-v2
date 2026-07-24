@@ -172,22 +172,22 @@ bool GuildHouseSalesman::OnGossipSelect(Player* player, Creature* creature, uint
 // =====================================================
 void GuildHouseSalesman::SendCategoryMenu(Player* player, Creature* creature, uint32 categoryId)
 {
-    //
-    // Child categories
-    //
+    LOG_INFO("guildhouse", "Opening category {}", categoryId);
+
     auto children = sGuildHouseCatalogMgr.GetChildCategories( categoryId);
 
+    LOG_INFO("guildhouse", "Found {} child categories", children.size());
+    
     for (const GHCategory* child : children)
     {
         if (!child)
             continue;
 
+        LOG_INFO("guildhouse", "Child {} parent {} name {}", child->Id, child->ParentId, child->Name);
+
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, child->Name, GOSSIP_SENDER_MAIN, ACTION_CATEGORY_START + child->Id);
     }
 
-    //
-    //  items
-    //
     auto catalogs = sGuildHouseCatalogMgr.GetCatalogs(categoryId, player->GetTeamId());
     for (const GHCatalog* catalog : catalogs)
     {
