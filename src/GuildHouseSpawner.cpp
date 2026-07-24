@@ -9,6 +9,8 @@
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Log.h"
+#include "GameObject.h"
+#include "Transport.h"
 
 #include <sstream>
 
