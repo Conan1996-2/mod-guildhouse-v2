@@ -197,8 +197,17 @@ bool GuildHouseCommandScript::HandleListAssets(ChatHandler* handler, char const*
         handler->PSendSysMessage("No guild assets.");
         return true;
     }
-    
+
+    std::vector<uint32_t> assetIds;
+    assetIds.reserve(house->Assets.size());
+
     for (auto const& [assetId, asset] : house->Assets)
+        assetIds.push_back(assetId);
+
+    std::sort(assetIds.begin(), assetIds.end());
+
+    for (uint32_t assetId : assetIds)
+//    for (auto const& [assetId, asset] : house->Assets)
     {
         const GHCatalog* catalog = sGuildHouseCatalogMgr.GetCatalog(asset.CatalogId);
 
