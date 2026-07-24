@@ -19,8 +19,9 @@ namespace
     
     enum GuildHouseSalesmanActions
     {
-        ACTION_CATEGORY_START = 1000,
-        ACTION_CATALOG_START  = 2000
+        ACTION_CATEGORY_START = 100000,
+        ACTION_CATALOG_START  = 200000,
+        ACTION_BACK           = 300000
     };
 
 }
