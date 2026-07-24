@@ -83,6 +83,9 @@ private:
 
     GuildHouseMgr() = default;
 
+    uint32_t _maxAssetId = 1;
+    uint32_t _nextAssetId = 1;
+
     std::unordered_map<uint32_t, GHGuildHouse> _houses;
     std::unordered_map<uint32_t, GHLocation> _locations;
 
