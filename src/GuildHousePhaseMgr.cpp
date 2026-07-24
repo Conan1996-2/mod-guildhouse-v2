@@ -39,15 +39,56 @@ void GuildHousePhaseMgr::Load()
         phase.Y = fields[4].Get<float>();
         phase.Z = fields[5].Get<float>();
         phase.O = fields[6].Get<float>();
-        //phase.MinX = fields[7].Get<float>();
-        //phase.MaxX = fields[8].Get<float>();
-        //phase.MinY = fields[9].Get<float>();
-        //phase.MaxY = fields[10].Get<float>();
+        phase.MinX = fields[7].Get<float>();
+        phase.MaxX = fields[8].Get<float>();
+        phase.MinY = fields[9].Get<float>();
+        phase.MaxY = fields[10].Get<float>();
 
         _phases.emplace(phase.GuildId, phase);
     } while(result->NextRow());
 
     LOG_INFO("server.loading", "Loaded {} Guild House phases", _phases.size());
+}
+
+void GuildHousePhaseMgr::Update()
+{
+    for (auto& [guildId, phase] : _phases)
+    {
+        for (auto itr = phase.Members.begin(); itr != phase.Members.end(); )
+        {
+            Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(*itr));
+
+            if (!player)
+            {
+                itr = phase.Members.erase(itr);
+                continue;
+            }
+
+            //
+            // Left the guild house map?
+            //
+            if (player->GetMapId() != phase.MapId)
+            {
+                player->SetPhaseMask(1, true);
+                itr = phase.Members.erase(itr);
+                continue;
+            }
+
+            //
+            // Outside allowed area?
+            //
+            float x = player->GetPositionX();
+            float y = player->GetPositionY();
+
+            if (x < phase.MinX || x > phase.MaxX || y < phase.MinY || y > phase.MaxY)
+            {
+                LeavePhase(player);
+                continue;
+            }
+
+            ++itr;
+        }
+    }
 }
 
 // =====================================================
