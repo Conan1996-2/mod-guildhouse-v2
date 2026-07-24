@@ -317,7 +317,28 @@ bool GuildHouseSpawner::RemoveCreatureSpawn(uint32_t guid)
 
 bool GuildHouseSpawner::RemoveGameObjectSpawn(uint32_t guid)
 {
-    WorldDatabase.Execute("DELETE FROM gameobject WHERE guid={}", guid);
-    return true;
+    GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
+    if (!data)
+        return false;
+
+    if (Map* map = sMapMgr->FindBaseMap(data->mapid))
+    {
+        auto const& store = map->GetGameObjectBySpawnIdStore();
+
+        auto itr = store.find(guid);
+        if (itr != store.end())
+        {
+            GameObject* gameObject = itr->second;
+            if (gameObject)
+            {
+                gameObject->DeleteFromDB();
+                gameObject->AddObjectToRemoveList();
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
