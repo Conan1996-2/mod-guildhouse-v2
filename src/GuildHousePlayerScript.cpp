@@ -7,9 +7,10 @@ class GuildHousePlayerScript : public PlayerScript
 public:
     GuildHousePlayerScript() : PlayerScript("GuildHousePlayerScript") { }
 
-    void OnUpdate(Player* player, uint32 /*diff*/) override
+    void OnPlayerUpdate(Player* player, uint32 /*diff*/) override
     {
-        sGuildHousePhaseMgr.CheckBoundary(player);
+        if (sGuildHousePhaseMgr.IsMember(player))
+            sGuildHousePhaseMgr.CheckBoundary(player);
     }
 
     void OnMapChanged(Player* player) override
