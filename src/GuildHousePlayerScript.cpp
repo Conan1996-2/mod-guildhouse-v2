@@ -13,13 +13,13 @@ public:
             sGuildHousePhaseMgr.CheckBoundary(player);
     }
 
-    void OnMapChanged(Player* player) override
+    void OnPlayerMapChanged(Player* player) override
     {
         if (sGuildHousePhaseMgr.IsMember(player))
             sGuildHousePhaseMgr.LeavePhase(player);
     }
 
-    void OnLogout(Player* player) override
+    void OnPlayerLogout(Player* player) override
     {
         if (sGuildHousePhaseMgr.IsMember(player))
             sGuildHousePhaseMgr.LeavePhase(player);
