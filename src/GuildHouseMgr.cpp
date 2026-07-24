@@ -221,11 +221,19 @@ bool GuildHouseMgr::IsInsideGuildHouseBoundary(uint32_t guildId, float x, float 
 // =====================================================
 void GuildHouseMgr::Load()
 {
-    LOG_INFO("server.loading", "Loading GuildHouseMgr");
+    LOG_INFO("server.loading", "Loading GuildHouseMgr");    
 
     _houses.clear();
     _locations.clear();
 
+    if(QueryResult result = CharacterDatabase.Query("SELECT SELECT MAX(assetId) FROM guildhouse_asset"))
+    {
+        Field* valueField = result->Fetch();
+    
+        uint32_t maxAssetId = fields[0].Get<unit32>();
+        _nextAssetId = maxAssetId + 1;
+    }
+    
     // -------------------------------------------------
     // Locations
     // -------------------------------------------------
@@ -520,14 +528,10 @@ bool GuildHouseMgr::PurchaseCatalogItem(Player* player, uint32_t catalogId)
     if (!catalog || !catalog->Enabled)
         return false;
 
-    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy) VALUES ({},{},{},0,0,0,0,{})",
-        guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
+    CharacterDatabase.Execute("INSERT INTO guildhouse_asset (assetId,guildId,catalogId,status,positionX,positionY,positionZ,orientation,createdBy) VALUES ({},{},{},{},0,0,0,0,{})",
+        _nextAssetId,guildId, catalogId, GH_ASSET_PURCHASED, player->GetGUID().GetCounter());
 
-    QueryResult result = CharacterDatabase.Query("SELECT LAST_INSERT_ID()");
-    if (!result)
-        return false;
-
-    uint32_t assetId = result->Fetch()[0].Get<uint32>();
+    uint32_t assetId = _nextAssetId++;
 
     GHGuildAsset asset;
     asset.AssetId = assetId;
